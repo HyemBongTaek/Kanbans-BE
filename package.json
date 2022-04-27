@@ -1,0 +1,37 @@
+{
+  "name": "kanbans-be",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon src/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HyemBongTaek/Kanbans-BE.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/HyemBongTaek/Kanbans-BE/issues"
+  },
+  "homepage": "https://github.com/HyemBongTaek/Kanbans-BE#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.0",
+    "express": "^4.18.0",
+    "jsonwebtoken": "^8.5.1",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.4",
+    "socket.io": "^4.5.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.14.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-node": "^11.1.0",
+    "nodemon": "^2.0.15",
+    "prettier": "^2.6.2"
+  }
+}
