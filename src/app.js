@@ -1,7 +1,14 @@
+require('dotenv').config();
 const express = require('express');
 const logger = require('morgan');
 const cors = require('cors');
+const passport = require('passport');
 
+const dbConnector = require('./db');
+const passportConfig = require('./passport');
+const kakaoRoutes = require('./routes/kakao');
+
+passportConfig();
 const app = express();
 const PORT = 4000;
 
@@ -14,7 +21,25 @@ app.use(
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(passport.initialize());
 
-app.listen(PORT, () => {
-  console.log(`✅ Server listening on http://localhost:${PORT}`);
+app.use('/oauth', kakaoRoutes);
+
+app.use((error, req, res, next) => {
+  console.error(error);
+  const errorStatus = error.statusCode || 500;
+  const { message } = error;
+  const { data } = error;
+
+  return res.status(errorStatus).json({
+    message,
+    data,
+  });
 });
+
+async function listener() {
+  console.log(`✅ Server listening on http://localhost:${PORT}`);
+  await dbConnector();
+}
+
+app.listen(PORT, listener);
