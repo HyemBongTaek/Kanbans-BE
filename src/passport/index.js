@@ -1,6 +1,7 @@
 const passport = require('passport');
 
 const kakao = require('./kakaoStrategy');
+const google = require('./googleStrategy');
 
 module.exports = () => {
   passport.serializeUser((user, done) => {
@@ -12,4 +13,5 @@ module.exports = () => {
   });
 
   kakao();
+  google();
 };

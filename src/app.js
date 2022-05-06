@@ -6,7 +6,7 @@ const passport = require('passport');
 
 const dbConnector = require('./db');
 const passportConfig = require('./passport');
-const kakaoRoutes = require('./routes/kakao');
+const authRoutes = require('./routes/auth');
 
 passportConfig();
 const app = express();
@@ -23,7 +23,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
 
-app.use('/oauth', kakaoRoutes);
+app.use('/oauth', authRoutes);
 
 app.use((error, req, res, next) => {
   console.error(error);
