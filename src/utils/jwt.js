@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
 
+const { User } = require('../models/index');
+
 const { JWT_SECRET } = process.env;
 
 async function signAccessToken(value) {
@@ -55,8 +57,26 @@ function verifyToken(token) {
   }
 }
 
+async function saveRefreshTokenToDB(userId, token) {
+  try {
+    await User.update(
+      {
+        refreshToken: token,
+      },
+      {
+        where: {
+          id: userId,
+        },
+      }
+    );
+  } catch (err) {
+    console.error(err);
+  }
+}
+
 module.exports = {
   signAccessToken,
   signRefreshToken,
   verifyToken,
+  saveRefreshTokenToDB,
 };

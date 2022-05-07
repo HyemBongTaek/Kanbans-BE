@@ -2,9 +2,15 @@ const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth2').Strategy;
 
 const { createUserOrLogin } = require('../utils/auth');
+const { saveRefreshTokenToDB } = require('../utils/jwt');
 
-const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIERECT_URI } =
-  process.env;
+const {
+  GOOGLE_CLIENT_ID,
+  GOOGLE_CLIENT_SECRET,
+  GOOGLE_REDIERECT_URI,
+  GOOGLE_REDIERECT_URI_DEV,
+  NODE_ENV,
+} = process.env;
 
 module.exports = () => {
   passport.use(
@@ -12,7 +18,10 @@ module.exports = () => {
       {
         clientID: GOOGLE_CLIENT_ID,
         clientSecret: GOOGLE_CLIENT_SECRET,
-        callbackURL: GOOGLE_REDIERECT_URI,
+        callbackURL:
+          NODE_ENV === 'development'
+            ? GOOGLE_REDIERECT_URI_DEV
+            : GOOGLE_REDIERECT_URI,
       },
       async (accessToken, refreshToken, profile, done) => {
         const user = await createUserOrLogin({
@@ -22,6 +31,8 @@ module.exports = () => {
           profileImageURL: profile._json.picture,
           email: profile._json.email,
         });
+
+        await saveRefreshTokenToDB(user.userId, user.refreshToken);
 
         done(null, user);
       }
