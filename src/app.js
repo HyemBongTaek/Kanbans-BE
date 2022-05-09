@@ -32,6 +32,7 @@ app.use((error, req, res, next) => {
   const { data } = error;
 
   return res.status(errorStatus).json({
+    ok: false,
     message,
     data,
   });
