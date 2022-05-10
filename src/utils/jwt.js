@@ -46,6 +46,18 @@ async function signRefreshToken(value) {
   });
 }
 
+async function verifyJWT(token) {
+  return new Promise((resolve, reject) => {
+    jwt.verify(token, JWT_SECRET, (err, value) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(value);
+      }
+    });
+  });
+}
+
 function verifyToken(token) {
   try {
     return jwt.verify(token, JWT_SECRET);
@@ -78,5 +90,6 @@ module.exports = {
   signAccessToken,
   signRefreshToken,
   verifyToken,
+  verifyJWT,
   saveRefreshTokenToDB,
 };

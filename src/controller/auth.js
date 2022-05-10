@@ -1,6 +1,7 @@
 const { User } = require('../models/index');
 const {
   verifyToken,
+  verifyJWT,
   signAccessToken,
   signRefreshToken,
 } = require('../utils/jwt');
@@ -15,70 +16,52 @@ const googleLogin = (req, res) => {
   res.redirect(`${process.env.CLIENT_URL}/?token=${accessToken}`);
 };
 
-const refreshToken = async (req, res, next) => {
-  if (req.headers.authorization) {
-    const token = req.headers.authorization.split(' ')[1];
+const refreshToken = async (req, res) => {
+  try {
+    const user = await User.findOne({
+      where: {
+        id: req.userId,
+      },
+      attributes: ['refreshToken'],
+    });
 
-    const verifiedToken = verifyToken(token);
+    const verifiedRefreshToken = await verifyJWT(user.refreshToken);
 
-    // 유효하지 않은 토큰
-    if (verifiedToken.errMessage === 'invalid signature') {
+    const newAccessToken = await signAccessToken(verifiedRefreshToken.id);
+    const newRefreshToken = await signRefreshToken(verifiedRefreshToken.id);
+
+    await User.update(
+      {
+        refreshToken: newRefreshToken,
+      },
+      {
+        where: {
+          id: verifiedRefreshToken.id,
+        },
+      }
+    );
+
+    res.json({
+      ok: true,
+      accessToken: newAccessToken,
+    });
+  } catch (err) {
+    if (err.message === 'jwt expired') {
+      res.status(403).json({
+        ok: false,
+        message: 'Jwt expired',
+      });
+    } else if (err.message === 'invalid signature') {
       res.status(403).json({
         ok: false,
         message: 'Token invalid',
       });
-      return;
-    }
-
-    // Token 만료
-    if (verifiedToken.errMessage === 'jwt expired') {
-      res.status(403).json({
-        ok: false,
-        message: 'Token expired',
-      });
-      return;
-    }
-
-    try {
-      const user = await User.findOne({
-        where: {
-          id: verifiedToken.id,
-        },
-        attributes: ['refreshToken'],
-      });
-
-      const verifiedRefreshToken = verifyToken(user.refreshToken);
-
-      if (verifiedRefreshToken.errMessage) {
-        const error = new Error(verifiedRefreshToken.errMessage);
-        next(error);
-      }
-
-      const newAccessToken = await signAccessToken(verifiedRefreshToken.id);
-      const newRefreshToken = await signRefreshToken(verifiedRefreshToken.id);
-
-      await User.update(
-        {
-          refreshToken: newRefreshToken,
-        },
-        {
-          where: {
-            id: verifiedRefreshToken.id,
-          },
-        }
-      );
-
+    } else {
       res.json({
-        ok: true,
-        accessToken: newAccessToken,
+        ok: false,
+        message: err.message,
       });
-    } catch (err) {
-      next(err);
     }
-  } else {
-    const error = new Error('Jwt must be provided');
-    error.statusCode = 403;
-    next(error);
   }
 };
 
