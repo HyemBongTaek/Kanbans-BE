@@ -1,6 +1,5 @@
 const { User } = require('../models/index');
 const {
-  verifyToken,
   verifyJWT,
   signAccessToken,
   signRefreshToken,
