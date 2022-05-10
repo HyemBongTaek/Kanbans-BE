@@ -7,6 +7,7 @@ const passport = require('passport');
 const dbConnector = require('./db');
 const passportConfig = require('./passport');
 const authRoutes = require('./routes/auth');
+const projectRoutes = require('./routes/project');
 
 passportConfig();
 const app = express();
@@ -24,6 +25,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
 
 app.use('/oauth', authRoutes);
+app.use('/project', projectRoutes);
 
 app.use((error, req, res, next) => {
   console.error(error);
