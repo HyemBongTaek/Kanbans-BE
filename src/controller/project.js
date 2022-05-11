@@ -1,6 +1,9 @@
 const { v4: uuidv4 } = require('uuid');
+const { QueryTypes } = require('sequelize');
 
-const { Project } = require('../models/index');
+const { sequelize, Project } = require('../models/index');
+const { loadProjectsQuery } = require('../utils/query');
+const { projectDataFormatChangeFn } = require('../utils/service');
 
 const createProject = async (req, res, next) => {
   try {
@@ -23,6 +26,33 @@ const createProject = async (req, res, next) => {
   }
 };
 
+const loadAllProject = async (req, res, next) => {
+  try {
+    const projects = await sequelize.query(loadProjectsQuery, {
+      type: QueryTypes.SELECT,
+      replacements: [req.userId],
+    });
+
+    if (projects.length === 0) {
+      res.status(401).json({
+        ok: false,
+        message: 'Load projects fail',
+      });
+      return;
+    }
+
+    const projectData = projectDataFormatChangeFn(projects);
+
+    res.status(200).json({
+      ok: true,
+      projects: projectData,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   createProject,
+  loadAllProject,
 };
