@@ -33,6 +33,7 @@ module.exports = class Project extends Sequelize.Model {
   static associate(db) {
     db.Project.belongsToMany(db.User, {
       through: 'user_project',
+      timestamps: false,
     });
   }
 };
