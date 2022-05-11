@@ -6,6 +6,7 @@ const createProject = async (req, res, next) => {
   try {
     const newProject = await Project.create({
       owner: req.userId,
+      title: req.body.title,
       permission: req.body.permission,
       inviteCode: uuidv4(),
     });
