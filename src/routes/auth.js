@@ -1,6 +1,7 @@
 const express = require('express');
 const passport = require('passport');
 
+const { auth } = require('../middlewares/auth');
 const { kakaoLogin, googleLogin, refreshToken } = require('../controller/auth');
 
 const router = express.Router();
@@ -19,6 +20,6 @@ router.get(
 router.get('/google/callback', passport.authenticate('google'), googleLogin);
 
 // Refresh Token 재발급
-router.post('/refresh', refreshToken);
+router.post('/refresh', auth, refreshToken);
 
 module.exports = router;

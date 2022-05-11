@@ -19,9 +19,9 @@ module.exports = () => {
         clientID: GOOGLE_CLIENT_ID,
         clientSecret: GOOGLE_CLIENT_SECRET,
         callbackURL:
-          NODE_ENV === 'development'
-            ? GOOGLE_REDIERECT_URI_DEV
-            : GOOGLE_REDIERECT_URI,
+          NODE_ENV === 'production'
+            ? GOOGLE_REDIERECT_URI
+            : GOOGLE_REDIERECT_URI_DEV,
       },
       async (accessToken, refreshToken, profile, done) => {
         const user = await createUserOrLogin({

@@ -13,9 +13,9 @@ module.exports = () => {
       {
         clientID: KAKAO_REST_KEY,
         callbackURL:
-          NODE_ENV === 'development'
-            ? KAKAO_REDIRECT_URI_DEV
-            : KAKAO_REDIRECT_URI,
+          NODE_ENV === 'production'
+            ? KAKAO_REDIRECT_URI
+            : KAKAO_REDIRECT_URI_DEV,
       },
       async (accessToken, refreshToken, profile, done) => {
         const user = await createUserOrLogin({
