@@ -8,6 +8,10 @@ module.exports = class Project extends Sequelize.Model {
           type: Sequelize.INTEGER,
           allowNull: false,
         },
+        title: {
+          type: Sequelize.TEXT,
+          allowNull: false,
+        },
         permission: {
           type: Sequelize.STRING(10),
           allowNull: false,
