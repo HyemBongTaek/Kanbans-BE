@@ -15,6 +15,11 @@ const googleLogin = (req, res) => {
   res.redirect(`${process.env.CLIENT_URL}/?token=${accessToken}`);
 };
 
+const naverLogin = (req, res) => {
+  const { accessToken } = req.user;
+  res.redirect(`${process.env.CLIENT_URL}/?token=${accessToken}`);
+};
+
 const refreshToken = async (req, res) => {
   try {
     const user = await User.findOne({
@@ -67,5 +72,6 @@ const refreshToken = async (req, res) => {
 module.exports = {
   kakaoLogin,
   googleLogin,
+  naverLogin,
   refreshToken,
 };
