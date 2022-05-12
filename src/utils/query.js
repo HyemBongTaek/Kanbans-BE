@@ -21,7 +21,11 @@ const loadProjectsQuery = `SELECT project.title
 const createBookmarkQuery = `INSERT INTO bookmarks(user_id, project_id)
                              VALUES(?, ?)`;
 
+const insertUserProjectQuery = `INSERT INTO user_project(user_id, project_id)
+                                VALUES (?, ?)`;
+
 module.exports = {
   loadProjectsQuery,
   createBookmarkQuery,
+  insertUserProjectQuery,
 };

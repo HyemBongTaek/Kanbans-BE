@@ -2,7 +2,11 @@ const { v4: uuidv4 } = require('uuid');
 const { QueryTypes } = require('sequelize');
 
 const { sequelize, Project } = require('../models/index');
-const { loadProjectsQuery, createBookmarkQuery } = require('../utils/query');
+const {
+  loadProjectsQuery,
+  createBookmarkQuery,
+  insertUserProjectQuery,
+} = require('../utils/query');
 const { projectDataFormatChangeFn } = require('../utils/service');
 
 const createProject = async (req, res, next) => {
@@ -14,7 +18,10 @@ const createProject = async (req, res, next) => {
       inviteCode: uuidv4(),
     });
 
-    await newProject.addUsers(req.userId);
+    await sequelize.query(insertUserProjectQuery, {
+      type: QueryTypes.INSERT,
+      replacements: [+req.userId, newProject.id],
+    });
 
     res.status(200).json({
       ok: true,
