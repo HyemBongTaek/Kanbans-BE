@@ -48,5 +48,10 @@ module.exports = class User extends Sequelize.Model {
       through: 'user_project',
       timestamps: false,
     });
+
+    db.User.belongsToMany(db.Project, {
+      through: 'bookmarks',
+      timestamps: false,
+    });
   }
 };
