@@ -18,7 +18,7 @@ const loadProjectsQuery = `SELECT pj.title
                                         ON up.project_id=pj.project_id
                                 INNER JOIN users AS u
                                         ON up.user_id=u.id
-                           ORDER BY pj.title DESC`;
+                           ORDER BY pj.bookmark DESC, pj.title ASC`;
 
 const insertUserProjectQuery = `INSERT INTO user_project(user_id, project_id)
                                 VALUES (?, ?)`;
