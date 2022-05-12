@@ -2,7 +2,7 @@ const { v4: uuidv4 } = require('uuid');
 const { QueryTypes } = require('sequelize');
 
 const { sequelize, Project } = require('../models/index');
-const { loadProjectsQuery } = require('../utils/query');
+const { loadProjectsQuery, createBookmarkQuery } = require('../utils/query');
 const { projectDataFormatChangeFn } = require('../utils/service');
 
 const createProject = async (req, res, next) => {
@@ -52,7 +52,38 @@ const loadAllProject = async (req, res, next) => {
   }
 };
 
+const bookmark = async (req, res, next) => {
+  try {
+    const project = await Project.findOne({
+      where: {
+        id: req.body.projectId,
+      },
+    });
+
+    if (!project) {
+      res.status(401).json({
+        ok: false,
+        message: 'Cannot find project',
+      });
+      return;
+    }
+
+    await sequelize.query(createBookmarkQuery, {
+      type: QueryTypes.INSERT,
+      replacements: [req.userId, req.body.projectId],
+    });
+
+    res.status(200).json({
+      ok: true,
+      message: 'Project bookmark success',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   createProject,
   loadAllProject,
+  bookmark,
 };
