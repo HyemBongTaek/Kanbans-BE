@@ -20,14 +20,10 @@ const loadProjectsQuery = `SELECT pj.title
                                         ON up.user_id=u.id
                            ORDER BY pj.title DESC`;
 
-const createBookmarkQuery = `INSERT INTO bookmarks(user_id, project_id)
-                             VALUES(?, ?)`;
-
 const insertUserProjectQuery = `INSERT INTO user_project(user_id, project_id)
                                 VALUES (?, ?)`;
 
 module.exports = {
   loadProjectsQuery,
-  createBookmarkQuery,
   insertUserProjectQuery,
 };

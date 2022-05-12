@@ -1,12 +1,8 @@
 const { v4: uuidv4 } = require('uuid');
 const { QueryTypes } = require('sequelize');
 
-const { sequelize, Project } = require('../models/index');
-const {
-  loadProjectsQuery,
-  createBookmarkQuery,
-  insertUserProjectQuery,
-} = require('../utils/query');
+const { sequelize, Project, UserProject } = require('../models/index');
+const { loadProjectsQuery, insertUserProjectQuery } = require('../utils/query');
 const { projectDataFormatChangeFn } = require('../utils/service');
 
 const createProject = async (req, res, next) => {
@@ -75,14 +71,49 @@ const bookmark = async (req, res, next) => {
       return;
     }
 
-    await sequelize.query(createBookmarkQuery, {
-      type: QueryTypes.INSERT,
-      replacements: [req.userId, req.body.projectId],
+    const userProject = await UserProject.findOne({
+      where: {
+        userId: +req.userId,
+        projectId: req.body.projectId,
+      },
+      attributes: ['user_id', 'project_id', 'bookmark'],
     });
+
+    if (!userProject.bookmark) {
+      await UserProject.update(
+        {
+          bookmark: 1,
+        },
+        {
+          where: {
+            userId: +req.userId,
+            projectId: req.body.projectId,
+          },
+        }
+      );
+
+      res.status(200).json({
+        ok: true,
+        message: 'Project bookmark on',
+      });
+      return;
+    }
+
+    await UserProject.update(
+      {
+        bookmark: 0,
+      },
+      {
+        where: {
+          userId: +req.userId,
+          projectId: req.body.projectId,
+        },
+      }
+    );
 
     res.status(200).json({
       ok: true,
-      message: 'Project bookmark success',
+      message: 'Project bookmark off',
     });
   } catch (err) {
     next(err);
