@@ -44,14 +44,13 @@ module.exports = class User extends Sequelize.Model {
   }
 
   static associate(db) {
-    db.User.belongsToMany(db.Project, {
-      through: 'user_project',
-      timestamps: false,
-    });
-
-    db.User.belongsToMany(db.Project, {
-      through: 'bookmarks',
-      timestamps: false,
+    db.User.hasMany(db.UserProject, {
+      foreignKey: {
+        name: 'user_id',
+        allowNull: false,
+      },
+      onDelete: 'cascade',
+      onUpdate: 'cascade',
     });
   }
 };
