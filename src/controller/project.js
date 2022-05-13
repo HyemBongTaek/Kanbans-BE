@@ -1,8 +1,8 @@
 const { v4: uuidv4 } = require('uuid');
 const { QueryTypes } = require('sequelize');
 
-const { sequelize, Project } = require('../models/index');
-const { loadProjectsQuery } = require('../utils/query');
+const { sequelize, Project, UserProject } = require('../models/index');
+const { loadProjectsQuery, insertUserProjectQuery } = require('../utils/query');
 const { projectDataFormatChangeFn } = require('../utils/service');
 
 const createProject = async (req, res, next) => {
@@ -14,7 +14,10 @@ const createProject = async (req, res, next) => {
       inviteCode: uuidv4(),
     });
 
-    await newProject.addUsers(req.userId);
+    await sequelize.query(insertUserProjectQuery, {
+      type: QueryTypes.INSERT,
+      replacements: [+req.userId, newProject.id],
+    });
 
     res.status(200).json({
       ok: true,
@@ -52,7 +55,73 @@ const loadAllProject = async (req, res, next) => {
   }
 };
 
+const bookmark = async (req, res, next) => {
+  try {
+    const project = await Project.findOne({
+      where: {
+        id: req.body.projectId,
+      },
+    });
+
+    if (!project) {
+      res.status(401).json({
+        ok: false,
+        message: 'Cannot find project',
+      });
+      return;
+    }
+
+    const userProject = await UserProject.findOne({
+      where: {
+        userId: +req.userId,
+        projectId: req.body.projectId,
+      },
+      attributes: ['user_id', 'project_id', 'bookmark'],
+    });
+
+    if (!userProject.bookmark) {
+      await UserProject.update(
+        {
+          bookmark: 1,
+        },
+        {
+          where: {
+            userId: +req.userId,
+            projectId: req.body.projectId,
+          },
+        }
+      );
+
+      res.status(200).json({
+        ok: true,
+        message: 'Project bookmark on',
+      });
+      return;
+    }
+
+    await UserProject.update(
+      {
+        bookmark: 0,
+      },
+      {
+        where: {
+          userId: +req.userId,
+          projectId: req.body.projectId,
+        },
+      }
+    );
+
+    res.status(200).json({
+      ok: true,
+      message: 'Project bookmark off',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   createProject,
   loadAllProject,
+  bookmark,
 };

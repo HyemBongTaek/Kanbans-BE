@@ -5,19 +5,20 @@ function projectDataFormatChangeFn(projects) {
       acc.push({
         title: cur.title,
         permission: cur.permission,
-        projectId: cur.project_id,
+        projectId: cur.projectId,
+        bookmark: cur.bookmark,
         users: [
           {
-            userId: cur.id,
-            profileImageURL: cur.profile_image,
+            userId: cur.userId,
+            profileImageURL: cur.profileImage,
             name: cur.name,
           },
         ],
       });
     } else {
       acc[index].users.push({
-        userId: cur.id,
-        profileImageURL: cur.profile_image,
+        userId: cur.userId,
+        profileImageURL: cur.profileImage,
         name: cur.name,
       });
     }

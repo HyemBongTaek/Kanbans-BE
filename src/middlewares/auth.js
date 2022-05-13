@@ -2,7 +2,6 @@ const { verifyJWT } = require('../utils/jwt');
 
 const auth = async (req, res, next) => {
   const { authorization } = req.headers;
-  console.log(authorization);
 
   if (!authorization) {
     const error = new Error('Not authenticated');

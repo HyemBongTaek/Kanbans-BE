@@ -4,30 +4,26 @@ module.exports = class Project extends Sequelize.Model {
   static init(sequelize) {
     return super.init(
       {
-        owner: {
+        userId: {
           type: Sequelize.INTEGER,
           allowNull: false,
         },
-        title: {
-          type: Sequelize.TEXT,
+        projectId: {
+          type: Sequelize.INTEGER,
           allowNull: false,
         },
-        permission: {
-          type: Sequelize.STRING(10),
+        bookmark: {
+          type: Sequelize.BOOLEAN,
           allowNull: false,
-          defaultValue: 'public',
-        },
-        inviteCode: {
-          type: Sequelize.STRING(50),
-          allowNull: false,
+          defaultValue: false,
         },
       },
       {
         sequelize,
         timestamps: false,
         underscored: true,
-        modelName: 'Project',
-        tableName: 'projects',
+        modelName: 'UserProject',
+        tableName: 'user_project',
         charset: 'utf8',
         collate: 'utf8_general_ci',
       }
@@ -35,7 +31,16 @@ module.exports = class Project extends Sequelize.Model {
   }
 
   static associate(db) {
-    db.Project.hasMany(db.UserProject, {
+    db.UserProject.belongsTo(db.User, {
+      foreignKey: {
+        name: 'user_id',
+        allowNull: false,
+      },
+      onDelete: 'cascade',
+      onUpdate: 'cascade',
+    });
+
+    db.UserProject.belongsTo(db.Project, {
       foreignKey: {
         name: 'project_id',
         allowNull: false,
