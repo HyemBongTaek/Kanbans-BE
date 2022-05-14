@@ -51,17 +51,17 @@ const refreshToken = async (req, res) => {
     });
   } catch (err) {
     if (err.message === 'jwt expired') {
-      res.status(403).json({
+      res.status(401).json({
         ok: false,
         message: 'Jwt expired',
       });
     } else if (err.message === 'invalid signature') {
-      res.status(403).json({
+      res.status(401).json({
         ok: false,
         message: 'Token invalid',
       });
     } else {
-      res.json({
+      res.status(401).json({
         ok: false,
         message: err.message,
       });
