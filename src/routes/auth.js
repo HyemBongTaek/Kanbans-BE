@@ -15,13 +15,7 @@ const router = express.Router();
 router.get('/kakao', kakaoLogin);
 
 // 구글 로그인
-router.get(
-  '/google',
-  passport.authenticate('google', {
-    scope: ['email', 'profile'],
-  })
-);
-router.get('/google/callback', passport.authenticate('google'), googleLogin);
+router.get('/google', googleLogin);
 
 // 네이버 로그인
 router.get(
