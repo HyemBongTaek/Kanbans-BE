@@ -13,8 +13,6 @@ const router = express.Router();
 
 // 카카오 로그인
 router.get('/kakao', kakaoLogin);
-// router.get('/kakao', passport.authenticate('kakao'));
-// router.get('/kakao/callback', passport.authenticate('kakao'), kakaoLogin);
 
 // 구글 로그인
 router.get(

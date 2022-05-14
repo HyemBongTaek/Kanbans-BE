@@ -8,8 +8,7 @@ const {
 } = require('../utils/jwt');
 const { createUserOrLogin } = require('../utils/auth');
 
-const { KAKAO_REST_KEY, KAKAO_REDIRECT_URI_DEV, KAKAO_REDIRECT_URI, NODE_ENV } =
-  process.env;
+const { KAKAO_REST_KEY, KAKAO_REDIRECT_URI_DEV } = process.env;
 
 const kakaoLogin = async (req, res, next) => {
   const { code } = req.query;
