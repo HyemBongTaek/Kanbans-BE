@@ -37,9 +37,9 @@ const loadAllProject = async (req, res, next) => {
     });
 
     if (projects.length === 0) {
-      res.status(401).json({
-        ok: false,
-        message: 'Load projects fail',
+      res.status(204).json({
+        ok: true,
+        message: 'The project does not exist',
       });
       return;
     }
