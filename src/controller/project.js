@@ -19,7 +19,7 @@ const createProject = async (req, res, next) => {
       replacements: [+req.userId, newProject.id],
     });
 
-    res.status(200).json({
+    res.status(201).json({
       ok: true,
       message: 'Project create success',
       project: newProject,
@@ -64,7 +64,7 @@ const bookmark = async (req, res, next) => {
     });
 
     if (!project) {
-      res.status(401).json({
+      res.status(404).json({
         ok: false,
         message: 'Cannot find project',
       });
@@ -92,7 +92,7 @@ const bookmark = async (req, res, next) => {
         }
       );
 
-      res.status(200).json({
+      res.status(201).json({
         ok: true,
         message: 'Project bookmark on',
       });
@@ -111,7 +111,7 @@ const bookmark = async (req, res, next) => {
       }
     );
 
-    res.status(200).json({
+    res.status(201).json({
       ok: true,
       message: 'Project bookmark off',
     });
