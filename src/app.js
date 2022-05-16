@@ -30,7 +30,7 @@ app.use('/project', projectRoutes);
 app.use('/user', userRoutes);
 
 app.use((error, req, res, next) => {
-  console.error(error);
+  console.error(error.message);
   const errorStatus = error.statusCode || 500;
   const { message } = error;
   const { data } = error;

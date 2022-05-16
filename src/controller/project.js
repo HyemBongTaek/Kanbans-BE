@@ -92,7 +92,7 @@ const bookmark = async (req, res, next) => {
         }
       );
 
-      res.status(201).json({
+      res.status(200).json({
         ok: true,
         message: 'Project bookmark on',
       });
@@ -111,7 +111,7 @@ const bookmark = async (req, res, next) => {
       }
     );
 
-    res.status(201).json({
+    res.status(200).json({
       ok: true,
       message: 'Project bookmark off',
     });

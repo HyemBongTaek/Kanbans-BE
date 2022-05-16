@@ -21,7 +21,7 @@ const changeProfile = async (req, res, next) => {
     });
 
     if (!file && !name) {
-      res.status(204).json({
+      res.status(304).json({
         ok: false,
         message: 'Profile has not been changed',
       });
@@ -68,7 +68,7 @@ const changeProfile = async (req, res, next) => {
       );
     }
 
-    res.status(201).json({
+    res.status(200).json({
       ok: true,
       message: 'Profile has been changed',
     });
