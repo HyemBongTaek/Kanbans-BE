@@ -30,17 +30,39 @@ function projectDataFormatChangeFn(projects) {
   }, []);
 }
 
+function getProfileFileStorage(profileImageUrl) {
+  const splitUrl = profileImageUrl.split('/');
+  const platform = splitUrl[2].split('.')[0];
+
+  return platform;
+}
+
+function getProfileFilename(profileImageUrl) {
+  const splitUrl = profileImageUrl.split('/');
+  const filename = splitUrl[splitUrl.length - 1].split('?')[0];
+
+  return filename;
+}
+
+async function deleteProfileImage(filename) {
+  try {
+    await bucket.file(`profile/${filename}`).delete();
+  } catch (err) {
+    throw new Error(err.message);
+  }
+}
+
 async function profileImageUploadFn(file, id, profileImage) {
   const ext = path.extname(file.originalname);
   const filename = `profile_${id}_${Date.now()}${ext}`;
 
-  const splitUrl = profileImage.split('/');
-  const platform = splitUrl[2].split('.')[0];
+  const imageStorage = getProfileFileStorage(profileImage);
 
   try {
-    if (platform === 'firebasestorage') {
-      const prevFilename = splitUrl[splitUrl.length - 1].split('?')[0];
-      await bucket.file(`profile/${prevFilename}`).delete();
+    if (imageStorage === 'firebasestorage') {
+      const imageFilename = getProfileFilename(profileImage);
+      await deleteProfileImage(imageFilename);
+      // await bucket.file(`profile/${imageFilename}`).delete();
     }
 
     await bucket
@@ -64,4 +86,7 @@ async function profileImageUploadFn(file, id, profileImage) {
 module.exports = {
   projectDataFormatChangeFn,
   profileImageUploadFn,
+  deleteProfileImage,
+  getProfileFileStorage,
+  getProfileFilename,
 };

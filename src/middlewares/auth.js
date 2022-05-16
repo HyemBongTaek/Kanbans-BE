@@ -4,18 +4,20 @@ const auth = async (req, res, next) => {
   const { authorization } = req.headers;
 
   if (!authorization) {
-    const error = new Error('Jwt must be provided');
-    error.statusCode = 401;
-    next(error);
+    res.status(401).json({
+      ok: false,
+      message: 'Jwt must be provided',
+    });
     return;
   }
 
   const [tokenType, token] = authorization.split(' ');
 
   if (tokenType !== 'Bearer') {
-    const error = new Error('Not authenticated');
-    error.statusCode = 401;
-    next(error);
+    res.status(401).json({
+      ok: false,
+      message: 'Not authenticated',
+    });
     return;
   }
 
