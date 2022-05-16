@@ -1,5 +1,10 @@
 const { User } = require('../models/index');
-const { profileImageUploadFn } = require('../utils/service');
+const {
+  profileImageUploadFn,
+  deleteProfileImage,
+  getProfileFileStorage,
+  getProfileFilename,
+} = require('../utils/service');
 
 const changeProfile = async (req, res, next) => {
   const {
@@ -72,6 +77,45 @@ const changeProfile = async (req, res, next) => {
   }
 };
 
+const deleteUser = async (req, res, next) => {
+  try {
+    const user = await User.findOne({
+      where: {
+        id: req.userId,
+      },
+    });
+
+    if (!user) {
+      res.status(404).json({
+        ok: false,
+        message: 'User does not exist',
+      });
+      return;
+    }
+
+    const profileImageStorage = getProfileFileStorage(user.profileImage);
+
+    if (profileImageStorage === 'firebasestorage') {
+      const profileFilename = getProfileFilename(user.profileImage);
+      await deleteProfileImage(profileFilename);
+    }
+
+    await User.destroy({
+      where: {
+        id: req.userId,
+      },
+    });
+
+    res.status(200).json({
+      ok: true,
+      message: 'User delete',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   changeProfile,
+  deleteUser,
 };
