@@ -4,7 +4,7 @@ const auth = async (req, res, next) => {
   const { authorization } = req.headers;
 
   if (!authorization) {
-    const error = new Error('Not authenticated');
+    const error = new Error('Jwt must be provided');
     error.statusCode = 401;
     next(error);
     return;
@@ -13,10 +13,9 @@ const auth = async (req, res, next) => {
   const [tokenType, token] = authorization.split(' ');
 
   if (tokenType !== 'Bearer') {
-    res.status(401).json({
-      ok: false,
-      message: 'Not authenticated',
-    });
+    const error = new Error('Not authenticated');
+    error.statusCode = 401;
+    next(error);
     return;
   }
 
@@ -26,20 +25,16 @@ const auth = async (req, res, next) => {
     next();
   } catch (err) {
     if (err.message === 'jwt expired') {
-      res.status(401).json({
-        ok: false,
-        message: 'Jwt expired',
-      });
+      const error = new Error('Jwt expired');
+      error.statusCode = 401;
+      next(error);
     } else if (err.message === 'invalid signature') {
-      res.status(401).json({
-        ok: false,
-        message: 'Token invalid',
-      });
+      const error = new Error('Invalid signature');
+      error.statusCode = 401;
+      next(error);
     } else {
-      res.json({
-        ok: false,
-        message: err.message,
-      });
+      const error = new Error(err.message);
+      next(error);
     }
   }
 };

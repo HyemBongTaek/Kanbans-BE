@@ -56,7 +56,7 @@ const kakaoLogin = async (req, res, next) => {
       email: userInfoRes.data.kakao_account.email,
     });
 
-    res.status(201).json({
+    res.status(200).json({
       ok: true,
       accessToken: user.accessToken,
       refreshToken: user.refreshToken,
@@ -100,7 +100,7 @@ const googleLogin = async (req, res, next) => {
       email: userInfoRes.data.email,
     });
 
-    res.status(201).json({
+    res.status(200).json({
       ok: true,
       accessToken: user.accessToken,
       refreshToken: user.refreshToken,
@@ -115,52 +115,18 @@ const naverLogin = (req, res) => {
   res.redirect(`${process.env.CLIENT_URL}/?token=${accessToken}`);
 };
 
-const refreshToken = async (req, res) => {
+const refreshToken = async (req, res, next) => {
   try {
-    const user = await User.findOne({
-      where: {
-        id: req.userId,
-      },
-      attributes: ['refreshToken'],
-    });
+    const newAccessToken = await signAccessToken(req.userId);
+    const newRefreshToken = await signRefreshToken(req.userId);
 
-    const verifiedRefreshToken = await verifyJWT(user.refreshToken);
-
-    const newAccessToken = await signAccessToken(verifiedRefreshToken.id);
-    const newRefreshToken = await signRefreshToken(verifiedRefreshToken.id);
-
-    await User.update(
-      {
-        refreshToken: newRefreshToken,
-      },
-      {
-        where: {
-          id: verifiedRefreshToken.id,
-        },
-      }
-    );
-
-    res.json({
+    res.status(200).json({
       ok: true,
       accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
     });
   } catch (err) {
-    if (err.message === 'jwt expired') {
-      res.status(401).json({
-        ok: false,
-        message: 'Jwt expired',
-      });
-    } else if (err.message === 'invalid signature') {
-      res.status(401).json({
-        ok: false,
-        message: 'Token invalid',
-      });
-    } else {
-      res.status(401).json({
-        ok: false,
-        message: err.message,
-      });
-    }
+    next(err);
   }
 };
 
