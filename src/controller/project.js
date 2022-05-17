@@ -1,7 +1,7 @@
 const { v4: uuidv4 } = require('uuid');
 const { QueryTypes } = require('sequelize');
 
-const { sequelize, Project, UserProject } = require('../models/index');
+const { sequelize, Project, User, UserProject } = require('../models/index');
 const { loadProjectsQuery, insertUserProjectQuery } = require('../utils/query');
 const { projectDataFormatChangeFn } = require('../utils/service');
 
@@ -19,10 +19,31 @@ const createProject = async (req, res, next) => {
       replacements: [+req.userId, newProject.id],
     });
 
+    const loggedInUser = await User.findOne({
+      where: {
+        id: req.userId,
+      },
+      attributes: ['id', 'profileImage', 'name'],
+    });
+
+    const newProjectResponse = {
+      title: newProject.title,
+      permission: newProject.permission,
+      projectId: newProject.id,
+      bookmark: 0,
+      users: [
+        {
+          userId: loggedInUser.id,
+          profileImageURL: loggedInUser.profileImage,
+          name: loggedInUser.name,
+        },
+      ],
+    };
+
     res.status(201).json({
       ok: true,
       message: 'Project create success',
-      project: newProject,
+      project: newProjectResponse,
     });
   } catch (err) {
     next(err);
