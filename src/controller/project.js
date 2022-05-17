@@ -120,8 +120,44 @@ const bookmark = async (req, res, next) => {
   }
 };
 
+const joinProject = async (req, res, next) => {
+  const {
+    userId,
+    body: { projectId, inviteCode },
+  } = req;
+
+  try {
+    const project = await Project.findOne({
+      where: {
+        id: projectId,
+      },
+    });
+
+    if (project.inviteCode !== inviteCode) {
+      res.status(400).json({
+        ok: false,
+        message: 'Inconsistent invitation code',
+      });
+      return;
+    }
+
+    await sequelize.query(insertUserProjectQuery, {
+      type: QueryTypes.INSERT,
+      replacements: [+userId, +projectId],
+    });
+
+    res.status(200).json({
+      ok: true,
+      message: 'Join the project',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   createProject,
   loadAllProject,
   bookmark,
+  joinProject,
 };
