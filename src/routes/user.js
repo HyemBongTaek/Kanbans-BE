@@ -7,6 +7,6 @@ const { changeProfile, deleteUser } = require('../controller/user');
 const router = express.Router();
 
 router.patch('/profile', auth, profileUpload, changeProfile);
-router.delete('/delete', auth, deleteUser);
+router.delete('/sign-out', auth, deleteUser);
 
 module.exports = router;
