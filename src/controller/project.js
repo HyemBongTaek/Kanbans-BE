@@ -37,9 +37,9 @@ const loadAllProject = async (req, res, next) => {
     });
 
     if (projects.length === 0) {
-      res.status(204).json({
+      res.status(200).json({
         ok: true,
-        message: 'The project does not exist',
+        projects: [],
       });
       return;
     }
@@ -92,7 +92,7 @@ const bookmark = async (req, res, next) => {
         }
       );
 
-      res.status(201).json({
+      res.status(200).json({
         ok: true,
         message: 'Project bookmark on',
       });
@@ -111,7 +111,7 @@ const bookmark = async (req, res, next) => {
       }
     );
 
-    res.status(201).json({
+    res.status(200).json({
       ok: true,
       message: 'Project bookmark off',
     });
