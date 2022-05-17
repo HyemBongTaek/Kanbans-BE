@@ -23,7 +23,12 @@ const loadProjectsQuery = `SELECT pj.title
 const insertUserProjectQuery = `INSERT INTO user_project(user_id, project_id)
                                 VALUES (?, ?)`;
 
+const findProjectsQuery = `SELECT id 
+                           FROM projects 
+                           WHERE owner=?`;
+
 module.exports = {
   loadProjectsQuery,
   insertUserProjectQuery,
+  findProjectsQuery,
 };

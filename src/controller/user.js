@@ -1,10 +1,13 @@
-const { User } = require('../models/index');
+const { QueryTypes } = require('sequelize');
+
+const { sequelize, User, Project } = require('../models/index');
 const {
   profileImageUploadFn,
   deleteProfileImage,
   getProfileFileStorage,
   getProfileFilename,
 } = require('../utils/service');
+const { findProjectsQuery } = require('../utils/query');
 
 const changeProfile = async (req, res, next) => {
   const {
@@ -92,6 +95,20 @@ const deleteUser = async (req, res, next) => {
       });
       return;
     }
+
+    const projectToDelete = await sequelize.query(findProjectsQuery, {
+      type: QueryTypes.SELECT,
+      replacements: [req.userId],
+    });
+
+    const ids = [];
+    projectToDelete.forEach((value) => ids.push(value.id));
+
+    await Project.destroy({
+      where: {
+        id: [...ids],
+      },
+    });
 
     const profileImageStorage = getProfileFileStorage(user.profileImage);
 
