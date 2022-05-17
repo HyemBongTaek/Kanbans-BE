@@ -176,9 +176,37 @@ const joinProject = async (req, res, next) => {
   }
 };
 
+const deleteProject = async (req, res, next) => {
+  const { id: projectId } = req.params;
+
+  try {
+    const deleteProjectCount = await Project.destroy({
+      where: {
+        id: +projectId,
+      },
+    });
+
+    if (deleteProjectCount === 0) {
+      res.status(400).json({
+        ok: false,
+        message: 'No project deleted. Check the project ID',
+      });
+      return;
+    }
+
+    res.status(200).json({
+      ok: true,
+      message: 'Delete project complete',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   createProject,
   loadAllProject,
   bookmark,
   joinProject,
+  deleteProject,
 };
