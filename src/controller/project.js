@@ -203,10 +203,65 @@ const deleteProject = async (req, res, next) => {
   }
 };
 
+const leaveProject = async (req, res, next) => {
+  const {
+    userId,
+    params: { id: projectId },
+  } = req;
+
+  try {
+    const project = await Project.findOne({
+      where: {
+        id: projectId,
+      },
+    });
+
+    if (!project) {
+      res.status(404).json({
+        ok: false,
+        message: 'Project not found',
+      });
+      return;
+    }
+
+    if (+userId === +project.owner) {
+      res.status(400).json({
+        ok: false,
+        message: 'Owner cannot leave',
+      });
+      return;
+    }
+
+    const deleteCount = await UserProject.destroy({
+      where: {
+        userId,
+        projectId,
+      },
+    });
+
+    if (deleteCount === 0) {
+      res.status(400).json({
+        ok: false,
+        message: 'Already leave the project',
+      });
+      return;
+    }
+
+    res.status(200).json({
+      ok: true,
+      message: 'Project leave',
+      deleteCount,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
-  createProject,
-  loadAllProject,
   bookmark,
-  joinProject,
+  createProject,
   deleteProject,
+  leaveProject,
+  loadAllProject,
+  joinProject,
 };
