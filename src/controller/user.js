@@ -9,6 +9,32 @@ const {
 } = require('../utils/service');
 const { findProjectsQuery } = require('../utils/query');
 
+const getProfileInfo = async (req, res, next) => {
+  try {
+    const user = await User.findOne({
+      where: {
+        id: req.userId,
+      },
+      attributes: ['id', 'profileImage', 'name'],
+    });
+
+    if (!user) {
+      res.status(404).json({
+        ok: false,
+        message: 'User not found',
+      });
+      return;
+    }
+
+    res.status(200).json({
+      ok: true,
+      user,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 const changeProfile = async (req, res, next) => {
   const {
     userId,
@@ -135,4 +161,5 @@ const deleteUser = async (req, res, next) => {
 module.exports = {
   changeProfile,
   deleteUser,
+  getProfileInfo,
 };
