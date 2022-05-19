@@ -57,30 +57,17 @@ const changeProfile = async (req, res, next) => {
       return;
     }
 
-    if (file && name) {
+    if (file) {
       const url = await profileImageUploadFn(file, userId, user.profileImage);
 
       await User.update(
         {
           profileImage: url,
-          name,
+          name: name || user.name,
         },
         {
           where: {
-            id: userId,
-          },
-        }
-      );
-    } else if (file) {
-      const url = await profileImageUploadFn(file, userId, user.profileImage);
-
-      await User.update(
-        {
-          profileImage: url,
-        },
-        {
-          where: {
-            id: userId,
+            id: +userId,
           },
         }
       );
