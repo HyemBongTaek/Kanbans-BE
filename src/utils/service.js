@@ -53,7 +53,7 @@ function getProfileFileStorage(profileImageUrl) {
 
 function getProfileFilename(profileImageUrl) {
   const splitUrl = profileImageUrl.split('/');
-  const filename = splitUrl[splitUrl.length - 1].split('?')[0];
+  const filename = splitUrl[splitUrl.length - 1].split('?')[0].split('%2F')[1];
 
   return filename;
 }
@@ -76,7 +76,6 @@ async function profileImageUploadFn(file, id, profileImage) {
     if (imageStorage === 'firebasestorage') {
       const imageFilename = getProfileFilename(profileImage);
       await deleteProfileImage(imageFilename);
-      // await bucket.file(`profile/${imageFilename}`).delete();
     }
 
     await bucket
@@ -88,7 +87,7 @@ async function profileImageUploadFn(file, id, profileImage) {
       })
       .end(file.buffer);
 
-    const profileImageUrl = `https://firebasestorage.googleapis.com/v0/b/${storageBucket}/o/profile/${filename}?alt=media`;
+    const profileImageUrl = `https://firebasestorage.googleapis.com/v0/b/${storageBucket}/o/profile%2F${filename}?alt=media`;
 
     return profileImageUrl;
   } catch (err) {
