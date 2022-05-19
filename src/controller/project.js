@@ -3,25 +3,40 @@ const { QueryTypes } = require('sequelize');
 
 const { sequelize, Project, User, UserProject } = require('../models/index');
 const { loadProjectsQuery, insertUserProjectQuery } = require('../utils/query');
-const { projectDataFormatChangeFn } = require('../utils/service');
+const { getBytes, projectDataFormatChangeFn } = require('../utils/service');
 
 const createProject = async (req, res, next) => {
+  const {
+    userId,
+    body: { title, permission },
+  } = req;
+
   try {
+    const titleBytesLength = getBytes(title);
+
+    if (titleBytesLength > 20) {
+      res.status(400).json({
+        ok: false,
+        message: `Title is too long with ${titleBytesLength} characters. Please write within 20 characters`,
+      });
+      return;
+    }
+
     const newProject = await Project.create({
-      owner: req.userId,
-      title: req.body.title,
-      permission: req.body.permission,
+      owner: userId,
+      title,
+      permission,
       inviteCode: uuidv4(),
     });
 
     await sequelize.query(insertUserProjectQuery, {
       type: QueryTypes.INSERT,
-      replacements: [+req.userId, newProject.id],
+      replacements: [+userId, newProject.id],
     });
 
     const loggedInUser = await User.findOne({
       where: {
-        id: req.userId,
+        id: userId,
       },
       attributes: ['id', 'profileImage', 'name'],
     });
