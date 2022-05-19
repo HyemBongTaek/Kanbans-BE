@@ -272,6 +272,58 @@ const leaveProject = async (req, res, next) => {
   }
 };
 
+const updateProject = async (req, res, next) => {
+  const {
+    userId,
+    body: { title, permission },
+    params: { id: projectId },
+  } = req;
+
+  try {
+    const project = await Project.findOne({
+      where: {
+        id: projectId,
+      },
+    });
+
+    if (!project) {
+      res.status(404).json({
+        ok: false,
+        message: 'Project not found',
+      });
+      return;
+    }
+
+    if (project.owner !== +userId) {
+      res.status(400).json({
+        ok: false,
+        message: 'You do not have permission to modify',
+      });
+      return;
+    }
+
+    await Project.update(
+      {
+        title: title || project.title,
+        permission: permission || project.permission,
+      },
+      {
+        where: {
+          id: projectId,
+          owner: +userId,
+        },
+      }
+    );
+
+    res.status(200).json({
+      ok: true,
+      message: 'Project update',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   bookmark,
   createProject,
@@ -279,4 +331,5 @@ module.exports = {
   leaveProject,
   loadAllProject,
   joinProject,
+  updateProject,
 };
