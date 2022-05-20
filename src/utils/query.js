@@ -1,15 +1,17 @@
-const loadProjectsQuery = `SELECT pj.title
-                                , pj.permission
-                                , pj.project_id AS projectId
-                                , pj.bookmark
-                                , u.id AS userId
-                                , u.profile_image AS profileImage
+const loadProjectsQuery = `SELECT pj.title AS 'title'
+                                , pj.permission AS 'permission'
+                                , pj.project_id AS 'projectId'
+                                , pj.bookmark AS 'bookmark'
+                                , pj.owner AS 'owner'
+                                , u.id AS 'userId'
+                                , u.profile_image AS 'profileImage'
                                 , u.name
                            FROM (SELECT p.id AS 'project_id'
                                       , p.title AS 'title'
                                       , p.permission AS 'permission'
+                                      , p.owner AS 'owner'
                                       , up.user_id AS 'user_id'
-                                      , up.bookmark
+                                      , up.bookmark AS 'bookmark'
                                  FROM user_project AS up
                                       INNER JOIN projects AS p
                                               ON up.project_id=p.id
@@ -23,7 +25,12 @@ const loadProjectsQuery = `SELECT pj.title
 const insertUserProjectQuery = `INSERT INTO user_project(user_id, project_id)
                                 VALUES (?, ?)`;
 
+const findProjectsQuery = `SELECT id 
+                           FROM projects 
+                           WHERE owner=?`;
+
 module.exports = {
   loadProjectsQuery,
   insertUserProjectQuery,
+  findProjectsQuery,
 };

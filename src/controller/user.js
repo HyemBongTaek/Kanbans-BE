@@ -1,10 +1,39 @@
-const { User } = require('../models/index');
+const { QueryTypes } = require('sequelize');
+
+const { sequelize, User, Project } = require('../models/index');
 const {
   profileImageUploadFn,
   deleteProfileImage,
   getProfileFileStorage,
   getProfileFilename,
 } = require('../utils/service');
+const { findProjectsQuery } = require('../utils/query');
+
+const getProfileInfo = async (req, res, next) => {
+  try {
+    const user = await User.findOne({
+      where: {
+        id: req.userId,
+      },
+      attributes: ['id', 'profileImage', 'name'],
+    });
+
+    if (!user) {
+      res.status(404).json({
+        ok: false,
+        message: 'User not found',
+      });
+      return;
+    }
+
+    res.status(200).json({
+      ok: true,
+      user,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 
 const changeProfile = async (req, res, next) => {
   const {
@@ -28,30 +57,17 @@ const changeProfile = async (req, res, next) => {
       return;
     }
 
-    if (file && name) {
+    if (file) {
       const url = await profileImageUploadFn(file, userId, user.profileImage);
 
       await User.update(
         {
           profileImage: url,
-          name,
+          name: name || user.name,
         },
         {
           where: {
-            id: userId,
-          },
-        }
-      );
-    } else if (file) {
-      const url = await profileImageUploadFn(file, userId, user.profileImage);
-
-      await User.update(
-        {
-          profileImage: url,
-        },
-        {
-          where: {
-            id: userId,
+            id: +userId,
           },
         }
       );
@@ -93,6 +109,20 @@ const deleteUser = async (req, res, next) => {
       return;
     }
 
+    const projectToDelete = await sequelize.query(findProjectsQuery, {
+      type: QueryTypes.SELECT,
+      replacements: [req.userId],
+    });
+
+    const ids = [];
+    projectToDelete.forEach((value) => ids.push(value.id));
+
+    await Project.destroy({
+      where: {
+        id: [...ids],
+      },
+    });
+
     const profileImageStorage = getProfileFileStorage(user.profileImage);
 
     if (profileImageStorage === 'firebasestorage') {
@@ -118,4 +148,5 @@ const deleteUser = async (req, res, next) => {
 module.exports = {
   changeProfile,
   deleteUser,
+  getProfileInfo,
 };
