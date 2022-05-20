@@ -146,6 +146,22 @@ const refreshToken = async (req, res, next) => {
     return;
   }
 
+  if (verifiedRefresh.error === 'invalid signature') {
+    res.status(401).json({
+      ok: false,
+      message: 'Token invalid',
+    });
+    return;
+  }
+
+  if (verifiedRefresh.error === 'jwt malformed') {
+    res.status(401).json({
+      ok: false,
+      message: 'Token malformed',
+    });
+    return;
+  }
+
   try {
     const user = await User.findOne({
       where: {
@@ -156,7 +172,7 @@ const refreshToken = async (req, res, next) => {
     if (!user) {
       res.status(400).json({
         ok: false,
-        message: 'Invalid token. Please login again',
+        message: 'Token does not match. Please login again',
       });
       return;
     }
