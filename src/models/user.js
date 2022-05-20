@@ -27,6 +27,9 @@ module.exports = class User extends Sequelize.Model {
           allowNull: false,
           defaultValue: sequelize.literal('now()'),
         },
+        refreshToken: {
+          type: Sequelize.TEXT,
+        },
       },
       {
         sequelize,

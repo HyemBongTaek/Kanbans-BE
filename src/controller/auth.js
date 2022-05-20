@@ -1,12 +1,12 @@
 const axios = require('axios');
 
-const { User } = require('../models/index');
 const {
-  verifyJWT,
   signAccessToken,
   signRefreshToken,
+  verifyToken,
 } = require('../utils/jwt');
 const { createUserOrLogin } = require('../utils/auth');
+const User = require('../models/user');
 
 const {
   KAKAO_REST_KEY,
@@ -116,9 +116,72 @@ const naverLogin = (req, res) => {
 };
 
 const refreshToken = async (req, res, next) => {
+  const { authorization } = req.headers;
+
+  if (!authorization) {
+    res.status(401).json({
+      ok: false,
+      message: 'Jwt must be provided',
+    });
+    return;
+  }
+
+  const [tokenType, refresh] = authorization.split(' ');
+
+  if (tokenType !== 'Bearer') {
+    res.status(401).json({
+      ok: false,
+      message: 'Not authenticated',
+    });
+    return;
+  }
+
+  const verifiedRefresh = verifyToken(refresh);
+
+  if (verifiedRefresh.error === 'jwt expired') {
+    res.status(401).json({
+      ok: false,
+      message: 'Token expired. Please login again',
+    });
+    return;
+  }
+
+  if (verifiedRefresh.error === 'invalid signature') {
+    res.status(401).json({
+      ok: false,
+      message: 'Token invalid',
+    });
+    return;
+  }
+
+  if (verifiedRefresh.error === 'jwt malformed') {
+    res.status(401).json({
+      ok: false,
+      message: 'Token malformed',
+    });
+    return;
+  }
+
   try {
-    const newAccessToken = await signAccessToken(req.userId);
-    const newRefreshToken = await signRefreshToken(req.userId);
+    const user = await User.findOne({
+      where: {
+        refreshToken: refresh,
+      },
+    });
+
+    if (!user) {
+      res.status(400).json({
+        ok: false,
+        message: 'Token does not match. Please login again',
+      });
+      return;
+    }
+
+    const newAccessToken = await signAccessToken(user.id);
+    const newRefreshToken = await signRefreshToken();
+
+    user.refreshToken = newRefreshToken;
+    await user.save();
 
     res.status(200).json({
       ok: true,

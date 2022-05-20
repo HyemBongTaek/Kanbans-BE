@@ -27,6 +27,6 @@ router.get(
 router.get('/naver/callback', passport.authenticate('naver'), naverLogin);
 
 // Refresh Token 재발급
-router.get('/refresh', auth, refreshToken);
+router.get('/refresh', refreshToken);
 
 module.exports = router;
