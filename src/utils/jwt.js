@@ -25,12 +25,10 @@ async function signAccessToken(value) {
   });
 }
 
-async function signRefreshToken(value) {
+async function signRefreshToken() {
   return new Promise((resolve, reject) => {
     jwt.sign(
-      {
-        id: value,
-      },
+      {},
       JWT_SECRET,
       {
         expiresIn: '14d',
@@ -62,10 +60,7 @@ function verifyToken(token) {
   try {
     return jwt.verify(token, JWT_SECRET);
   } catch (err) {
-    return {
-      errName: err.name,
-      errMessage: err.message,
-    };
+    return err.message;
   }
 }
 
