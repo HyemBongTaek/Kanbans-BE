@@ -3,7 +3,7 @@ const { bucket, storageBucket } = require('../firebase');
 
 function projectDataFormatChangeFn(projects) {
   return projects.reduce((acc, cur) => {
-    const index = acc.findIndex((idx) => idx.title === cur.title);
+    const index = acc.findIndex((idx) => idx.projectId === cur.projectId);
     if (index === -1) {
       acc.push({
         title: cur.title,
