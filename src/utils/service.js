@@ -10,6 +10,7 @@ function projectDataFormatChangeFn(projects) {
         permission: cur.permission,
         projectId: cur.projectId,
         bookmark: cur.bookmark,
+        owner: cur.owner,
         users: [
           {
             userId: cur.userId,
