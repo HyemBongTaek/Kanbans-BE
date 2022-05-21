@@ -43,16 +43,26 @@ async function profileImageUploadFn(file, id, profileImage) {
     let resizedImage = null;
 
     if (metadata.width > 640) {
-      resizedImage = await image
-        .resize({ width: 640 })
-        .withMetadata()
-        .toBuffer();
+      if (metadata.height > metadata.width) {
+        resizedImage = await image
+          .resize({ height: 640 })
+          .withMetadata()
+          .toBuffer();
+      } else {
+        resizedImage = await image
+          .resize({ width: 640 })
+          .withMetadata()
+          .toBuffer();
+      }
     } else if (metadata.height > 640) {
       resizedImage = await image
         .resize({ height: 640 })
         .withMetadata()
         .toBuffer();
     }
+
+    const result = await (await sharp(resizedImage)).metadata();
+    console.log(result);
 
     await bucket
       .file(`profile/${filename}`)
