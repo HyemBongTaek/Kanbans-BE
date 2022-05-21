@@ -4,9 +4,9 @@ const { sequelize, User, Project } = require('../models/index');
 const {
   profileImageUploadFn,
   deleteProfileImage,
-  getProfileFileStorage,
   getProfileFilename,
-} = require('../utils/service');
+  getProfileFileStorage,
+} = require('../utils/image');
 const { findProjectsQuery } = require('../utils/query');
 
 const getProfileInfo = async (req, res, next) => {
