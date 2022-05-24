@@ -10,7 +10,7 @@ exports.getBoard = async (req, res, next) => {
       replacements: [+req.params.project_id],
     });
 
-    let columnOrder = [];
+    let columnOrders = [];
 
     const board = getBoard.reduce(function (acc, cur) {
       const cardsId = Object.keys(acc);
@@ -26,20 +26,25 @@ exports.getBoard = async (req, res, next) => {
 
         if (cur.card_id !== null) {
           acc[cur.id].card_id.push(cur.card_id);
-          columnOrder.push(cur.id);
         }
       } else if (cur.card_id !== null) {
         acc[cur.id].card_id.push(cur.card_id);
       }
+      columnOrders.push(cur.id);
       return acc;
     }, {});
+
+    const column = new Set(columnOrders);
+    const columnOrder = [...column];
+
+    let cards = [];
 
     if (getBoard.length <= 0) {
       return res
         .status(400)
         .json({ ok: false, message: '검색 결과가 없습니다.' });
     }
-    return res.status(200).json({ ok: true, board, columnOrder });
+    return res.status(200).json({ ok: true, cards, board, columnOrder });
   } catch (err) {
     next(err);
   }
