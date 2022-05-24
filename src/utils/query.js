@@ -36,7 +36,7 @@ const getBoardQuery = `SELECT b.id AS 'id',
                         FROM boards AS b
                             LEFT OUTER JOIN board_cards AS bc
                                 ON b.id = bc.board_id
-                        WHERE project_id=1;`;
+                        WHERE project_id=?;`;
 
 module.exports = {
   loadProjectsQuery,
