@@ -61,9 +61,6 @@ async function profileImageUploadFn(file, id, profileImage) {
         .toBuffer();
     }
 
-    const result = await (await sharp(resizedImage)).metadata();
-    console.log(result);
-
     await bucket
       .file(`profile/${filename}`)
       .createWriteStream({
