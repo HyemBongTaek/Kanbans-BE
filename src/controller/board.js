@@ -44,7 +44,9 @@ exports.getBoard = async (req, res, next) => {
         .status(400)
         .json({ ok: false, message: '검색 결과가 없습니다.' });
     }
-    return res.status(200).json({ ok: true, cards, board, columnOrder });
+    return res
+      .status(200)
+      .json({ ok: true, kanbans: { cards, board, columnOrder } });
   } catch (err) {
     next(err);
   }
