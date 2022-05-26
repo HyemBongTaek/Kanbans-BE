@@ -32,10 +32,10 @@ const findProjectsQuery = `SELECT id
 const getBoardQuery = `SELECT b.id AS 'id',
                               b.title AS 'title',
                               b.project_id AS 'project_id',
-                              bc.card_id AS 'card_id'
+                              c.id AS 'card_id'
                         FROM boards AS b
-                            LEFT OUTER JOIN boardcards AS bc
-                                ON b.id = bc.board_id
+                            LEFT OUTER JOIN cards AS c
+                                ON b.id = c.board_id
                         WHERE project_id=?;`;
 
 module.exports = {
