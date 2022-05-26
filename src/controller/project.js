@@ -169,6 +169,14 @@ const joinProject = async (req, res, next) => {
       },
     });
 
+    if (!project) {
+      res.status(404).json({
+        ok: false,
+        message: 'Project not found',
+      });
+      return;
+    }
+
     if (project.inviteCode !== inviteCode) {
       res.status(400).json({
         ok: false,
