@@ -1,6 +1,6 @@
 const { QueryTypes } = require('sequelize');
-const { sequelize } = require('../models/board');
-const { Board } = require('../models/index');
+
+const { Board, sequelize } = require('../models/index');
 const { getBoardQuery } = require('../utils/query');
 
 exports.getBoard = async (req, res, next) => {

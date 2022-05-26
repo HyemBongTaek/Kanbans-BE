@@ -34,7 +34,7 @@ const getBoardQuery = `SELECT b.id AS 'id',
                               b.project_id AS 'project_id',
                               bc.card_id AS 'card_id'
                         FROM boards AS b
-                            LEFT OUTER JOIN board_cards AS bc
+                            LEFT OUTER JOIN boardcards AS bc
                                 ON b.id = bc.board_id
                         WHERE project_id=?;`;
 
