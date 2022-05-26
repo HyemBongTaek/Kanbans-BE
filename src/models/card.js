@@ -8,6 +8,20 @@ module.exports = class Card extends Sequelize.Model {
           type: Sequelize.STRING(50),
           allowNull: false,
         },
+        subtitle: {
+          type: Sequelize.TEXT,
+        },
+        description: {
+          type: Sequelize.TEXT,
+        },
+        dDay: {
+          type: Sequelize.DATE,
+        },
+        createdAt: {
+          type: Sequelize.DATE,
+          allowNull: false,
+          defaultValue: Sequelize.NOW,
+        },
       },
       {
         sequelize,
@@ -22,13 +36,23 @@ module.exports = class Card extends Sequelize.Model {
   }
 
   static associate(db) {
-    db.Card.hasMany(db.BoardCard, {
+    db.Card.belongsTo(db.Board, {
       foreignKey: {
-        name: 'card_id',
-        sourceKey: 'id',
+        name: 'boardId',
+        targetKey: 'id',
+        allowNull: false,
       },
-      onDelete: 'CASCADE',
-      onUpdate: 'CASCADE',
+      onDelete: 'cascade',
+      onUpdate: 'cascade',
     });
+
+    // db.Card.hasMany(db.BoardCard, {
+    //   foreignKey: {
+    //     name: 'card_id',
+    //     sourceKey: 'id',
+    //   },
+    //   onDelete: 'CASCADE',
+    //   onUpdate: 'CASCADE',
+    // });
   }
 };
