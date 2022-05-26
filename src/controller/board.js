@@ -10,9 +10,9 @@ exports.getBoard = async (req, res, next) => {
       replacements: [+req.params.project_id],
     });
 
-    let columnOrders = [];
+    const columnOrders = [];
 
-    const board = getBoard.reduce(function (acc, cur) {
+    const board = getBoard.reduce((acc, cur) => {
       const cardsId = Object.keys(acc);
       const index = cardsId.indexOf(cur.id.toString());
 
@@ -37,7 +37,7 @@ exports.getBoard = async (req, res, next) => {
     const column = new Set(columnOrders);
     const columnOrder = [...column];
 
-    let cards = [];
+    const cards = [];
 
     if (getBoard.length <= 0) {
       return res
