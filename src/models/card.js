@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 
-module.exports = class Board extends Sequelize.Model {
+module.exports = class Card extends Sequelize.Model {
   static init(sequelize) {
     return super.init(
       {
@@ -13,8 +13,8 @@ module.exports = class Board extends Sequelize.Model {
         sequelize,
         timestamps: false,
         underscored: true,
-        modelName: 'Board',
-        tableName: 'boards',
+        modelName: 'Card',
+        tableName: 'cards',
         charset: 'utf8mb4',
         collate: 'utf8mb4_general_ci',
       }
@@ -22,16 +22,10 @@ module.exports = class Board extends Sequelize.Model {
   }
 
   static associate(db) {
-    db.Board.belongsTo(db.Project, {
-      foreignKey: { name: 'project_id', targetKey: 'id' },
-      onDelete: 'CASCADE',
-      onUpdate: 'CASCADE',
-    });
-
-    db.Board.hasMany(db.BoardCard, {
+    db.Card.hasMany(db.BoardCard, {
       foreignKey: {
-        name: 'board_id',
-        allowNull: false,
+        name: 'card_id',
+        sourceKey: 'id',
       },
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
