@@ -1,7 +1,8 @@
 const { QueryTypes } = require('sequelize');
 
-const { Board, sequelize, BoardOrder } = require('../models/index');
+const { Board, sequelize } = require('../models/index');
 const { getBoardQuery } = require('../utils/query');
+const { redisClient } = require('../redis');
 
 const getBoard = async (req, res, next) => {
   try {
@@ -124,30 +125,31 @@ const deleteBoard = async (req, res, next) => {
 const updateBoardLocation = async (req, res, next) => {
   const {
     params: { projectId },
-    body: { boardOrders },
+    body: { boardOrder },
   } = req;
 
   try {
-    const boardOrder = await BoardOrder.findOne({
-      where: {
-        projectId,
-      },
-    });
-
-    if (!boardOrder) {
-      res.status(404).json({
+    if (!projectId) {
+      res.status(400).json({
         ok: false,
-        message: 'Board order not found',
+        message: 'Project id is not exist',
       });
       return;
     }
 
-    boardOrder.order = boardOrders.join(';');
-    await boardOrder.save();
+    if (!boardOrder) {
+      res.status(400).json({
+        ok: false,
+        message: 'Board order is not exist',
+      });
+      return;
+    }
+
+    await redisClient.set(`project_${projectId}`, boardOrder.join(';'));
 
     res.status(200).json({
       ok: true,
-      boardOrders,
+      boardOrder,
     });
   } catch (err) {
     next(err);
