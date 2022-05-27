@@ -9,7 +9,7 @@ async function save(key) {
   try {
     const data = await redisClient.get(key);
 
-    if (type === 'project') {
+    if (type === 'p') {
       const boardOrder = await BoardOrder.findOne({
         where: {
           projectId: +num,

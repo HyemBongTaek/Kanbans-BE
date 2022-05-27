@@ -1,6 +1,6 @@
 const { QueryTypes } = require('sequelize');
 
-const { Board, sequelize } = require('../models/index');
+const { Board, BoardOrder, sequelize } = require('../models/index');
 const { getBoardQuery } = require('../utils/query');
 const { redisClient } = require('../redis');
 
@@ -11,7 +11,7 @@ const getBoard = async (req, res, next) => {
       replacements: [+req.params.project_id],
     });
 
-    const columnOrders = [];
+    let columnOrders;
 
     const board = getBoard.reduce((acc, cur) => {
       const cardsId = Object.keys(acc);
@@ -31,12 +31,33 @@ const getBoard = async (req, res, next) => {
       } else if (cur.card_id !== null) {
         acc[cur.id].card_id.push(cur.card_id);
       }
-      columnOrders.push(cur.id);
+      // columnOrders.push(cur.id);
       return acc;
     }, {});
 
-    const column = new Set(columnOrders);
-    const columnOrder = [...column];
+    const boardOrderInRedis = await redisClient.get(
+      `p_${req.params.project_id}`
+    );
+
+    if (!boardOrderInRedis) {
+      const boardOrder = await BoardOrder.findOne({
+        where: {
+          projectId: +req.params.project_id,
+        },
+      });
+
+      await redisClient.set(
+        `p_${req.params.project_id}`,
+        boardOrder.order.join(';')
+      );
+
+      columnOrders = boardOrder.order.split(';');
+    } else {
+      columnOrders = boardOrderInRedis.split(';');
+    }
+
+    // const column = new Set(columnOrders);
+    // const columnOrder = [...column];
 
     const cards = [];
 
@@ -47,7 +68,7 @@ const getBoard = async (req, res, next) => {
     }
     return res
       .status(200)
-      .json({ ok: true, kanbans: { cards, board, columnOrder } });
+      .json({ ok: true, kanbans: { cards, board, columnOrders } });
   } catch (err) {
     next(err);
   }
@@ -145,7 +166,7 @@ const updateBoardLocation = async (req, res, next) => {
       return;
     }
 
-    await redisClient.set(`project_${projectId}`, boardOrder.join(';'));
+    await redisClient.set(`p_${projectId}`, boardOrder.join(';'));
 
     res.status(200).json({
       ok: true,
