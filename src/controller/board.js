@@ -1,9 +1,9 @@
 const { QueryTypes } = require('sequelize');
 
-const { Board, sequelize } = require('../models/index');
+const { Board, sequelize, BoardOrder } = require('../models/index');
 const { getBoardQuery } = require('../utils/query');
 
-exports.getBoard = async (req, res, next) => {
+const getBoard = async (req, res, next) => {
   try {
     const getBoard = await sequelize.query(getBoardQuery, {
       type: QueryTypes.SELECT,
@@ -52,7 +52,7 @@ exports.getBoard = async (req, res, next) => {
   }
 };
 
-exports.createBoard = async (req, res, next) => {
+const createBoard = async (req, res, next) => {
   try {
     const newBoard = await Board.create({
       title: req.body.title,
@@ -70,7 +70,7 @@ exports.createBoard = async (req, res, next) => {
   }
 };
 
-exports.updateBoard = async (req, res, next) => {
+const updateBoard = async (req, res, next) => {
   try {
     const updateId = req.params.id;
     await Board.findOne({
@@ -101,7 +101,7 @@ exports.updateBoard = async (req, res, next) => {
   }
 };
 
-exports.deleteBoard = async (req, res, next) => {
+const deleteBoard = async (req, res, next) => {
   try {
     const deleteId = req.params.id;
     const board = await Board.findOne({
@@ -119,4 +119,45 @@ exports.deleteBoard = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+};
+
+const updateBoardLocation = async (req, res, next) => {
+  const {
+    params: { projectId },
+    body: { boardOrders },
+  } = req;
+
+  try {
+    const boardOrder = await BoardOrder.findOne({
+      where: {
+        projectId,
+      },
+    });
+
+    if (!boardOrder) {
+      res.status(404).json({
+        ok: false,
+        message: 'Board order not found',
+      });
+      return;
+    }
+
+    boardOrder.order = boardOrders.join(';');
+    await boardOrder.save();
+
+    res.status(200).json({
+      ok: true,
+      boardOrders,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = {
+  createBoard,
+  deleteBoard,
+  getBoard,
+  updateBoard,
+  updateBoardLocation,
 };
