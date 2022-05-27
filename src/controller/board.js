@@ -86,6 +86,22 @@ const createBoard = async (req, res, next) => {
     ) {
       return res.status(400).json({ ok: false, message: '빈값이 존재합니다.' });
     }
+
+    const boardOrderInRedis = await redisClient.get(`p_${req.body.project_id}`);
+
+    if (!boardOrderInRedis) {
+      const boardOrder = await BoardOrder.findOne({
+        where: {
+          projectId: req.body.project_id,
+        },
+      });
+
+      const newBoardOrder = `${boardOrder.order};${newBoard.id}`;
+      await redisClient.set(`p_${req.body.project_id}`, newBoardOrder);
+    } else {
+      const newBoardOrder = `${boardOrderInRedis};${newBoard.id}`;
+      await redisClient.set(`p_${req.body.project_id}`, newBoardOrder);
+    }
     return res.status(201).json({ ok: true, message: '작성 완료', newBoard });
   } catch (err) {
     next(err);
