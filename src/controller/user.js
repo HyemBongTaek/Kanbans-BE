@@ -49,10 +49,10 @@ const changeProfile = async (req, res, next) => {
       },
     });
 
-    if (!file && !name) {
-      res.status(304).json({
+    if (!user) {
+      res.status(404).json({
         ok: false,
-        message: 'Profile has not been changed',
+        message: 'User not found',
       });
       return;
     }
@@ -63,7 +63,6 @@ const changeProfile = async (req, res, next) => {
       await User.update(
         {
           profileImage: url,
-          name: name || user.name,
         },
         {
           where: {
@@ -71,6 +70,12 @@ const changeProfile = async (req, res, next) => {
           },
         }
       );
+
+      res.status(200).json({
+        ok: true,
+        message: 'Profile image has been changed',
+        imageUrl: url,
+      });
     } else if (name) {
       await User.update(
         {
@@ -78,16 +83,17 @@ const changeProfile = async (req, res, next) => {
         },
         {
           where: {
-            id: userId,
+            id: +userId,
           },
         }
       );
-    }
 
-    res.status(200).json({
-      ok: true,
-      message: 'Profile has been changed',
-    });
+      res.status(200).json({
+        ok: true,
+        message: 'Name has been changed',
+        name,
+      });
+    }
   } catch (err) {
     next(err);
   }
