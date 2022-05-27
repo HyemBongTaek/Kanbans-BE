@@ -22,9 +22,9 @@ module.exports = class Board extends Sequelize.Model {
   }
 
   static associate(db) {
-    db.BoardOrder.belongsTo(db.Board, {
+    db.BoardOrder.belongsTo(db.Project, {
       foreignKey: {
-        name: 'boardId',
+        name: 'projectId',
         targetKey: 'id',
         allowNull: false,
       },
