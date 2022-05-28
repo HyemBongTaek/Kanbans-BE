@@ -1,16 +1,17 @@
 const { QueryTypes } = require('sequelize');
 
-const { Board, sequelize } = require('../models/index');
+const { Board, BoardOrder, sequelize } = require('../models/index');
 const { getBoardQuery } = require('../utils/query');
+const { redisClient } = require('../redis');
 
-exports.getBoard = async (req, res, next) => {
+const getBoard = async (req, res, next) => {
   try {
     const getBoard = await sequelize.query(getBoardQuery, {
       type: QueryTypes.SELECT,
       replacements: [+req.params.project_id],
     });
 
-    const columnOrders = [];
+    let columnOrders;
 
     const board = getBoard.reduce((acc, cur) => {
       const cardsId = Object.keys(acc);
@@ -30,12 +31,30 @@ exports.getBoard = async (req, res, next) => {
       } else if (cur.card_id !== null) {
         acc[cur.id].card_id.push(cur.card_id);
       }
-      columnOrders.push(cur.id);
+      // columnOrders.push(cur.id);
       return acc;
     }, {});
 
-    const column = new Set(columnOrders);
-    const columnOrder = [...column];
+    const boardOrderInRedis = await redisClient.get(
+      `p_${req.params.project_id}`
+    );
+
+    if (!boardOrderInRedis) {
+      const boardOrder = await BoardOrder.findOne({
+        where: {
+          projectId: +req.params.project_id,
+        },
+      });
+
+      await redisClient.set(`p_${req.params.project_id}`, boardOrder.order);
+
+      columnOrders = boardOrder.order.split(';');
+    } else {
+      columnOrders = boardOrderInRedis.split(';');
+    }
+
+    // const column = new Set(columnOrders);
+    // const columnOrder = [...column];
 
     const cards = [];
 
@@ -46,13 +65,13 @@ exports.getBoard = async (req, res, next) => {
     }
     return res
       .status(200)
-      .json({ ok: true, kanbans: { cards, board, columnOrder } });
+      .json({ ok: true, kanbans: { cards, board, columnOrders } });
   } catch (err) {
     next(err);
   }
 };
 
-exports.createBoard = async (req, res, next) => {
+const createBoard = async (req, res, next) => {
   try {
     const newBoard = await Board.create({
       title: req.body.title,
@@ -64,13 +83,29 @@ exports.createBoard = async (req, res, next) => {
     ) {
       return res.status(400).json({ ok: false, message: '빈값이 존재합니다.' });
     }
+
+    const boardOrderInRedis = await redisClient.get(`p_${req.body.project_id}`);
+
+    if (!boardOrderInRedis) {
+      const boardOrder = await BoardOrder.findOne({
+        where: {
+          projectId: +req.body.project_id,
+        },
+      });
+
+      const newBoardOrder = `${boardOrder.order};${newBoard.id}`;
+      await redisClient.set(`p_${req.body.project_id}`, newBoardOrder);
+    } else {
+      const newBoardOrder = `${boardOrderInRedis};${newBoard.id}`;
+      await redisClient.set(`p_${req.body.project_id}`, newBoardOrder);
+    }
     return res.status(201).json({ ok: true, message: '작성 완료', newBoard });
   } catch (err) {
     next(err);
   }
 };
 
-exports.updateBoard = async (req, res, next) => {
+const updateBoard = async (req, res, next) => {
   try {
     const updateId = req.params.id;
     await Board.findOne({
@@ -101,7 +136,7 @@ exports.updateBoard = async (req, res, next) => {
   }
 };
 
-exports.deleteBoard = async (req, res, next) => {
+const deleteBoard = async (req, res, next) => {
   try {
     const deleteId = req.params.id;
     const board = await Board.findOne({
@@ -119,4 +154,46 @@ exports.deleteBoard = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+};
+
+const updateBoardLocation = async (req, res, next) => {
+  const {
+    params: { projectId },
+    body: { boardOrder },
+  } = req;
+
+  try {
+    if (!projectId) {
+      res.status(400).json({
+        ok: false,
+        message: 'Project id is not exist',
+      });
+      return;
+    }
+
+    if (!boardOrder) {
+      res.status(400).json({
+        ok: false,
+        message: 'Board order is not exist',
+      });
+      return;
+    }
+
+    await redisClient.set(`p_${projectId}`, boardOrder.join(';'));
+
+    res.status(200).json({
+      ok: true,
+      boardOrder,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = {
+  createBoard,
+  deleteBoard,
+  getBoard,
+  updateBoard,
+  updateBoardLocation,
 };

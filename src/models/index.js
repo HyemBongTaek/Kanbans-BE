@@ -8,7 +8,7 @@ const Project = require('./project');
 const UserProject = require('./userProject');
 const Board = require('./board');
 const Card = require('./card');
-// const BoardCard = require('./boardCard');
+const BoardOrder = require('./boardOrder');
 
 const db = {};
 
@@ -25,20 +25,20 @@ db.Project = Project;
 db.UserProject = UserProject;
 db.Board = Board;
 db.Card = Card;
-// db.BoardCard = BoardCard;
+db.BoardOrder = BoardOrder;
 
 User.init(sequelize);
 Project.init(sequelize);
 UserProject.init(sequelize);
 Board.init(sequelize);
 Card.init(sequelize);
-// BoardCard.init(sequelize);
+BoardOrder.init(sequelize);
 
 User.associate(db);
 Project.associate(db);
 UserProject.associate(db);
 Board.associate(db);
 Card.associate(db);
-// BoardCard.associate(db);
+BoardOrder.associate(db);
 
 module.exports = db;

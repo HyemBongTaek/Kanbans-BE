@@ -33,7 +33,8 @@ module.exports = class Project extends Sequelize.Model {
   static associate(db) {
     db.UserProject.belongsTo(db.User, {
       foreignKey: {
-        name: 'user_id',
+        name: 'userId',
+        targetKey: 'id',
         allowNull: false,
       },
       onDelete: 'cascade',
@@ -42,7 +43,8 @@ module.exports = class Project extends Sequelize.Model {
 
     db.UserProject.belongsTo(db.Project, {
       foreignKey: {
-        name: 'project_id',
+        name: 'projectId',
+        targetKey: 'id',
         allowNull: false,
       },
       onDelete: 'cascade',

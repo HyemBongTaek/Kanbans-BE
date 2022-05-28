@@ -5,6 +5,8 @@ const cors = require('cors');
 const passport = require('passport');
 
 const dbConnector = require('./db');
+const { redisConnect } = require('./redis');
+const schedule = require('./schedule');
 const passportConfig = require('./passport');
 const authRoutes = require('./routes/auth');
 const projectRoutes = require('./routes/project');
@@ -32,7 +34,7 @@ app.use('/user', userRoutes);
 app.use('/board', boardRoutes);
 
 app.use((error, req, res, next) => {
-  console.error(error.message);
+  console.error(error);
   const errorStatus = error.statusCode || 500;
   const { message } = error;
   const { data } = error;
@@ -47,6 +49,8 @@ app.use((error, req, res, next) => {
 async function listener() {
   console.log(`✅ Server listening on http://localhost:${PORT}`);
   await dbConnector();
+  await redisConnect();
+  schedule();
 }
 
 app.listen(PORT, listener);

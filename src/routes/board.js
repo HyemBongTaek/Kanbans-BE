@@ -6,14 +6,16 @@ const {
   createBoard,
   updateBoard,
   deleteBoard,
+  updateBoardLocation,
 } = require('../controller/board');
 const { createCard, deleteCard } = require('../controller/card');
 
 const router = express.Router();
 
-// 보드 생성
+// 보드
 router.get('/:project_id', auth, getBoard);
 router.post('/', auth, createBoard);
+router.patch('/:projectId/board-location', auth, updateBoardLocation);
 router.patch('/:id', auth, updateBoard);
 router.delete('/:id', auth, deleteBoard);
 
