@@ -73,16 +73,13 @@ const getBoard = async (req, res, next) => {
 
 const createBoard = async (req, res, next) => {
   try {
+    if (req.body.title === '' || req.body.project_id === undefined) {
+      return res.status(400).json({ ok: false, message: '빈값이 존재합니다.' });
+    }
     const newBoard = await Board.create({
       title: req.body.title,
       project_id: req.body.project_id,
     });
-    if (
-      newBoard.dataValues.title === '' ||
-      newBoard.dataValues.project_id === undefined
-    ) {
-      return res.status(400).json({ ok: false, message: '빈값이 존재합니다.' });
-    }
 
     const boardOrderInRedis = await redisClient.get(`p_${req.body.project_id}`);
 
@@ -108,7 +105,7 @@ const createBoard = async (req, res, next) => {
 const updateBoard = async (req, res, next) => {
   try {
     const updateId = req.params.id;
-    await Board.findOne({
+    const findUpdateId = await Board.findOne({
       where: {
         id: updateId,
       },
@@ -125,8 +122,14 @@ const updateBoard = async (req, res, next) => {
       },
       { where: { id: updateId } }
     );
-    const updatedBoard = await Board.findOne({
-      where: { id: updateId },
+    // const findUpdateId = await Board.findOne({
+    //   where: { id: updateId },
+    // });
+    const userProjectId = findUpdateId.dataValues.project_id;
+    const updatedBoard = await Board.findAll({
+      where: {
+        project_id: userProjectId,
+      },
     });
     return res
       .status(201)
