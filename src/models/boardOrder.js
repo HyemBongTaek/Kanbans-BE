@@ -6,7 +6,6 @@ module.exports = class Board extends Sequelize.Model {
       {
         order: {
           type: Sequelize.TEXT,
-          allowNull: false,
         },
       },
       {
