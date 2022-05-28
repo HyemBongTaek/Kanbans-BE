@@ -6,7 +6,6 @@ module.exports = class Board extends Sequelize.Model {
       {
         order: {
           type: Sequelize.TEXT,
-          allowNull: false,
         },
       },
       {
@@ -26,7 +25,6 @@ module.exports = class Board extends Sequelize.Model {
       foreignKey: {
         name: 'projectId',
         targetKey: 'id',
-        allowNull: false,
       },
       onDelete: 'cascade',
       onUpdate: 'cascade',

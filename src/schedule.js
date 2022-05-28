@@ -16,13 +16,12 @@ async function save(key) {
         },
       });
 
-      if (boardOrder.order !== data) {
+      if (boardOrder.order !== data || !boardOrder.order) {
         boardOrder.order = data;
         await boardOrder.save();
-        await redisClient.del(key);
-      } else {
-        await redisClient.del(key);
       }
+
+      await redisClient.del(key);
     }
   } catch (err) {
     const error = new Error(err.message);

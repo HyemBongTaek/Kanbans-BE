@@ -46,9 +46,12 @@ const getBoard = async (req, res, next) => {
         },
       });
 
-      await redisClient.set(`p_${req.params.project_id}`, boardOrder.order);
-
-      columnOrders = boardOrder.order.split(';');
+      if (!boardOrder.order) {
+        columnOrders = [];
+      } else {
+        await redisClient.set(`p_${req.params.project_id}`, boardOrder.order);
+        columnOrders = boardOrder.order.split(';');
+      }
     } else {
       columnOrders = boardOrderInRedis.split(';');
     }
@@ -90,8 +93,14 @@ const createBoard = async (req, res, next) => {
         },
       });
 
-      const newBoardOrder = `${boardOrder.order};${newBoard.id}`;
-      await redisClient.set(`p_${req.body.project_id}`, newBoardOrder);
+      if (!boardOrder.order) {
+        await redisClient.set(`p_${req.body.project_id}`, newBoard.id);
+      } else {
+        await redisClient.set(
+          `p_${req.body.project_id}`,
+          `${boardOrder.order};${newBoard.id}`
+        );
+      }
     } else {
       const newBoardOrder = `${boardOrderInRedis};${newBoard.id}`;
       await redisClient.set(`p_${req.body.project_id}`, newBoardOrder);
@@ -160,7 +169,30 @@ const deleteBoard = async (req, res, next) => {
         .status(400)
         .json({ ok: false, message: '보드가 존재하지 않습니다.' });
     }
+
+    const boardOrderInRedis = await redisClient.get(`p_${board.project_id}`);
+
+    if (!boardOrderInRedis) {
+      const boardOrder = await BoardOrder.findOne({
+        where: {
+          project_id: board.project_id,
+        },
+      });
+
+      const newBoardOrder = boardOrder.order
+        .split(';')
+        .filter((order) => order !== deleteId);
+
+      await redisClient.set(`p_${board.project_id}`, newBoardOrder.join(';'));
+    } else {
+      const newBoardOrder = boardOrderInRedis
+        .split(';')
+        .filter((order) => order !== deleteId);
+      await redisClient.set(`p_${board.project_id}`, newBoardOrder.join(';'));
+    }
+
     await Board.destroy({ where: { id: deleteId } });
+
     return res.status(200).json({ ok: true, message: '삭제 완료' });
   } catch (err) {
     next(err);
