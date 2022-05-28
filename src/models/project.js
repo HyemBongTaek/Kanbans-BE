@@ -37,14 +37,14 @@ module.exports = class Project extends Sequelize.Model {
   static associate(db) {
     db.Project.hasMany(db.UserProject, {
       foreignKey: {
-        name: 'project_id',
+        name: 'projectId',
         allowNull: false,
       },
       onDelete: 'cascade',
       onUpdate: 'cascade',
     });
     db.Project.hasMany(db.Board, {
-      foreignKey: { name: 'project_id', sourceKey: 'id' },
+      foreignKey: { name: 'projectId', sourceKey: 'id' },
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
     });
