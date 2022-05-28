@@ -169,7 +169,30 @@ const deleteBoard = async (req, res, next) => {
         .status(400)
         .json({ ok: false, message: '보드가 존재하지 않습니다.' });
     }
+
+    const boardOrderInRedis = await redisClient.get(`p_${board.project_id}`);
+
+    if (!boardOrderInRedis) {
+      const boardOrder = await BoardOrder.findOne({
+        where: {
+          project_id: board.project_id,
+        },
+      });
+
+      const newBoardOrder = boardOrder.order
+        .split(';')
+        .filter((order) => order !== deleteId);
+
+      await redisClient.set(`p_${board.project_id}`, newBoardOrder.join(';'));
+    } else {
+      const newBoardOrder = boardOrderInRedis
+        .split(';')
+        .filter((order) => order !== deleteId);
+      await redisClient.set(`p_${board.project_id}`, newBoardOrder.join(';'));
+    }
+
     await Board.destroy({ where: { id: deleteId } });
+
     return res.status(200).json({ ok: true, message: '삭제 완료' });
   } catch (err) {
     next(err);
