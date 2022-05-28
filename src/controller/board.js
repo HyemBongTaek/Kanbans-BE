@@ -89,7 +89,7 @@ const createBoard = async (req, res, next) => {
     if (!boardOrderInRedis) {
       const boardOrder = await BoardOrder.findOne({
         where: {
-          projectId: req.body.project_id,
+          projectId: +req.body.project_id,
         },
       });
 

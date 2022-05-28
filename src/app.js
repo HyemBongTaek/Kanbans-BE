@@ -34,7 +34,7 @@ app.use('/user', userRoutes);
 app.use('/board', boardRoutes);
 
 app.use((error, req, res, next) => {
-  console.error(error.message);
+  console.error(error);
   const errorStatus = error.statusCode || 500;
   const { message } = error;
   const { data } = error;
