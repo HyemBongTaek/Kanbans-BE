@@ -46,9 +46,12 @@ const getBoard = async (req, res, next) => {
         },
       });
 
-      await redisClient.set(`p_${req.params.project_id}`, boardOrder.order);
-
-      columnOrders = boardOrder.order.split(';');
+      if (!boardOrder.order) {
+        columnOrders = [];
+      } else {
+        await redisClient.set(`p_${req.params.project_id}`, boardOrder.order);
+        columnOrders = boardOrder.order.split(';');
+      }
     } else {
       columnOrders = boardOrderInRedis.split(';');
     }
