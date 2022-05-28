@@ -105,7 +105,7 @@ const createBoard = async (req, res, next) => {
 const updateBoard = async (req, res, next) => {
   try {
     const updateId = req.params.id;
-    await Board.findOne({
+    const findUpdateId = await Board.findOne({
       where: {
         id: updateId,
       },
@@ -122,8 +122,14 @@ const updateBoard = async (req, res, next) => {
       },
       { where: { id: updateId } }
     );
-    const updatedBoard = await Board.findOne({
-      where: { id: updateId },
+    // const findUpdateId = await Board.findOne({
+    //   where: { id: updateId },
+    // });
+    const userProjectId = findUpdateId.dataValues.project_id;
+    const updatedBoard = await Board.findAll({
+      where: {
+        project_id: userProjectId,
+      },
     });
     return res
       .status(201)
