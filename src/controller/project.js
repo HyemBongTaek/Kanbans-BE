@@ -1,7 +1,13 @@
 const { v4: uuidv4 } = require('uuid');
 const { QueryTypes } = require('sequelize');
 
-const { sequelize, Project, User, UserProject } = require('../models/index');
+const {
+  sequelize,
+  Project,
+  User,
+  UserProject,
+  BoardOrder,
+} = require('../models/index');
 const { loadProjectsQuery, insertUserProjectQuery } = require('../utils/query');
 const { getBytes, projectDataFormatChangeFn } = require('../utils/service');
 
@@ -27,6 +33,10 @@ const createProject = async (req, res, next) => {
       title,
       permission,
       inviteCode: uuidv4(),
+    });
+
+    await BoardOrder.create({
+      projectId: newProject.id,
     });
 
     await sequelize.query(insertUserProjectQuery, {
