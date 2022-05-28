@@ -40,7 +40,6 @@ module.exports = class Board extends Sequelize.Model {
     db.Project.hasMany(db.BoardOrder, {
       foreignKey: {
         name: 'projectId',
-        allowNull: false,
       },
       onDelete: 'cascade',
       onUpdate: 'cascade',

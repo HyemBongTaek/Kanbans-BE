@@ -26,7 +26,6 @@ module.exports = class Board extends Sequelize.Model {
       foreignKey: {
         name: 'projectId',
         targetKey: 'id',
-        allowNull: false,
       },
       onDelete: 'cascade',
       onUpdate: 'cascade',
