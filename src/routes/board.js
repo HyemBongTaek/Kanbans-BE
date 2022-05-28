@@ -13,7 +13,7 @@ const { createCard, deleteCard } = require('../controller/card');
 const router = express.Router();
 
 // 보드
-router.get('/:project_id', auth, getBoard);
+router.get('/:projectId', auth, getBoard);
 router.post('/', auth, createBoard);
 router.patch('/:projectId/board-location', auth, updateBoardLocation);
 router.patch('/:id', auth, updateBoard);
