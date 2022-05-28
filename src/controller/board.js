@@ -90,14 +90,13 @@ const createBoard = async (req, res, next) => {
         },
       });
 
-      let newBoardOrder = '';
-
-      if (!boardOrder) {
-        newBoardOrder = newBoard.id;
-        await redisClient.set(`p_${req.body.project_id}`, newBoardOrder);
+      if (!boardOrder.order) {
+        await redisClient.set(`p_${req.body.project_id}`, newBoard.id);
       } else {
-        newBoardOrder = `${boardOrder.order};${newBoard.id}`;
-        await redisClient.set(`p_${req.body.project_id}`, newBoardOrder);
+        await redisClient.set(
+          `p_${req.body.project_id}`,
+          `${boardOrder.order};${newBoard.id}`
+        );
       }
     } else {
       const newBoardOrder = `${boardOrderInRedis};${newBoard.id}`;
