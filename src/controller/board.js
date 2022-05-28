@@ -131,9 +131,17 @@ const updateBoard = async (req, res, next) => {
         project_id: userProjectId,
       },
     });
+    const updateBoard = updatedBoard.reduce((acc, cur) => {
+      acc[cur.id] = {
+        id: cur.id,
+        title: cur.title,
+        project_id: cur.project_id,
+      };
+      return acc;
+    }, {});
     return res
       .status(201)
-      .json({ ok: true, message: '수정 완료', updatedBoard });
+      .json({ ok: true, message: '수정 완료', updateBoard });
   } catch (err) {
     next(err);
   }
