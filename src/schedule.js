@@ -16,7 +16,7 @@ async function save(key) {
         },
       });
 
-      if (boardOrder.order !== data || boardOrder.order === '') {
+      if (boardOrder.order !== data) {
         boardOrder.order = data;
         await boardOrder.save();
       }
