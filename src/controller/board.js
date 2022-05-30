@@ -2,7 +2,10 @@ const { QueryTypes } = require('sequelize');
 
 const { Board, BoardOrder, sequelize } = require('../models/index');
 const { getBoardQuery } = require('../utils/query');
-const { redisClient } = require('../redis');
+const {
+  getBoardOrderInRedis,
+  setBoardOrderInRedis,
+} = require('../utils/redis');
 
 const getBoard = async (req, res, next) => {
   try {
@@ -35,9 +38,7 @@ const getBoard = async (req, res, next) => {
       return acc;
     }, {});
 
-    const boardOrderInRedis = await redisClient.get(
-      `p_${req.params.projectId}`
-    );
+    const boardOrderInRedis = await getBoardOrderInRedis(req.params.projectId);
 
     if (!boardOrderInRedis) {
       const boardOrder = await BoardOrder.findOne({
@@ -49,7 +50,7 @@ const getBoard = async (req, res, next) => {
       if (!boardOrder.order) {
         columnOrders = [];
       } else {
-        await redisClient.set(`p_${req.params.projectId}`, boardOrder.order);
+        await setBoardOrderInRedis(req.params.projectId, boardOrder.order);
         columnOrders = boardOrder.order.split(';');
       }
     } else {
@@ -84,7 +85,7 @@ const createBoard = async (req, res, next) => {
       projectId: req.body.projectId,
     });
 
-    const boardOrderInRedis = await redisClient.get(`p_${req.body.projectId}`);
+    const boardOrderInRedis = await getBoardOrderInRedis(req.body.projectId);
 
     if (!boardOrderInRedis) {
       const boardOrder = await BoardOrder.findOne({
@@ -94,16 +95,18 @@ const createBoard = async (req, res, next) => {
       });
 
       if (!boardOrder.order) {
-        await redisClient.set(`p_${req.body.projectId}`, newBoard.id);
+        await setBoardOrderInRedis(req.body.projectId, newBoard.id);
       } else {
-        await redisClient.set(
-          `p_${req.body.projectId}`,
+        await setBoardOrderInRedis(
+          req.body.projectId,
           `${boardOrder.order};${newBoard.id}`
         );
       }
     } else {
-      const newBoardOrder = `${boardOrderInRedis};${newBoard.id}`;
-      await redisClient.set(`p_${req.body.projectId}`, newBoardOrder);
+      await setBoardOrderInRedis(
+        req.body.projectId,
+        `${boardOrderInRedis};${newBoard.id}`
+      );
     }
     return res.status(201).json({ ok: true, message: '작성 완료', newBoard });
   } catch (err) {
@@ -170,7 +173,7 @@ const deleteBoard = async (req, res, next) => {
         .json({ ok: false, message: '보드가 존재하지 않습니다.' });
     }
 
-    const boardOrderInRedis = await redisClient.get(`p_${board.projectId}`);
+    const boardOrderInRedis = await getBoardOrderInRedis(board.projectId);
 
     if (!boardOrderInRedis) {
       const boardOrder = await BoardOrder.findOne({
@@ -183,12 +186,12 @@ const deleteBoard = async (req, res, next) => {
         .split(';')
         .filter((order) => order !== deleteId);
 
-      await redisClient.set(`p_${board.projectId}`, newBoardOrder.join(';'));
+      await setBoardOrderInRedis(board.projectId, newBoardOrder.join(';'));
     } else {
       const newBoardOrder = boardOrderInRedis
         .split(';')
         .filter((order) => order !== deleteId);
-      await redisClient.set(`p_${board.projectId}`, newBoardOrder.join(';'));
+      await setBoardOrderInRedis(board.projectId, newBoardOrder.join(';'));
     }
 
     await Board.destroy({ where: { id: deleteId } });
@@ -222,7 +225,7 @@ const updateBoardLocation = async (req, res, next) => {
       return;
     }
 
-    await redisClient.set(`p_${projectId}`, boardOrder.join(';'));
+    await setBoardOrderInRedis(projectId, boardOrder.join(';'));
 
     res.status(200).json({
       ok: true,
