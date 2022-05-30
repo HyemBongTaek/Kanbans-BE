@@ -1,13 +1,14 @@
 const schedule = require('node-schedule');
 
-const { redisClient } = require('./redis');
 const { BoardOrder } = require('./models/index');
+const { redisClient } = require('./redis');
+const { getBoardOrderInRedis, delBoardOrderInRedis } = require('./utils/redis');
 
 async function save(key) {
   const [type, num] = key.split('_');
 
   try {
-    const data = await redisClient.get(key);
+    const data = await getBoardOrderInRedis(num);
 
     if (type === 'p') {
       const boardOrder = await BoardOrder.findOne({
@@ -16,12 +17,12 @@ async function save(key) {
         },
       });
 
-      if (boardOrder.order !== data || !boardOrder.order) {
+      if (boardOrder.order !== data) {
         boardOrder.order = data;
         await boardOrder.save();
       }
 
-      await redisClient.del(key);
+      await delBoardOrderInRedis(num);
     }
   } catch (err) {
     const error = new Error(err.message);

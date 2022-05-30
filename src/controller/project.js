@@ -10,7 +10,10 @@ const {
 } = require('../models/index');
 const { loadProjectsQuery, insertUserProjectQuery } = require('../utils/query');
 const { getBytes, projectDataFormatChangeFn } = require('../utils/service');
-const { redisClient } = require('../redis');
+const {
+  delBoardOrderInRedis,
+  getBoardOrderInRedis,
+} = require('../utils/redis');
 
 const createProject = async (req, res, next) => {
   const {
@@ -37,6 +40,7 @@ const createProject = async (req, res, next) => {
     });
 
     await BoardOrder.create({
+      order: '',
       projectId: newProject.id,
     });
 
@@ -220,10 +224,10 @@ const deleteProject = async (req, res, next) => {
       },
     });
 
-    const boardOrderInRedis = await redisClient.get(`p_${projectId}`);
+    const boardOrderInRedis = await getBoardOrderInRedis(projectId);
 
     if (boardOrderInRedis) {
-      await redisClient.del(`p_${projectId}`);
+      await delBoardOrderInRedis(projectId);
     }
 
     if (deleteProjectCount === 0) {
