@@ -18,7 +18,17 @@ async function setBoardOrderInRedis(projectId, data) {
   }
 }
 
+async function delBoardOrderInRedis(projectId) {
+  try {
+    await redisClient.del(`p_${projectId}`);
+  } catch (err) {
+    const error = new Error(err.message);
+    throw error;
+  }
+}
+
 module.exports = {
+  delBoardOrderInRedis,
   getBoardOrderInRedis,
   setBoardOrderInRedis,
 };
