@@ -9,14 +9,14 @@ const {
 
 const getBoard = async (req, res, next) => {
   try {
-    const getBoard = await sequelize.query(getBoardQuery, {
+    const getBoards = await sequelize.query(getBoardQuery, {
       type: QueryTypes.SELECT,
       replacements: [+req.params.projectId],
     });
 
     let columnOrders;
 
-    const board = getBoard.reduce((acc, cur) => {
+    const board = getBoards.reduce((acc, cur) => {
       const cardsId = Object.keys(acc);
       const index = cardsId.indexOf(cur.id.toString());
 
@@ -77,14 +77,12 @@ const getBoard = async (req, res, next) => {
       return acc;
     }, {});
 
-    if (getBoard.length <= 0) {
-      return res
-        .status(400)
-        .json({ ok: false, message: '검색 결과가 없습니다.' });
+    if (getBoards.length <= 0) {
+      res.status(400).json({ ok: false, message: '검색 결과가 없습니다.' });
+      return;
     }
-    return res
-      .status(200)
-      .json({ ok: true, kanbans: { cards, board, columnOrders } });
+    res.status(200).json({ ok: true, kanbans: { cards, board, columnOrders } });
+    return;
   } catch (err) {
     next(err);
   }
@@ -93,7 +91,8 @@ const getBoard = async (req, res, next) => {
 const createBoard = async (req, res, next) => {
   try {
     if (req.body.title === '' || req.body.projectId === undefined) {
-      return res.status(400).json({ ok: false, message: '빈값이 존재합니다.' });
+      res.status(400).json({ ok: false, message: '빈값이 존재합니다.' });
+      return;
     }
     const newBoard = await Board.create({
       title: req.body.title,
@@ -123,7 +122,8 @@ const createBoard = async (req, res, next) => {
         `${boardOrderInRedis};${newBoard.id}`
       );
     }
-    return res.status(201).json({ ok: true, message: '작성 완료', newBoard });
+    res.status(201).json({ ok: true, message: '작성 완료', newBoard });
+    return;
   } catch (err) {
     next(err);
   }
@@ -139,9 +139,8 @@ const updateBoard = async (req, res, next) => {
     });
     const condition = req.body.title === '';
     if (condition === true) {
-      return res
-        .status(400)
-        .json({ ok: false, message: '타이틀을 작성해주세요.' });
+      res.status(400).json({ ok: false, message: '타이틀을 작성해주세요.' });
+      return;
     }
     await Board.update(
       {
@@ -166,9 +165,8 @@ const updateBoard = async (req, res, next) => {
       };
       return acc;
     }, {});
-    return res
-      .status(201)
-      .json({ ok: true, message: '수정 완료', updateBoard });
+    res.status(201).json({ ok: true, message: '수정 완료', updateBoard });
+    return;
   } catch (err) {
     next(err);
   }
@@ -183,9 +181,8 @@ const deleteBoard = async (req, res, next) => {
       },
     });
     if (!board) {
-      return res
-        .status(400)
-        .json({ ok: false, message: '보드가 존재하지 않습니다.' });
+      res.status(400).json({ ok: false, message: '보드가 존재하지 않습니다.' });
+      return;
     }
 
     const boardOrderInRedis = await getBoardOrderInRedis(board.projectId);
@@ -212,7 +209,8 @@ const deleteBoard = async (req, res, next) => {
 
     await Board.destroy({ where: { id: deleteId } });
 
-    return res.status(200).json({ ok: true, message: '삭제 완료' });
+    res.status(200).json({ ok: true, message: '삭제 완료' });
+    return;
   } catch (err) {
     next(err);
   }
