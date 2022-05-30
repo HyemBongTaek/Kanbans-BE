@@ -17,6 +17,16 @@ module.exports = class Card extends Sequelize.Model {
         dDay: {
           type: Sequelize.DATE,
         },
+        status: {
+          type: Sequelize.STRING(20),
+          allowNull: false,
+          defaultValue: 'progress',
+        },
+        check: {
+          type: Sequelize.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+        },
         createdAt: {
           type: Sequelize.DATE,
           allowNull: false,
