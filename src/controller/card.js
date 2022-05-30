@@ -79,7 +79,60 @@ const deleteCard = async (req, res, next) => {
   }
 };
 
+const modifyCardStatus = async (req, res, next) => {
+  const {
+    body: { status: cardStatus },
+    params: { boardId, cardId },
+  } = req;
+
+  const statusArr = ['progress', 'hold', 'finish'];
+
+  if (!statusArr.includes(cardStatus)) {
+    res.status(400).json({
+      ok: false,
+      message: `Invalid input value: ${cardStatus}`,
+    });
+    return;
+  }
+
+  try {
+    const card = await Card.findOne({
+      where: {
+        id: cardId,
+        boardId,
+      },
+    });
+
+    if (!card) {
+      res.status(404).json({
+        ok: false,
+        message: 'Card not found',
+      });
+      return;
+    }
+
+    if (card.status === cardStatus) {
+      res.status(400).json({
+        ok: false,
+        message: 'Status values are same',
+      });
+      return;
+    }
+
+    card.status = cardStatus;
+    await card.save();
+
+    res.status(200).json({
+      ok: true,
+      changedStatus: card.status,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   createCard,
   deleteCard,
+  modifyCardStatus,
 };
