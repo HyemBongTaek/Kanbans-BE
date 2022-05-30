@@ -31,8 +31,8 @@ const findProjectsQuery = `SELECT id
 
 const getBoardQuery = `SELECT b.id AS 'id',
                               b.title AS 'title',
-                              b.project_id AS 'project_id',
-                              c.id AS 'card_id'
+                              b.project_id AS 'projectId',
+                              c.id AS 'cardId'
                         FROM boards AS b
                             LEFT OUTER JOIN cards AS c
                                 ON b.id = c.board_id

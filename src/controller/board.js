@@ -170,12 +170,12 @@ const deleteBoard = async (req, res, next) => {
         .json({ ok: false, message: '보드가 존재하지 않습니다.' });
     }
 
-    const boardOrderInRedis = await redisClient.get(`p_${board.project_id}`);
+    const boardOrderInRedis = await redisClient.get(`p_${board.projectId}`);
 
     if (!boardOrderInRedis) {
       const boardOrder = await BoardOrder.findOne({
         where: {
-          project_id: board.project_id,
+          projectId: board.projectId,
         },
       });
 
@@ -183,12 +183,12 @@ const deleteBoard = async (req, res, next) => {
         .split(';')
         .filter((order) => order !== deleteId);
 
-      await redisClient.set(`p_${board.project_id}`, newBoardOrder.join(';'));
+      await redisClient.set(`p_${board.projectId}`, newBoardOrder.join(';'));
     } else {
       const newBoardOrder = boardOrderInRedis
         .split(';')
         .filter((order) => order !== deleteId);
-      await redisClient.set(`p_${board.project_id}`, newBoardOrder.join(';'));
+      await redisClient.set(`p_${board.projectId}`, newBoardOrder.join(';'));
     }
 
     await Board.destroy({ where: { id: deleteId } });
