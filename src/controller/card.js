@@ -79,6 +79,39 @@ const deleteCard = async (req, res, next) => {
   }
 };
 
+const deleteAllCards = async (req, res, next) => {
+  const { boardId } = req.params;
+
+  try {
+    const cards = await Card.findAll({
+      where: {
+        boardId,
+      },
+    });
+
+    if (cards.length === 0) {
+      res.status(400).json({
+        ok: false,
+        message: 'No cards to delete',
+      });
+      return;
+    }
+
+    await Card.destroy({
+      where: {
+        boardId,
+      },
+    });
+
+    res.status(200).json({
+      ok: true,
+      message: 'Cards deleted',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 const modifyCardStatus = async (req, res, next) => {
   const {
     body: { status: cardStatus },
@@ -134,5 +167,6 @@ const modifyCardStatus = async (req, res, next) => {
 module.exports = {
   createCard,
   deleteCard,
+  deleteAllCards,
   modifyCardStatus,
 };

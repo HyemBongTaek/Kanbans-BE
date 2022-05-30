@@ -11,6 +11,7 @@ const {
 const {
   createCard,
   deleteCard,
+  deleteAllCards,
   modifyCardStatus,
 } = require('../controller/card');
 
@@ -29,5 +30,7 @@ router.post('/:boardId/card', auth, createCard);
 router.patch('/:boardId/card/:cardId/status', auth, modifyCardStatus);
 // 카드 삭제
 router.delete('/:boardId/card/:cardId', auth, deleteCard);
+// 카드 전체 삭제
+router.delete('/:boardId/cards', auth, deleteAllCards);
 
 module.exports = router;
