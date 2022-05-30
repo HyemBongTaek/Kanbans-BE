@@ -112,6 +112,37 @@ const deleteAllCards = async (req, res, next) => {
   }
 };
 
+const modifyCardCheck = async (req, res, next) => {
+  const { boardId, cardId } = req.params;
+
+  try {
+    const card = await Card.findOne({
+      where: {
+        id: cardId,
+        boardId,
+      },
+    });
+
+    if (!card) {
+      res.status(404).json({
+        ok: false,
+        message: 'Card not found',
+      });
+      return;
+    }
+
+    card.check = !card.check;
+    await card.save();
+
+    res.status(200).json({
+      ok: true,
+      check: card.check,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 const modifyCardStatus = async (req, res, next) => {
   const {
     body: { status: cardStatus },
@@ -168,5 +199,6 @@ module.exports = {
   createCard,
   deleteCard,
   deleteAllCards,
+  modifyCardCheck,
   modifyCardStatus,
 };
