@@ -47,7 +47,7 @@ const getBoard = async (req, res, next) => {
         },
       });
 
-      if (!boardOrder.order) {
+      if (boardOrder.order === '') {
         columnOrders = [];
       } else {
         await setBoardOrderInRedis(req.params.projectId, boardOrder.order);
@@ -94,7 +94,7 @@ const createBoard = async (req, res, next) => {
         },
       });
 
-      if (!boardOrder.order) {
+      if (boardOrder.order === '') {
         await setBoardOrderInRedis(req.body.projectId, newBoard.id);
       } else {
         await setBoardOrderInRedis(
@@ -191,6 +191,7 @@ const deleteBoard = async (req, res, next) => {
       const newBoardOrder = boardOrderInRedis
         .split(';')
         .filter((order) => order !== deleteId);
+
       await setBoardOrderInRedis(board.projectId, newBoardOrder.join(';'));
     }
 

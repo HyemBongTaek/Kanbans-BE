@@ -37,6 +37,7 @@ const createProject = async (req, res, next) => {
     });
 
     await BoardOrder.create({
+      order: '',
       projectId: newProject.id,
     });
 
