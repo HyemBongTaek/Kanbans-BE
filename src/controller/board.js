@@ -1,7 +1,7 @@
 const { QueryTypes } = require('sequelize');
 
 const { Board, BoardOrder, sequelize } = require('../models/index');
-const { getBoardQuery } = require('../utils/query');
+const { getBoardQuery, getBoardCard } = require('../utils/query');
 const {
   getBoardOrderInRedis,
   setBoardOrderInRedis,
@@ -60,7 +60,22 @@ const getBoard = async (req, res, next) => {
     // const column = new Set(columnOrders);
     // const columnOrder = [...column];
 
-    const cards = [];
+    const getcards = await sequelize.query(getBoardCard, {
+      type: QueryTypes.SELECT,
+      replacements: [+req.params.projectId],
+    });
+    const cards = getcards.reduce((acc, cur) => {
+      acc[cur.id] = {
+        id: cur.id,
+        title: cur.title,
+        subtitle: cur.subtitle,
+        description: cur.description,
+        d_day: cur.d_day,
+        created_at: cur.created_at,
+        board_id: cur.board_id,
+      };
+      return acc;
+    }, {});
 
     if (getBoard.length <= 0) {
       return res

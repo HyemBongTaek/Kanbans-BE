@@ -38,9 +38,22 @@ const getBoardQuery = `SELECT b.id AS 'id',
                                 ON b.id = c.board_id
                         WHERE project_id=?;`;
 
+const getBoardCard = `SELECT cards.id,
+                        cards.title,
+                        cards.subtitle,
+                        cards.description,
+                        cards.d_day,
+                        cards.created_at,
+                        cards.board_id
+                   FROM cards
+                       INNER JOIN boards
+                           ON cards.board_id = boards.id
+                   WHERE project_id=?;`;
+
 module.exports = {
   loadProjectsQuery,
   insertUserProjectQuery,
   findProjectsQuery,
   getBoardQuery,
+  getBoardCard,
 };
