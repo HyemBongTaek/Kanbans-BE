@@ -1,7 +1,18 @@
-const { Task } = require('../models/index');
+const { Task, Card } = require('../models/index');
 
 const createTask = async (req, res, next) => {
   try {
+    const taskId = await Card.findOne({
+      where: {
+        id: req.body.cardId,
+      },
+    });
+    if (!taskId) {
+      res
+        .status(400)
+        .json({ ok: false, message: 'cardId가 존재하지 않습니다.' });
+      return;
+    }
     if (!req.body.title || !req.body.cardId) {
       res.status(400).json({ ok: false, message: '빈값이 존재합니다.' });
       return;
