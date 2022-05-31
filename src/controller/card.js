@@ -7,6 +7,14 @@ const createCard = async (req, res, next) => {
   } = req;
 
   try {
+    if (title === '' || !title) {
+      res.status(400).json({
+        ok: false,
+        message: `Invalid title ${title}`,
+      });
+      return;
+    }
+
     const newCard = await Card.create({
       title,
       subtitle: subtitle || null,
@@ -18,9 +26,9 @@ const createCard = async (req, res, next) => {
     const newCardRes = {
       cardId: newCard.id,
       title: newCard.title,
-      subtitle: newCard.subtitle,
-      description: newCard.description,
       dDay: newCard.dDay,
+      status: newCard.status,
+      check: newCard.check,
       boardId: newCard.boardId,
       createdAt: newCard.createdAt.toLocaleString('ko-KR', {
         timeZone: 'Asia/Seoul',
