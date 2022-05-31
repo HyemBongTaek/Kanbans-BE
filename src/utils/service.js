@@ -28,6 +28,48 @@ function projectDataFormatChangeFn(projects) {
   }, []);
 }
 
+function makeBoardCardObject(data) {
+  return data.reduce(
+    (acc, cur) => {
+      const boardIds = Object.keys(acc.boardObj);
+      const cardIds = Object.keys(acc.cardObj);
+
+      const boardIndex = boardIds.indexOf(cur.boardId.toString());
+      const cardIndex = cardIds.indexOf(cur.cardId && cur.cardId.toString());
+
+      if (boardIndex === -1) {
+        acc.boardObj[cur.boardId] = {
+          id: cur.boardId,
+          title: cur.title,
+          projectId: cur.projectId,
+          cardId: cur.cardId ? [cur.cardId] : [],
+        };
+      } else if (boardIndex >= 0) {
+        acc.boardObj[cur.boardId].cardId.push(cur.cardId);
+      }
+
+      if (cardIndex === -1 && cur.cardId) {
+        acc.cardObj[cur.cardId] = {
+          id: cur.cardId,
+          title: cur.title,
+          dDay: cur.dDay,
+          status: cur.status,
+          check: cur.check,
+          createdAt: cur.createdAt.toLocaleString('ko-KR', {
+            timeZone: 'Asia/Seoul',
+          }),
+          boardId: cur.boardId,
+        };
+      }
+      return acc;
+    },
+    {
+      boardObj: {},
+      cardObj: {},
+    }
+  );
+}
+
 function getBytes(str) {
   let character;
   let charBytes = 0;
@@ -44,5 +86,6 @@ function getBytes(str) {
 
 module.exports = {
   getBytes,
+  makeBoardCardObject,
   projectDataFormatChangeFn,
 };

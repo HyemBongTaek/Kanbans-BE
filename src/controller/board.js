@@ -1,89 +1,65 @@
 const { QueryTypes } = require('sequelize');
 
 const { Board, BoardOrder, sequelize } = require('../models/index');
-const { getBoardQuery, getBoardCard } = require('../utils/query');
+const { getBoardQuery } = require('../utils/query');
 const {
   getBoardOrderInRedis,
   setBoardOrderInRedis,
 } = require('../utils/redis');
+const { makeBoardCardObject } = require('../utils/service');
 
 const getBoard = async (req, res, next) => {
+  const { projectId } = req.params;
+
   try {
     const getBoards = await sequelize.query(getBoardQuery, {
       type: QueryTypes.SELECT,
-      replacements: [+req.params.projectId],
+      replacements: [+projectId],
     });
+
+    if (getBoards.length <= 0) {
+      res.status(200).json({
+        ok: true,
+        kanbans: {
+          cards: {},
+          board: {},
+        },
+        columnOrders: [],
+      });
+      return;
+    }
+
+    const board = makeBoardCardObject(getBoards);
 
     let columnOrders;
 
-    const board = getBoards.reduce((acc, cur) => {
-      const cardsId = Object.keys(acc);
-      const index = cardsId.indexOf(cur.id.toString());
-
-      if (index === -1) {
-        acc[cur.id] = {
-          id: cur.id,
-          title: cur.title,
-          projectId: cur.projectId,
-          cardId: [],
-        };
-
-        if (cur.cardId !== null) {
-          acc[cur.id].cardId.push(cur.cardId);
-        }
-      } else if (cur.cardId !== null) {
-        acc[cur.id].cardId.push(cur.cardId);
-      }
-      // columnOrders.push(cur.id);
-      return acc;
-    }, {});
-
-    const boardOrderInRedis = await getBoardOrderInRedis(req.params.projectId);
+    const boardOrderInRedis = await getBoardOrderInRedis(projectId);
 
     if (!boardOrderInRedis) {
       const boardOrder = await BoardOrder.findOne({
         where: {
-          projectId: +req.params.projectId,
+          projectId: +projectId,
         },
       });
 
       if (boardOrder.order === '') {
         columnOrders = [];
       } else {
-        await setBoardOrderInRedis(req.params.projectId, boardOrder.order);
+        await setBoardOrderInRedis(projectId, boardOrder.order);
         columnOrders = boardOrder.order.split(';');
       }
     } else {
       columnOrders = boardOrderInRedis.split(';');
     }
 
-    // const column = new Set(columnOrders);
-    // const columnOrder = [...column];
-
-    const getcards = await sequelize.query(getBoardCard, {
-      type: QueryTypes.SELECT,
-      replacements: [+req.params.projectId],
+    res.status(200).json({
+      ok: true,
+      kanbans: {
+        cards: board.cardObj,
+        board: board.boardObj,
+      },
+      columnOrders,
     });
-    const cards = getcards.reduce((acc, cur) => {
-      acc[cur.id] = {
-        id: cur.id,
-        title: cur.title,
-        subtitle: cur.subtitle,
-        description: cur.description,
-        d_day: cur.d_day,
-        status: cur.status,
-        check: cur.check,
-        created_at: cur.created_at,
-        board_id: cur.board_id,
-      };
-      return acc;
-    }, {});
-
-    if (getBoards.length <= 0) {
-      res.status(400).json({ ok: false, message: '검색 결과가 없습니다.' });
-      return;
-    }
-    res.status(200).json({ ok: true, kanbans: { cards, board, columnOrders } });
     return;
   } catch (err) {
     next(err);
