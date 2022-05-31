@@ -21,17 +21,25 @@ const createProject = async (req, res, next) => {
     body: { title, permission },
   } = req;
 
+  if (title.trim() === '' || !title) {
+    res.status(400).json({
+      ok: false,
+      message: `Invalid title: ${title}`,
+    });
+    return;
+  }
+
+  const titleBytesLength = getBytes(title);
+
+  if (titleBytesLength > 20) {
+    res.status(400).json({
+      ok: false,
+      message: `Title is too long with ${titleBytesLength} characters. Please write within 20 characters`,
+    });
+    return;
+  }
+
   try {
-    const titleBytesLength = getBytes(title);
-
-    if (titleBytesLength > 20) {
-      res.status(400).json({
-        ok: false,
-        message: `Title is too long with ${titleBytesLength} characters. Please write within 20 characters`,
-      });
-      return;
-    }
-
     const newProject = await Project.create({
       owner: userId,
       title,

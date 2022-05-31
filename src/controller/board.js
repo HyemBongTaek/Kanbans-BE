@@ -89,39 +89,54 @@ const getBoard = async (req, res, next) => {
 };
 
 const createBoard = async (req, res, next) => {
+  const { title, projectId } = req.body;
+
+  if (title.trim() === '' || !title) {
+    res.status(400).json({
+      ok: false,
+      message: `유효하지 않은 제목: ${title}`,
+    });
+    return;
+  }
+
+  if (!projectId) {
+    res.status(400).json({
+      ok: false,
+      message: '빈값이 존재합니다.',
+    });
+    return;
+  }
+
   try {
-    if (req.body.title === '' || req.body.projectId === undefined) {
-      res.status(400).json({ ok: false, message: '빈값이 존재합니다.' });
-      return;
-    }
     const newBoard = await Board.create({
-      title: req.body.title,
-      projectId: req.body.projectId,
+      title,
+      projectId,
     });
 
-    const boardOrderInRedis = await getBoardOrderInRedis(req.body.projectId);
+    const boardOrderInRedis = await getBoardOrderInRedis(projectId);
 
     if (!boardOrderInRedis) {
       const boardOrder = await BoardOrder.findOne({
         where: {
-          projectId: +req.body.projectId,
+          projectId: +projectId,
         },
       });
 
       if (boardOrder.order === '') {
-        await setBoardOrderInRedis(req.body.projectId, newBoard.id);
+        await setBoardOrderInRedis(projectId, newBoard.id);
       } else {
         await setBoardOrderInRedis(
-          req.body.projectId,
+          projectId,
           `${boardOrder.order};${newBoard.id}`
         );
       }
     } else {
       await setBoardOrderInRedis(
-        req.body.projectId,
+        projectId,
         `${boardOrderInRedis};${newBoard.id}`
       );
     }
+
     res.status(201).json({ ok: true, message: '작성 완료', newBoard });
     return;
   } catch (err) {
