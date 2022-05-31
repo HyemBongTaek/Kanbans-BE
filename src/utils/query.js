@@ -43,6 +43,8 @@ const getBoardCard = `SELECT cards.id,
                         cards.subtitle,
                         cards.description,
                         cards.d_day,
+                        cards.status,
+                        cards.check,
                         cards.created_at,
                         cards.board_id
                    FROM cards

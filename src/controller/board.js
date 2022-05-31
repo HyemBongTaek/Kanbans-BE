@@ -71,6 +71,8 @@ const getBoard = async (req, res, next) => {
         subtitle: cur.subtitle,
         description: cur.description,
         d_day: cur.d_day,
+        status: cur.status,
+        check: cur.check,
         created_at: cur.created_at,
         board_id: cur.board_id,
       };
