@@ -62,6 +62,12 @@ module.exports = class Card extends Sequelize.Model {
       onUpdate: 'CASCADE',
     });
 
+    db.Card.hasMany(db.comment, {
+      foreignKey: { name: 'cardId', sourceKey: 'id', allowNull: false },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
+    });
+
     // db.Card.hasMany(db.BoardCard, {
     //   foreignKey: {
     //     name: 'card_id',

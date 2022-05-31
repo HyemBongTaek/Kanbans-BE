@@ -40,7 +40,7 @@ function makeBoardCardObject(data) {
       if (boardIndex === -1) {
         acc.boardObj[cur.boardId] = {
           id: cur.boardId,
-          title: cur.title,
+          title: cur.boardTitle,
           projectId: cur.projectId,
           cardId: cur.cardId ? [cur.cardId] : [],
         };
@@ -51,7 +51,7 @@ function makeBoardCardObject(data) {
       if (cardIndex === -1 && cur.cardId) {
         acc.cardObj[cur.cardId] = {
           id: cur.cardId,
-          title: cur.title,
+          title: cur.cardTitle,
           dDay: cur.dDay,
           status: cur.status,
           check: cur.check,

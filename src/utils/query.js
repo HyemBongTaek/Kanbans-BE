@@ -30,10 +30,10 @@ const findProjectsQuery = `SELECT id
                            WHERE owner=?`;
 
 const getBoardQuery = `SELECT b.id AS 'boardId'
-                            , b.title AS 'title'
+                            , b.title AS 'boardTitle'
                             , b.project_id AS 'projectId'
                             , c.id AS 'cardId'
-                            , c.title AS 'title'
+                            , c.title AS 'cardTitle'
                             , c.d_day AS 'dDay'
                             , c.status AS 'status'
                             , c.check AS 'check'

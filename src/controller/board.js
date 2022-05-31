@@ -57,8 +57,8 @@ const getBoard = async (req, res, next) => {
       kanbans: {
         cards: board.cardObj,
         board: board.boardObj,
+        columnOrders,
       },
-      columnOrders,
     });
     return;
   } catch (err) {
