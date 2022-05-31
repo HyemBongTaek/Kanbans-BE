@@ -13,13 +13,13 @@ const createTask = async (req, res, next) => {
         .json({ ok: false, message: 'cardId가 존재하지 않습니다.' });
       return;
     }
-    if (!req.body.title || !req.body.cardId) {
+    if (!req.body.content || !req.body.cardId) {
       res.status(400).json({ ok: false, message: '빈값이 존재합니다.' });
       return;
     }
     const postTask = await Task.create({
       check: req.body.check,
-      title: req.body.title,
+      content: req.body.content,
       cardId: req.body.cardId,
     });
     const task = await Task.findOne({
