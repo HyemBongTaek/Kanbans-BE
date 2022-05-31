@@ -62,7 +62,7 @@ module.exports = class User extends Sequelize.Model {
       onUpdate: 'cascade',
     });
 
-    db.User.hasMany(db.comment, {
+    db.User.hasMany(db.Comment, {
       foreignKey: { name: 'userId', sourceKey: 'id', allowNull: false },
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
