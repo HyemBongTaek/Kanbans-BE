@@ -29,33 +29,23 @@ const findProjectsQuery = `SELECT id
                            FROM projects 
                            WHERE owner=?`;
 
-const getBoardQuery = `SELECT b.id AS 'id',
-                              b.title AS 'title',
-                              b.project_id AS 'projectId',
-                              c.id AS 'cardId'
-                        FROM boards AS b
+const getBoardQuery = `SELECT b.id AS 'boardId'
+                            , b.title AS 'title'
+                            , b.project_id AS 'projectId'
+                            , c.id AS 'cardId'
+                            , c.title AS 'title'
+                            , c.d_day AS 'dDay'
+                            , c.status AS 'status'
+                            , c.check AS 'check'
+                            , c.created_at AS 'createdAt'
+                       FROM boards AS b
                             LEFT OUTER JOIN cards AS c
-                                ON b.id = c.board_id
-                        WHERE project_id=?;`;
-
-const getBoardCard = `SELECT cards.id,
-                        cards.title,
-                        cards.subtitle,
-                        cards.description,
-                        cards.d_day,
-                        cards.status,
-                        cards.check,
-                        cards.created_at,
-                        cards.board_id
-                   FROM cards
-                       INNER JOIN boards
-                           ON cards.board_id = boards.id
-                   WHERE project_id=?;`;
+                                         ON b.id=c.board_id
+                       WHERE project_id=?`;
 
 module.exports = {
   loadProjectsQuery,
   insertUserProjectQuery,
   findProjectsQuery,
   getBoardQuery,
-  getBoardCard,
 };
