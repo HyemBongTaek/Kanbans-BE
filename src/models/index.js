@@ -10,6 +10,7 @@ const Board = require('./board');
 const Card = require('./card');
 const BoardOrder = require('./boardOrder');
 const Task = require('./task');
+const UserCard = require('./userCard');
 const Comment = require('./comment');
 
 const db = {};
@@ -29,6 +30,7 @@ db.Board = Board;
 db.Card = Card;
 db.BoardOrder = BoardOrder;
 db.Task = Task;
+db.UserCard = UserCard;
 db.Comment = Comment;
 
 User.init(sequelize);
@@ -38,6 +40,7 @@ Board.init(sequelize);
 Card.init(sequelize);
 BoardOrder.init(sequelize);
 Task.init(sequelize);
+UserCard.init(sequelize);
 Comment.init(sequelize);
 
 User.associate(db);
@@ -47,6 +50,7 @@ Board.associate(db);
 Card.associate(db);
 BoardOrder.associate(db);
 Task.associate(db);
+UserCard.associate(db);
 Comment.associate(db);
 
 module.exports = db;
