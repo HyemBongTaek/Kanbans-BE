@@ -8,6 +8,10 @@ module.exports = class CardOrder extends Sequelize.Model {
           type: Sequelize.TEXT,
           defaultValue: '',
         },
+        projectId: {
+          type: Sequelize.INTEGER,
+          allowNull: false,
+        },
       },
       {
         sequelize,

@@ -1,4 +1,6 @@
-const { Card } = require('../models/index');
+const { Card, CardOrder } = require('../models/index');
+const { getCardOrderInRedis, setCardOrderInRedis } = require('../utils/redis');
+const { redisClient } = require('../redis');
 
 const createCard = async (req, res, next) => {
   const {
@@ -203,10 +205,50 @@ const modifyCardStatus = async (req, res, next) => {
   }
 };
 
+const updateCardLocation = async (req, res, next) => {
+  const {
+    body: { start, end },
+    params: { projectId },
+  } = req;
+
+  try {
+    const startPointCardOrder = await getCardOrderInRedis(start.boardId);
+    const endPointCardOrder = await getCardOrderInRedis(end.boardId);
+
+    if (!startPointCardOrder || !endPointCardOrder) {
+      const cardOrderInDB = await CardOrder.findAll({
+        where: {
+          projectId,
+        },
+      });
+
+      await Promise.all(
+        cardOrderInDB.map((obj) => setCardOrderInRedis(obj.boardId, obj.order))
+      );
+    }
+
+    if (start.boardId === end.boardId) {
+      await setCardOrderInRedis(end.boardId, end.cards.join(';'));
+    } else if (start.boardId !== end.boardId) {
+      await setCardOrderInRedis(start.boardId, start.cards.join(';'));
+      await setCardOrderInRedis(end.boardId, end.cards.join(';'));
+    }
+
+    res.status(200).json({
+      ok: true,
+      start: start.cards,
+      end: end.cards,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   createCard,
   deleteCard,
   deleteAllCards,
   modifyCardCheck,
   modifyCardStatus,
+  updateCardLocation,
 };

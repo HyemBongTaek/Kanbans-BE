@@ -27,8 +27,28 @@ async function delBoardOrderInRedis(projectId) {
   }
 }
 
+async function getCardOrderInRedis(boardId) {
+  try {
+    return redisClient.get(`board:${boardId}:card.order`);
+  } catch (err) {
+    const error = new Error(err.message);
+    throw error;
+  }
+}
+
+async function setCardOrderInRedis(boardId, data) {
+  try {
+    await redisClient.set(`board:${boardId}:card.order`, data);
+  } catch (err) {
+    const error = new Error(err.message);
+    throw error;
+  }
+}
+
 module.exports = {
   delBoardOrderInRedis,
   getBoardOrderInRedis,
+  getCardOrderInRedis,
   setBoardOrderInRedis,
+  setCardOrderInRedis,
 };
