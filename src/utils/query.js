@@ -22,9 +22,6 @@ const loadProjectsQuery = `SELECT pj.title AS 'title'
                                         ON up.user_id=u.id
                            ORDER BY pj.bookmark DESC, pj.title ASC`;
 
-const insertUserProjectQuery = `INSERT INTO user_project(user_id, project_id)
-                                VALUES (?, ?)`;
-
 const findProjectsQuery = `SELECT id 
                            FROM projects 
                            WHERE owner=?`;

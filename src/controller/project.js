@@ -52,9 +52,9 @@ const createProject = async (req, res, next) => {
       projectId: newProject.id,
     });
 
-    await sequelize.query(insertUserProjectQuery, {
-      type: QueryTypes.INSERT,
-      replacements: [+userId, newProject.id],
+    await UserProject.create({
+      userId: +userId,
+      projectId: newProject.id,
     });
 
     const loggedInUser = await User.findOne({
