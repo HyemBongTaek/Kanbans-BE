@@ -42,7 +42,6 @@ const getBoardQuery = `SELECT b.id AS 'boardId'
 
 module.exports = {
   loadProjectsQuery,
-  insertUserProjectQuery,
   findProjectsQuery,
   getBoardQuery,
 };
