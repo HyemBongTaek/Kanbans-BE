@@ -1,19 +1,20 @@
 const Sequelize = require('sequelize');
 
-module.exports = class BoardOrder extends Sequelize.Model {
+module.exports = class CardOrder extends Sequelize.Model {
   static init(sequelize) {
     return super.init(
       {
         order: {
           type: Sequelize.TEXT,
+          defaultValue: '',
         },
       },
       {
         sequelize,
         timestamps: false,
         underscored: true,
-        modelName: 'BoardOrder',
-        tableName: 'board_order',
+        modelName: 'CardOrder',
+        tableName: 'card_order',
         charset: 'utf8mb4',
         collate: 'utf8mb4_general_ci',
       }
@@ -21,9 +22,9 @@ module.exports = class BoardOrder extends Sequelize.Model {
   }
 
   static associate(db) {
-    db.BoardOrder.belongsTo(db.Project, {
+    db.CardOrder.belongsTo(db.Board, {
       foreignKey: {
-        name: 'projectId',
+        name: 'boardId',
         targetKey: 'id',
       },
       onDelete: 'cascade',
