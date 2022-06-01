@@ -42,10 +42,10 @@ function makeBoardCardObject(data) {
           id: cur.boardId,
           title: cur.boardTitle,
           projectId: cur.projectId,
-          cardId: cur.cardId ? [cur.cardId] : [],
+          cardId: cur.cardId ? [cur.cardId.toString()] : [],
         };
       } else if (boardIndex >= 0) {
-        acc.boardObj[cur.boardId].cardId.push(cur.cardId);
+        acc.boardObj[cur.boardId].cardId.push(cur.cardId.toString());
       }
 
       if (cardIndex === -1 && cur.cardId) {
