@@ -18,11 +18,15 @@ const {
 
 const router = express.Router();
 
-// 보드
+// 보드 불러오기
 router.get('/:projectId', auth, getBoard);
+// 보드 생성
 router.post('/', auth, createBoard);
+// 보드 위치 변경
 router.patch('/:projectId/board-location', auth, updateBoardLocation);
+// 보드 수정
 router.patch('/:id', auth, updateBoard);
+// 보드 삭제
 router.delete('/:id', auth, deleteBoard);
 
 // 카드 생성
