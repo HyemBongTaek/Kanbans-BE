@@ -1,16 +1,18 @@
 const Sequelize = require('sequelize');
 
-module.exports = class Project extends Sequelize.Model {
+module.exports = class UserProject extends Sequelize.Model {
   static init(sequelize) {
     return super.init(
       {
         userId: {
           type: Sequelize.INTEGER,
           allowNull: false,
+          primaryKey: true,
         },
         projectId: {
           type: Sequelize.INTEGER,
           allowNull: false,
+          primaryKey: true,
         },
         bookmark: {
           type: Sequelize.BOOLEAN,
