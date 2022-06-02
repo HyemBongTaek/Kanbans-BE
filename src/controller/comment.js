@@ -55,10 +55,6 @@ const createComment = async (req, res, next) => {
       res.status(400).json({ ok: false, message: '빈값이 존재합니다.' });
       return;
     }
-    if (!userId || !cardId) {
-      res.status(400).json({ ok: false, message: '빈값이 존재합니다.' });
-      return;
-    }
     const newComment = await Comment.create({
       content,
       userId,
@@ -81,6 +77,7 @@ const createComment = async (req, res, next) => {
 };
 
 const updateComment = async (req, res, next) => {
+  const { content } = req.body;
   try {
     const updateId = req.params.id;
     const findComment = await Comment.findOne({
@@ -92,9 +89,13 @@ const updateComment = async (req, res, next) => {
       res.status(400).json({ ok: false, message: '댓글이 존재하지 않습니다.' });
       return;
     }
+    if (content.trim() === '' || !content) {
+      res.status(400).json({ ok: false, message: '빈값이 존재합니다.' });
+      return;
+    }
     await Comment.update(
       {
-        content: req.body.content,
+        content,
       },
       { where: { id: updateId } }
     );
