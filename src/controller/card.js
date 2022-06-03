@@ -1,15 +1,14 @@
 const { Card, CardOrder } = require('../models/index');
 const { getCardOrderInRedis, setCardOrderInRedis } = require('../utils/redis');
-const { redisClient } = require('../redis');
 
 const createCard = async (req, res, next) => {
   const {
-    params: { boardId },
+    params: { projectId, boardId },
     body: { title, subtitle, description, dDay },
   } = req;
 
   try {
-    if (title === '' || !title) {
+    if (title.trim() === '' || !title) {
       res.status(400).json({
         ok: false,
         message: `Invalid title ${title}`,
@@ -25,8 +24,29 @@ const createCard = async (req, res, next) => {
       boardId: +boardId,
     });
 
+    const cardOrder = await CardOrder.findOne({
+      where: {
+        boardId,
+      },
+    });
+
+    if (!cardOrder) {
+      await CardOrder.create({
+        order: '',
+        projectId,
+        boardId,
+      });
+    } else {
+      if (cardOrder.order === '') {
+        cardOrder.order = newCard.id;
+      } else {
+        cardOrder.order = `${cardOrder.order};${newCard.id}`;
+      }
+      await cardOrder.save();
+    }
+
     const newCardRes = {
-      cardId: newCard.id,
+      id: newCard.id,
       title: newCard.title,
       dDay: newCard.dDay,
       status: newCard.status,

@@ -9,7 +9,6 @@ const {
   updateBoardLocation,
 } = require('../controller/board');
 const {
-  createCard,
   deleteCard,
   deleteAllCards,
   modifyCardCheck,
@@ -29,8 +28,6 @@ router.patch('/:id', auth, updateBoard);
 // 보드 삭제
 router.delete('/:id', auth, deleteBoard);
 
-// 카드 생성
-router.post('/:boardId/card', auth, createCard);
 // 카드 상태변경
 router.patch('/:boardId/card/:cardId/status', auth, modifyCardStatus);
 // 카드 체크
