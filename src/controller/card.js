@@ -1,5 +1,4 @@
 const { Card, CardOrder } = require('../models/index');
-const { getCardOrderInRedis, setCardOrderInRedis } = require('../utils/redis');
 
 const createCard = async (req, res, next) => {
   const {
@@ -237,6 +236,13 @@ const modifyCardStatus = async (req, res, next) => {
     }
 
     card.status = cardStatus;
+
+    if (card.status === 'finish') {
+      card.check = true;
+    } else if (card.status === 'progress') {
+      card.check = false;
+    }
+
     await card.save();
 
     res.status(200).json({
