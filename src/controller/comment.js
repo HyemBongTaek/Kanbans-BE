@@ -14,11 +14,23 @@ const getComment = async (req, res, next) => {
         .json({ ok: false, message: 'cardId가 존재하지 않습니다.' });
       return;
     }
-    const comment = await Comment.findAll({
+    const comments = await Comment.findAll({
       where: {
         cardId,
       },
     });
+    const comment = comments.reduce((acc, cur) => {
+      acc[cur.id] = {
+        id: cur.id,
+        content: cur.content,
+        createdAt: cur.createdAt.toLocaleString('ko-KR', {
+          timeZone: 'Asia/Seoul',
+        }),
+        userId: cur.userId,
+        cardId: cur.cardId,
+      };
+      return acc;
+    }, {});
     res.status(201).json({ ok: true, comment });
     return;
   } catch (err) {
@@ -99,11 +111,20 @@ const updateComment = async (req, res, next) => {
       },
       { where: { id: updateId } }
     );
-    const comment = await Comment.findOne({
+    const newComment = await Comment.findOne({
       where: {
         id: updateId,
       },
     });
+    const comment = {
+      id: newComment.id,
+      content: newComment.content,
+      createdAt: newComment.createdAt.toLocaleString('ko-KR', {
+        timeZone: 'Asia/Seoul',
+      }),
+      userId: newComment.userId,
+      cardId: newComment.cardId,
+    };
     res.status(201).json({ ok: true, message: '수정 완료', comment });
   } catch (err) {
     next(err);
