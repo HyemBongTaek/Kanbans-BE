@@ -10,7 +10,7 @@ const {
   joinProject,
   updateProject,
 } = require('../controller/project');
-const { updateCardLocation, createCard } = require('../controller/card');
+const { createCard } = require('../controller/card');
 
 const router = express.Router();
 
@@ -24,7 +24,5 @@ router.delete('/leave/:id', auth, leaveProject);
 
 // 카드 생성
 router.post('/:projectId/board/:boardId/card', auth, createCard);
-// 카드 순서 변경
-router.patch('/:projectId/card-location', auth, updateCardLocation);
 
 module.exports = router;

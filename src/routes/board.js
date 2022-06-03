@@ -13,6 +13,7 @@ const {
   deleteAllCards,
   modifyCardCheck,
   modifyCardStatus,
+  updateCardLocation,
 } = require('../controller/card');
 
 const router = express.Router();
@@ -36,5 +37,7 @@ router.patch('/:boardId/card/:cardId/check', auth, modifyCardCheck);
 router.delete('/:boardId/card/:cardId', auth, deleteCard);
 // 카드 전체 삭제
 router.delete('/:boardId/cards', auth, deleteAllCards);
+// 카드 순서 변경
+router.patch('/:projectId/card-location', auth, updateCardLocation);
 
 module.exports = router;

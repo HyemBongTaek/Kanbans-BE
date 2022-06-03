@@ -251,30 +251,53 @@ const modifyCardStatus = async (req, res, next) => {
 const updateCardLocation = async (req, res, next) => {
   const {
     body: { start, end },
-    params: { projectId },
   } = req;
 
   try {
-    const startPointCardOrder = await getCardOrderInRedis(start.boardId);
-    const endPointCardOrder = await getCardOrderInRedis(end.boardId);
-
-    if (!startPointCardOrder || !endPointCardOrder) {
-      const cardOrderInDB = await CardOrder.findAll({
-        where: {
-          projectId,
-        },
-      });
-
-      await Promise.all(
-        cardOrderInDB.map((obj) => setCardOrderInRedis(obj.boardId, obj.order))
-      );
-    }
-
     if (start.boardId === end.boardId) {
-      await setCardOrderInRedis(end.boardId, end.cards.join(';'));
-    } else if (start.boardId !== end.boardId) {
-      await setCardOrderInRedis(start.boardId, start.cards.join(';'));
-      await setCardOrderInRedis(end.boardId, end.cards.join(';'));
+      await CardOrder.update(
+        {
+          order: end.cards.join(';'),
+        },
+        {
+          where: {
+            boardId: end.boardId,
+          },
+        }
+      );
+    } else {
+      await Promise.all([
+        CardOrder.update(
+          {
+            order: start.cards.join(';'),
+          },
+          {
+            where: {
+              boardId: start.boardId,
+            },
+          }
+        ),
+        CardOrder.update(
+          {
+            order: end.cards.join(';'),
+          },
+          {
+            where: {
+              boardId: end.boardId,
+            },
+          }
+        ),
+        Card.update(
+          {
+            boardId: end.boardId,
+          },
+          {
+            where: {
+              id: end.cards,
+            },
+          }
+        ),
+      ]);
     }
 
     res.status(200).json({
