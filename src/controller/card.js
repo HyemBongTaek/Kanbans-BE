@@ -100,6 +100,18 @@ const deleteCard = async (req, res, next) => {
       return;
     }
 
+    const cardOrder = await CardOrder.findOne({
+      where: {
+        boardId,
+      },
+    });
+
+    cardOrder.order = cardOrder.order
+      .split(';')
+      .filter((order) => order !== cardId)
+      .join(';');
+    await cardOrder.save();
+
     res.status(200).json({
       ok: true,
       message: 'Card deleted',
