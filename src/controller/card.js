@@ -145,6 +145,17 @@ const deleteAllCards = async (req, res, next) => {
       },
     });
 
+    await CardOrder.update(
+      {
+        order: '',
+      },
+      {
+        where: {
+          boardId,
+        },
+      }
+    );
+
     res.status(200).json({
       ok: true,
       message: 'Cards deleted',
