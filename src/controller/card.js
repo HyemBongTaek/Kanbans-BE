@@ -184,6 +184,13 @@ const modifyCardCheck = async (req, res, next) => {
     }
 
     card.check = !card.check;
+
+    if (card.check) {
+      card.status = 'finish';
+    } else if (!card.check) {
+      card.status = 'progress';
+    }
+
     await card.save();
 
     res.status(200).json({
