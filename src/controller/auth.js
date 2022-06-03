@@ -14,6 +14,8 @@ const {
   GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET,
   GOOGLE_REDIERECT_URI_DEV,
+  NAVER_CLIENT_ID,
+  NAVER_CLIENT_SECRET,
 } = process.env;
 
 const kakaoLogin = async (req, res, next) => {
@@ -110,9 +112,47 @@ const googleLogin = async (req, res, next) => {
   }
 };
 
-const naverLogin = (req, res) => {
-  const { accessToken } = req.user;
-  res.redirect(`${process.env.CLIENT_URL}/?token=${accessToken}`);
+const naverLogin = async (req, res, next) => {
+  const { code } = req.query;
+
+  const NAVER_AUTH_TOKEN_URL = `https://nid.naver.com/oauth2.0/token?grant_type=authorization_code&client_id=${NAVER_CLIENT_ID}&client_secret=${NAVER_CLIENT_SECRET}&code=${code}`;
+  const NAVER_USERINFO_URL = `https://openapi.naver.com/v1/nid/me`;
+
+  try {
+    const naverTokenRes = await axios({
+      method: 'POST',
+      url: NAVER_AUTH_TOKEN_URL,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    });
+
+    const naverAccessToken = naverTokenRes.data.access_token;
+
+    const userInfoRes = await axios({
+      method: 'GET',
+      url: NAVER_USERINFO_URL,
+      headers: {
+        Authorization: `Bearer ${naverAccessToken}`,
+      },
+    });
+
+    const user = await createUserOrLogin({
+      platform: 'naver',
+      platformId: userInfoRes.data.response.id,
+      name: userInfoRes.data.response.nickname,
+      profileImageURL: userInfoRes.data.response.profile_image,
+      email: userInfoRes.data.response.email,
+    });
+
+    res.status(200).json({
+      ok: true,
+      accessToken: user.accessToken,
+      refreshToken: user.refreshToken,
+    });
+  } catch (err) {
+    next(err);
+  }
 };
 
 const refreshToken = async (req, res, next) => {
