@@ -31,7 +31,7 @@ const getComment = async (req, res, next) => {
       };
       return acc;
     }, {});
-    res.status(201).json({ ok: true, comment });
+    res.status(200).json({ ok: true, comment });
     return;
   } catch (err) {
     next(err);
@@ -144,7 +144,7 @@ const deleteComment = async (req, res, next) => {
       return;
     }
     await Comment.destroy({ where: { id: deleteId } });
-    res.status(201).json({ ok: true, message: '삭제 완료' });
+    res.status(200).json({ ok: true, message: '삭제 완료' });
     return;
   } catch (err) {
     next(err);
