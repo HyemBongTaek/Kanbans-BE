@@ -2,7 +2,7 @@ const { Card, CardOrder } = require('../models/index');
 
 const createCard = async (req, res, next) => {
   const {
-    params: { projectId, boardId },
+    params: { boardId },
     body: { title, subtitle, description, dDay },
   } = req;
 
@@ -32,7 +32,6 @@ const createCard = async (req, res, next) => {
     if (!cardOrder) {
       await CardOrder.create({
         order: '',
-        projectId,
         boardId,
       });
     } else {
