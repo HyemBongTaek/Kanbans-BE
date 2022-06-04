@@ -31,7 +31,7 @@ const createCard = async (req, res, next) => {
 
     if (!cardOrder) {
       await CardOrder.create({
-        order: '',
+        order: newCard.id,
         boardId,
       });
     } else {
