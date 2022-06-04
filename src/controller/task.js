@@ -51,7 +51,7 @@ const deleteTask = async (req, res, next) => {
       return;
     }
     await Task.destroy({ where: { id: deleteId } });
-    res.status(201).json({ ok: true, message: '삭제 완료' });
+    res.status(200).json({ ok: true, message: '삭제 완료' });
     return;
   } catch (err) {
     next(err);
