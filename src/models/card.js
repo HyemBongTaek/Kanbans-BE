@@ -67,6 +67,7 @@ module.exports = class Card extends Sequelize.Model {
         name: 'cardId',
         allowNull: false,
       },
+      as: 'users',
       onDelete: 'cascade',
       onUpdate: 'cascade',
     });

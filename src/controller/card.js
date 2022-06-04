@@ -1,4 +1,4 @@
-const { Card, CardOrder } = require('../models/index');
+const { Card, CardOrder, User, UserCard } = require('../models/index');
 
 const createCard = async (req, res, next) => {
   const {
@@ -260,6 +260,54 @@ const modifyCardStatus = async (req, res, next) => {
   }
 };
 
+const loadCardData = async (req, res, next) => {
+  const { cardId } = req.params;
+
+  try {
+    const card = await Card.findOne({
+      include: [
+        {
+          model: UserCard,
+          as: 'users',
+          attributes: ['userId'],
+          include: [
+            {
+              model: User,
+              as: 'user',
+              attributes: ['id', 'name', 'profileImage'],
+            },
+          ],
+        },
+      ],
+      where: {
+        id: cardId,
+      },
+    });
+
+    const cardData = {
+      id: card.id,
+      title: card.title,
+      subtitle: card.subtitle,
+      description: card.description,
+      dDay: card.dDay,
+      status: card.status,
+      check: card.check,
+      createdAt: card.createdAt.toLocaleString('ko-KR', {
+        timeZone: 'Asia/Seoul',
+      }),
+      boardId: card.boardId,
+      users: card.users.map((value) => value.user),
+    };
+
+    res.status(200).json({
+      ok: true,
+      card: cardData,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 const updateCardLocation = async (req, res, next) => {
   const {
     body: { start, end },
@@ -328,5 +376,6 @@ module.exports = {
   deleteAllCards,
   modifyCardCheck,
   modifyCardStatus,
+  loadCardData,
   updateCardLocation,
 };

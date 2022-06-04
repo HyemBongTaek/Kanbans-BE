@@ -10,10 +10,6 @@ const {
 } = require('../models/index');
 const { loadProjectsQuery, insertUserProjectQuery } = require('../utils/query');
 const { getBytes, projectDataFormatChangeFn } = require('../utils/service');
-const {
-  delBoardOrderInRedis,
-  getBoardOrderInRedis,
-} = require('../utils/redis');
 
 const createProject = async (req, res, next) => {
   const {
