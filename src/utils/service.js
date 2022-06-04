@@ -42,7 +42,7 @@ function makeBoardCardObject(data) {
           id: cur.boardId,
           title: cur.boardTitle,
           projectId: cur.projectId,
-          cardId: cur.cardOrder === '' ? [] : cur.cardOrder.split(';'),
+          cardId: !cur.cardOrder ? [] : cur.cardOrder.split(';'),
         };
       }
 
