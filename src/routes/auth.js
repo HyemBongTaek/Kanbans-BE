@@ -1,5 +1,4 @@
 const express = require('express');
-const passport = require('passport');
 
 const { auth } = require('../middlewares/auth');
 const {
@@ -18,13 +17,7 @@ router.get('/kakao', kakaoLogin);
 router.get('/google', googleLogin);
 
 // 네이버 로그인
-router.get(
-  '/naver',
-  passport.authenticate('naver', {
-    scope: ['email', 'profile'],
-  })
-);
-router.get('/naver/callback', passport.authenticate('naver'), naverLogin);
+router.get('/naver', naverLogin);
 
 // Refresh Token 재발급
 router.get('/refresh', refreshToken);

@@ -1,32 +1,34 @@
 const { Task, Card } = require('../models/index');
 
 const createTask = async (req, res, next) => {
+  const { check, content, cardId } = req.body;
   try {
-    const taskId = await Card.findOne({
+    const card = await Card.findOne({
       where: {
-        id: req.body.cardId,
+        id: cardId,
       },
     });
-    if (!taskId) {
+    if (!card) {
       res
         .status(400)
         .json({ ok: false, message: 'cardId가 존재하지 않습니다.' });
       return;
     }
-    if (!req.body.content || !req.body.cardId) {
+    if (content.trim() === '' || !content) {
       res.status(400).json({ ok: false, message: '빈값이 존재합니다.' });
       return;
     }
-    const postTask = await Task.create({
-      check: req.body.check,
-      content: req.body.content,
-      cardId: req.body.cardId,
+    const newTask = await Task.create({
+      check,
+      content,
+      cardId,
     });
-    const task = await Task.findOne({
-      where: {
-        id: postTask.id,
-      },
-    });
+    const task = {
+      id: newTask.id,
+      content: newTask.content,
+      check: newTask.check,
+      cardId: newTask.cardId,
+    };
     res.status(201).json({ ok: true, message: '작성 완료', task });
     return;
   } catch (err) {

@@ -11,6 +11,7 @@ const projectRoutes = require('./routes/project');
 const userRoutes = require('./routes/user');
 const boardRoutes = require('./routes/board');
 const taskRoutes = require('./routes/task');
+const commentRoutes = require('./routes/comment');
 
 passportConfig();
 const app = express();
@@ -32,6 +33,7 @@ app.use('/project', projectRoutes);
 app.use('/user', userRoutes);
 app.use('/board', boardRoutes);
 app.use('/task', taskRoutes);
+app.use('/comment', commentRoutes);
 
 app.use((error, req, res, next) => {
   console.error(error);
