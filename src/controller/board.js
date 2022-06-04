@@ -2,10 +2,6 @@ const { QueryTypes } = require('sequelize');
 
 const { Board, BoardOrder, sequelize } = require('../models/index');
 const { getBoardQuery } = require('../utils/query');
-const {
-  getBoardOrderInRedis,
-  setBoardOrderInRedis,
-} = require('../utils/redis');
 const { makeBoardCardObject } = require('../utils/service');
 
 const getBoard = async (req, res, next) => {
@@ -29,35 +25,20 @@ const getBoard = async (req, res, next) => {
       return;
     }
 
-    const board = makeBoardCardObject(getBoards);
+    const boardCardObj = makeBoardCardObject(getBoards);
 
-    let columnOrders;
-
-    const boardOrderInRedis = await getBoardOrderInRedis(projectId);
-
-    if (!boardOrderInRedis) {
-      const boardOrder = await BoardOrder.findOne({
-        where: {
-          projectId: +projectId,
-        },
-      });
-
-      if (boardOrder.order === '') {
-        columnOrders = [];
-      } else {
-        await setBoardOrderInRedis(projectId, boardOrder.order);
-        columnOrders = boardOrder.order.split(';');
-      }
-    } else {
-      columnOrders = boardOrderInRedis.split(';');
-    }
+    const boardOrder = await BoardOrder.findOne({
+      where: {
+        projectId,
+      },
+    });
 
     res.status(200).json({
       ok: true,
       kanbans: {
-        cards: board.cardObj,
-        board: board.boardObj,
-        columnOrders,
+        cards: boardCardObj.cardObj,
+        board: boardCardObj.boardObj,
+        columnOrders: boardOrder.order,
       },
     });
     return;
@@ -91,29 +72,26 @@ const createBoard = async (req, res, next) => {
       projectId,
     });
 
-    const boardOrderInRedis = await getBoardOrderInRedis(projectId);
-
-    if (!boardOrderInRedis) {
-      const boardOrder = await BoardOrder.findOne({
-        where: {
-          projectId: +projectId,
-        },
-      });
-
-      if (boardOrder.order === '') {
-        await setBoardOrderInRedis(projectId, newBoard.id);
-      } else {
-        await setBoardOrderInRedis(
-          projectId,
-          `${boardOrder.order};${newBoard.id}`
-        );
-      }
-    } else {
-      await setBoardOrderInRedis(
+    const boardOrder = await BoardOrder.findOne({
+      where: {
         projectId,
-        `${boardOrderInRedis};${newBoard.id}`
-      );
+      },
+    });
+
+    if (!boardOrder) {
+      await BoardOrder.create({
+        order: '',
+        projectId,
+      });
     }
+
+    if (boardOrder.order === '') {
+      boardOrder.order = newBoard.id;
+    } else {
+      boardOrder.order = `${boardOrder.order};${newBoard.id}`;
+    }
+
+    await boardOrder.save();
 
     res.status(201).json({ ok: true, message: '작성 완료', newBoard });
     return;
@@ -166,41 +144,33 @@ const updateBoard = async (req, res, next) => {
 };
 
 const deleteBoard = async (req, res, next) => {
+  const { boardId } = req.params;
+
   try {
-    const deleteId = req.params.id;
     const board = await Board.findOne({
       where: {
-        id: deleteId,
+        id: boardId,
       },
     });
+
     if (!board) {
       res.status(400).json({ ok: false, message: '보드가 존재하지 않습니다.' });
       return;
     }
 
-    const boardOrderInRedis = await getBoardOrderInRedis(board.projectId);
+    const boardOrder = await BoardOrder.findOne({
+      where: {
+        projectId: board.projectId,
+      },
+    });
 
-    if (!boardOrderInRedis) {
-      const boardOrder = await BoardOrder.findOne({
-        where: {
-          projectId: board.projectId,
-        },
-      });
+    boardOrder.order = boardOrder.order
+      .split(';')
+      .filter((order) => order !== boardId)
+      .join(';');
+    await boardOrder.save();
 
-      const newBoardOrder = boardOrder.order
-        .split(';')
-        .filter((order) => order !== deleteId);
-
-      await setBoardOrderInRedis(board.projectId, newBoardOrder.join(';'));
-    } else {
-      const newBoardOrder = boardOrderInRedis
-        .split(';')
-        .filter((order) => order !== deleteId);
-
-      await setBoardOrderInRedis(board.projectId, newBoardOrder.join(';'));
-    }
-
-    await Board.destroy({ where: { id: deleteId } });
+    await Board.destroy({ where: { id: boardId } });
 
     res.status(200).json({ ok: true, message: '삭제 완료' });
     return;
@@ -232,7 +202,18 @@ const updateBoardLocation = async (req, res, next) => {
       return;
     }
 
-    await setBoardOrderInRedis(projectId, boardOrder.join(';'));
+    await BoardOrder.update(
+      {
+        order: boardOrder.join(';'),
+      },
+      {
+        where: {
+          projectId,
+        },
+      }
+    );
+
+    // await setBoardOrderInRedis(projectId, boardOrder.join(';'));
 
     res.status(200).json({
       ok: true,

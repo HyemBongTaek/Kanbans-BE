@@ -35,10 +35,13 @@ const getBoardQuery = `SELECT b.id AS 'boardId'
                             , c.status AS 'status'
                             , c.check AS 'check'
                             , c.created_at AS 'createdAt'
+                            , co.order AS 'cardOrder'
                        FROM boards AS b
                             LEFT OUTER JOIN cards AS c
                                          ON b.id=c.board_id
-                       WHERE project_id=?`;
+                            LEFT OUTER JOIN card_order AS co
+                                         ON b.id=co.board_id
+                       WHERE b.project_id=?`;
 
 module.exports = {
   loadProjectsQuery,

@@ -1,13 +1,13 @@
-const { Card } = require('../models/index');
+const { Card, CardOrder } = require('../models/index');
 
 const createCard = async (req, res, next) => {
   const {
-    params: { boardId },
+    params: { projectId, boardId },
     body: { title, subtitle, description, dDay },
   } = req;
 
   try {
-    if (title === '' || !title) {
+    if (title.trim() === '' || !title) {
       res.status(400).json({
         ok: false,
         message: `Invalid title ${title}`,
@@ -23,8 +23,29 @@ const createCard = async (req, res, next) => {
       boardId: +boardId,
     });
 
+    const cardOrder = await CardOrder.findOne({
+      where: {
+        boardId,
+      },
+    });
+
+    if (!cardOrder) {
+      await CardOrder.create({
+        order: '',
+        projectId,
+        boardId,
+      });
+    } else {
+      if (cardOrder.order === '') {
+        cardOrder.order = newCard.id;
+      } else {
+        cardOrder.order = `${cardOrder.order};${newCard.id}`;
+      }
+      await cardOrder.save();
+    }
+
     const newCardRes = {
-      cardId: newCard.id,
+      id: newCard.id,
       title: newCard.title,
       dDay: newCard.dDay,
       status: newCard.status,
@@ -78,6 +99,18 @@ const deleteCard = async (req, res, next) => {
       return;
     }
 
+    const cardOrder = await CardOrder.findOne({
+      where: {
+        boardId,
+      },
+    });
+
+    cardOrder.order = cardOrder.order
+      .split(';')
+      .filter((order) => order !== cardId)
+      .join(';');
+    await cardOrder.save();
+
     res.status(200).json({
       ok: true,
       message: 'Card deleted',
@@ -111,6 +144,17 @@ const deleteAllCards = async (req, res, next) => {
       },
     });
 
+    await CardOrder.update(
+      {
+        order: '',
+      },
+      {
+        where: {
+          boardId,
+        },
+      }
+    );
+
     res.status(200).json({
       ok: true,
       message: 'Cards deleted',
@@ -140,6 +184,13 @@ const modifyCardCheck = async (req, res, next) => {
     }
 
     card.check = !card.check;
+
+    if (card.check) {
+      card.status = 'finish';
+    } else if (!card.check) {
+      card.status = 'progress';
+    }
+
     await card.save();
 
     res.status(200).json({
@@ -192,11 +243,80 @@ const modifyCardStatus = async (req, res, next) => {
     }
 
     card.status = cardStatus;
+
+    if (card.status === 'finish') {
+      card.check = true;
+    } else if (card.status === 'progress') {
+      card.check = false;
+    }
+
     await card.save();
 
     res.status(200).json({
       ok: true,
       changedStatus: card.status,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const updateCardLocation = async (req, res, next) => {
+  const {
+    body: { start, end },
+  } = req;
+
+  try {
+    if (start.boardId === end.boardId) {
+      await CardOrder.update(
+        {
+          order: end.cards.join(';'),
+        },
+        {
+          where: {
+            boardId: end.boardId,
+          },
+        }
+      );
+    } else {
+      await Promise.all([
+        CardOrder.update(
+          {
+            order: start.cards.join(';'),
+          },
+          {
+            where: {
+              boardId: start.boardId,
+            },
+          }
+        ),
+        CardOrder.update(
+          {
+            order: end.cards.join(';'),
+          },
+          {
+            where: {
+              boardId: end.boardId,
+            },
+          }
+        ),
+        Card.update(
+          {
+            boardId: end.boardId,
+          },
+          {
+            where: {
+              id: end.cards,
+            },
+          }
+        ),
+      ]);
+    }
+
+    res.status(200).json({
+      ok: true,
+      start: start.cards,
+      end: end.cards,
     });
   } catch (err) {
     next(err);
@@ -209,4 +329,5 @@ module.exports = {
   deleteAllCards,
   modifyCardCheck,
   modifyCardStatus,
+  updateCardLocation,
 };
