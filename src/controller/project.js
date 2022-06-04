@@ -232,12 +232,6 @@ const deleteProject = async (req, res, next) => {
       },
     });
 
-    const boardOrderInRedis = await getBoardOrderInRedis(projectId);
-
-    if (boardOrderInRedis) {
-      await delBoardOrderInRedis(projectId);
-    }
-
     if (deleteProjectCount === 0) {
       res.status(400).json({
         ok: false,
