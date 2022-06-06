@@ -33,6 +33,7 @@ module.exports = class Comment extends Sequelize.Model {
         targetKey: 'id',
         allowNull: false,
       },
+      as: 'user',
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
     });

@@ -10,10 +10,6 @@ const {
 } = require('../models/index');
 const { loadProjectsQuery, insertUserProjectQuery } = require('../utils/query');
 const { getBytes, projectDataFormatChangeFn } = require('../utils/service');
-const {
-  delBoardOrderInRedis,
-  getBoardOrderInRedis,
-} = require('../utils/redis');
 
 const createProject = async (req, res, next) => {
   const {
@@ -231,12 +227,6 @@ const deleteProject = async (req, res, next) => {
         id: +projectId,
       },
     });
-
-    const boardOrderInRedis = await getBoardOrderInRedis(projectId);
-
-    if (boardOrderInRedis) {
-      await delBoardOrderInRedis(projectId);
-    }
 
     if (deleteProjectCount === 0) {
       res.status(400).json({

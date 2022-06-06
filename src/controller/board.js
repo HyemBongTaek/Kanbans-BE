@@ -38,7 +38,7 @@ const getBoard = async (req, res, next) => {
       kanbans: {
         cards: boardCardObj.cardObj,
         board: boardCardObj.boardObj,
-        columnOrders: boardOrder.order,
+        columnOrders: boardOrder.order.split(';'),
       },
     });
     return;

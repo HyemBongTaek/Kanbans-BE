@@ -16,6 +16,16 @@ module.exports = {
     database: DEV_DB_NAME,
     host: DEV_HOST,
     dialect: 'mysql',
+    dialectOptions: {
+      charset: 'utf8mb4',
+      dateStrings: true,
+      typeCast(field, next) {
+        if (field.type === 'DATETIME' || field.type === 'TIMESTAMP') {
+          return new Date(`${field.string()}Z`);
+        }
+        return next();
+      },
+    },
     timezone: '+09:00',
   },
   test: {
@@ -31,6 +41,16 @@ module.exports = {
     database: DB_NAME,
     host: HOST,
     dialect: 'mysql',
+    dialectOptions: {
+      charset: 'utf8mb4',
+      dateStrings: true,
+      typeCast(field, next) {
+        if (field.type === 'DATETIME' || field.type === 'TIMESTAMP') {
+          return new Date(`${field.string()}Z`);
+        }
+        return next();
+      },
+    },
     timezone: '+09:00',
     logging: false,
   },

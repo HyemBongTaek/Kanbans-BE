@@ -32,6 +32,18 @@ module.exports = class UserCard extends Sequelize.Model {
         targetKey: 'id',
         allowNull: false,
       },
+      as: 'user',
+      onDelete: 'cascade',
+      onUpdate: 'cascade',
+    });
+
+    db.UserCard.belongsTo(db.Card, {
+      foreignKey: {
+        name: 'cardId',
+        targetKey: 'id',
+        allowNull: false,
+      },
+      as: 'card',
       onDelete: 'cascade',
       onUpdate: 'cascade',
     });

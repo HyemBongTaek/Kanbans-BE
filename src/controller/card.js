@@ -1,7 +1,15 @@
-const { Card, CardOrder } = require('../models/index');
+const {
+  Card,
+  CardOrder,
+  Comment,
+  User,
+  UserCard,
+  Task,
+} = require('../models/index');
 
 const createCard = async (req, res, next) => {
   const {
+    userId,
     params: { boardId },
     body: { title, subtitle, description, dDay },
   } = req;
@@ -23,6 +31,11 @@ const createCard = async (req, res, next) => {
       boardId: +boardId,
     });
 
+    await UserCard.create({
+      userId,
+      cardId: newCard.id,
+    });
+
     const cardOrder = await CardOrder.findOne({
       where: {
         boardId,
@@ -31,7 +44,7 @@ const createCard = async (req, res, next) => {
 
     if (!cardOrder) {
       await CardOrder.create({
-        order: '',
+        order: newCard.id,
         boardId,
       });
     } else {
@@ -195,6 +208,7 @@ const modifyCardCheck = async (req, res, next) => {
     res.status(200).json({
       ok: true,
       check: card.check,
+      status: card.status,
     });
   } catch (err) {
     next(err);
@@ -254,6 +268,78 @@ const modifyCardStatus = async (req, res, next) => {
     res.status(200).json({
       ok: true,
       changedStatus: card.status,
+      check: card.check,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const loadCardData = async (req, res, next) => {
+  const { cardId } = req.params;
+
+  try {
+    const card = await Card.findOne({
+      include: [
+        {
+          model: UserCard,
+          as: 'users',
+          attributes: ['userId'],
+          include: [
+            {
+              model: User,
+              as: 'user',
+              attributes: ['id', 'name', 'profileImage'],
+            },
+          ],
+        },
+        {
+          model: Task,
+          as: 'tasks',
+        },
+        {
+          model: Comment,
+          as: 'comments',
+          attributes: ['id', 'content', 'createdAt'],
+          include: [
+            {
+              model: User,
+              as: 'user',
+              attributes: ['id', 'profileImage', 'name'],
+            },
+          ],
+        },
+      ],
+      where: {
+        id: cardId,
+      },
+    });
+
+    if (!card) {
+      res.status(404).json({
+        ok: false,
+        message: 'Card not found',
+      });
+    }
+
+    const cardInfo = {
+      id: card.id,
+      title: card.title,
+      subtitle: card.subtitle,
+      description: card.description,
+      dDay: card.dDay,
+      status: card.status,
+      check: card.check,
+      createdAt: card.createdAt,
+      boardId: card.boardId,
+    };
+
+    res.status(200).json({
+      ok: true,
+      card: cardInfo,
+      users: card.users.map((value) => value.user),
+      tasks: card.tasks,
+      comment: card.comments,
     });
   } catch (err) {
     next(err);
@@ -328,5 +414,6 @@ module.exports = {
   deleteAllCards,
   modifyCardCheck,
   modifyCardStatus,
+  loadCardData,
   updateCardLocation,
 };
