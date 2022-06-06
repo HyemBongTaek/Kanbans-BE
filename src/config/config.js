@@ -26,7 +26,7 @@ module.exports = {
         return next();
       },
     },
-    timezone: 'Asia/Seoul',
+    timezone: '+09:00',
   },
   test: {
     username: 'root',
@@ -51,7 +51,7 @@ module.exports = {
         return next();
       },
     },
-    timezone: 'Asia/Seoul',
+    timezone: '+09:00',
     logging: false,
   },
 };
