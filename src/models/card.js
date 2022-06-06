@@ -27,15 +27,12 @@ module.exports = class Card extends Sequelize.Model {
           allowNull: false,
           defaultValue: false,
         },
-        createdAt: {
-          type: Sequelize.DATE,
-          allowNull: false,
-          defaultValue: Sequelize.NOW,
-        },
       },
       {
         sequelize,
-        timestamps: false,
+        timestamps: true,
+        createdAt: true,
+        updatedAt: false,
         underscored: true,
         modelName: 'Card',
         tableName: 'cards',
@@ -58,6 +55,7 @@ module.exports = class Card extends Sequelize.Model {
 
     db.Card.hasMany(db.Task, {
       foreignKey: { name: 'cardId', sourceKey: 'id', allowNull: false },
+      as: 'tasks',
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
     });
@@ -74,6 +72,7 @@ module.exports = class Card extends Sequelize.Model {
 
     db.Card.hasMany(db.Comment, {
       foreignKey: { name: 'cardId', sourceKey: 'id', allowNull: false },
+      as: 'comments',
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
     });
