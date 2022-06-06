@@ -268,6 +268,7 @@ const modifyCardStatus = async (req, res, next) => {
     res.status(200).json({
       ok: true,
       changedStatus: card.status,
+      check: card.check,
     });
   } catch (err) {
     next(err);
