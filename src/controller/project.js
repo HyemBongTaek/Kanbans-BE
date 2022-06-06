@@ -351,10 +351,38 @@ const updateProject = async (req, res, next) => {
   }
 };
 
+const getProjectInviteCode = async (req, res, next) => {
+  const { projectId } = req.params;
+
+  try {
+    const project = await Project.findOne({
+      where: {
+        id: projectId,
+      },
+    });
+
+    if (!project) {
+      res.status(404).json({
+        ok: false,
+        message: 'Project not found',
+      });
+      return;
+    }
+
+    res.status(200).json({
+      ok: true,
+      inviteCode: project.inviteCode,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   bookmark,
   createProject,
   deleteProject,
+  getProjectInviteCode,
   leaveProject,
   loadAllProject,
   joinProject,
