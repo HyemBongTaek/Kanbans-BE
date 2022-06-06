@@ -1,7 +1,15 @@
-const { Card, CardOrder, User, UserCard } = require('../models/index');
+const {
+  Card,
+  CardOrder,
+  Comment,
+  User,
+  UserCard,
+  Task,
+} = require('../models/index');
 
 const createCard = async (req, res, next) => {
   const {
+    userId,
     params: { boardId },
     body: { title, subtitle, description, dDay },
   } = req;
@@ -21,6 +29,11 @@ const createCard = async (req, res, next) => {
       description: description || null,
       dDay: dDay || null,
       boardId: +boardId,
+    });
+
+    await UserCard.create({
+      userId,
+      cardId: newCard.id,
     });
 
     const cardOrder = await CardOrder.findOne({
@@ -254,54 +267,6 @@ const modifyCardStatus = async (req, res, next) => {
     res.status(200).json({
       ok: true,
       changedStatus: card.status,
-    });
-  } catch (err) {
-    next(err);
-  }
-};
-
-const loadCardData = async (req, res, next) => {
-  const { cardId } = req.params;
-
-  try {
-    const card = await Card.findOne({
-      include: [
-        {
-          model: UserCard,
-          as: 'users',
-          attributes: ['userId'],
-          include: [
-            {
-              model: User,
-              as: 'user',
-              attributes: ['id', 'name', 'profileImage'],
-            },
-          ],
-        },
-      ],
-      where: {
-        id: cardId,
-      },
-    });
-
-    const cardData = {
-      id: card.id,
-      title: card.title,
-      subtitle: card.subtitle,
-      description: card.description,
-      dDay: card.dDay,
-      status: card.status,
-      check: card.check,
-      createdAt: card.createdAt.toLocaleString('ko-KR', {
-        timeZone: 'Asia/Seoul',
-      }),
-      boardId: card.boardId,
-      users: card.users.map((value) => value.user),
-    };
-
-    res.status(200).json({
-      ok: true,
-      card: cardData,
     });
   } catch (err) {
     next(err);
