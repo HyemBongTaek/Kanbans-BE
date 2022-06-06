@@ -273,6 +273,77 @@ const modifyCardStatus = async (req, res, next) => {
   }
 };
 
+const loadCardData = async (req, res, next) => {
+  const { cardId } = req.params;
+
+  try {
+    const card = await Card.findOne({
+      include: [
+        {
+          model: UserCard,
+          as: 'users',
+          attributes: ['userId'],
+          include: [
+            {
+              model: User,
+              as: 'user',
+              attributes: ['id', 'name', 'profileImage'],
+            },
+          ],
+        },
+        {
+          model: Task,
+          as: 'tasks',
+        },
+        {
+          model: Comment,
+          as: 'comments',
+          attributes: ['id', 'content', 'createdAt'],
+          include: [
+            {
+              model: User,
+              as: 'user',
+              attributes: ['id', 'profileImage', 'name'],
+            },
+          ],
+        },
+      ],
+      where: {
+        id: cardId,
+      },
+    });
+
+    if (!card) {
+      res.status(404).json({
+        ok: false,
+        message: 'Card not found',
+      });
+    }
+
+    const cardInfo = {
+      id: card.id,
+      title: card.title,
+      subtitle: card.subtitle,
+      description: card.description,
+      dDay: card.dDay,
+      status: card.status,
+      check: card.check,
+      createdAt: card.createdAt,
+      boardId: card.boardId,
+    };
+
+    res.status(200).json({
+      ok: true,
+      card: cardInfo,
+      users: card.users.map((value) => value.user),
+      tasks: card.tasks,
+      comment: card.comments,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 const updateCardLocation = async (req, res, next) => {
   const {
     body: { start, end },
