@@ -63,9 +63,7 @@ const createCard = async (req, res, next) => {
       status: newCard.status,
       check: newCard.check,
       boardId: newCard.boardId,
-      createdAt: newCard.createdAt.toLocaleString('ko-KR', {
-        timeZone: 'Asia/Seoul',
-      }),
+      createdAt: newCard.createdAt,
     };
 
     res.status(201).json({
