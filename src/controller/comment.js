@@ -126,6 +126,7 @@ const updateComment = async (req, res, next) => {
       cardId: newComment.cardId,
     };
     res.status(201).json({ ok: true, message: '수정 완료', comment });
+    return;
   } catch (err) {
     next(err);
   }
