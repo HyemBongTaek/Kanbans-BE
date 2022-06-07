@@ -1,4 +1,4 @@
-const { Comment, User, Card } = require('../models/index');
+const { Comment, Card } = require('../models/index');
 
 const getComment = async (req, res, next) => {
   const { cardId } = req.params;
@@ -39,19 +39,11 @@ const getComment = async (req, res, next) => {
 };
 
 const createComment = async (req, res, next) => {
-  const { content, userId, cardId } = req.body;
+  const {
+    userId,
+    body: { content, cardId },
+  } = req;
   try {
-    const user = await User.findOne({
-      where: {
-        id: userId,
-      },
-    });
-    if (!user) {
-      res
-        .status(400)
-        .json({ ok: false, message: 'userId가 존재하지 않습니다.' });
-      return;
-    }
     const card = await Card.findOne({
       where: {
         id: cardId,
