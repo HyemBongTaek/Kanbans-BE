@@ -53,9 +53,7 @@ function makeBoardCardObject(data) {
           dDay: cur.dDay,
           status: cur.status,
           check: cur.check,
-          createdAt: cur.createdAt.toLocaleString('ko-KR', {
-            timeZone: 'Asia/Seoul',
-          }),
+          createdAt: cur.createdAt,
           boardId: cur.boardId,
         };
       }
