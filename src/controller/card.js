@@ -259,7 +259,7 @@ const modifyCardStatus = async (req, res, next) => {
 
     if (card.status === 'finish') {
       card.check = true;
-    } else if (card.status === 'progress') {
+    } else if (card.status === 'progress' || card.status === 'hold') {
       card.check = false;
     }
 
