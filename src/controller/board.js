@@ -210,8 +210,6 @@ const updateBoardLocation = async (req, res, next) => {
       }
     );
 
-    // await setBoardOrderInRedis(projectId, boardOrder.join(';'));
-
     res.status(200).json({
       ok: true,
       boardOrder,
