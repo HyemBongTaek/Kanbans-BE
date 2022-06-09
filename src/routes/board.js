@@ -1,7 +1,6 @@
 const express = require('express');
 
 const { auth } = require('../middlewares/auth');
-const { cardImagesUploadMiddleware } = require('../middlewares/upload');
 const {
   getBoard,
   createBoard,
@@ -30,6 +29,7 @@ router.delete('/:boardId', auth, deleteBoard);
 
 // 카드 생성
 router.post('/:boardId/card', auth, createCard);
+
 // 카드 상태변경
 router.patch('/:boardId/card/:cardId/status', auth, modifyCardStatus);
 // 카드 체크
