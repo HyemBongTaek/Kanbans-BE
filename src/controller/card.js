@@ -58,10 +58,6 @@ const createCard = async (req, res, next) => {
       newCard: {
         id: newCard.id,
         title: newCard.title,
-        dDay: newCard.dDay,
-        status: newCard.status,
-        check: newCard.check,
-        boardId: newCard.boardId,
         createdAt: newCard.createdAt,
       },
     });
