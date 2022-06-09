@@ -11,7 +11,7 @@ const createCard = async (req, res, next) => {
   const {
     userId,
     params: { boardId },
-    body: { title, subtitle, description, dDay },
+    body: { title },
   } = req;
 
   try {
@@ -25,9 +25,6 @@ const createCard = async (req, res, next) => {
 
     const newCard = await Card.create({
       title,
-      subtitle: subtitle || null,
-      description: description || null,
-      dDay: dDay || null,
       boardId: +boardId,
     });
 
@@ -56,19 +53,17 @@ const createCard = async (req, res, next) => {
       await cardOrder.save();
     }
 
-    const newCardRes = {
-      id: newCard.id,
-      title: newCard.title,
-      dDay: newCard.dDay,
-      status: newCard.status,
-      check: newCard.check,
-      boardId: newCard.boardId,
-      createdAt: newCard.createdAt,
-    };
-
     res.status(201).json({
       ok: true,
-      newCard: newCardRes,
+      newCard: {
+        id: newCard.id,
+        title: newCard.title,
+        dDay: newCard.dDay,
+        status: newCard.status,
+        check: newCard.check,
+        boardId: newCard.boardId,
+        createdAt: newCard.createdAt,
+      },
     });
   } catch (err) {
     next(err);

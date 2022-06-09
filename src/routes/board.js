@@ -1,6 +1,7 @@
 const express = require('express');
 
 const { auth } = require('../middlewares/auth');
+const { cardImagesUploadMiddleware } = require('../middlewares/upload');
 const {
   getBoard,
   createBoard,
