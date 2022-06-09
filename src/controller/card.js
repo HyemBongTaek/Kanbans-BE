@@ -190,10 +190,10 @@ const inputCardDetails = async (req, res, next) => {
       return;
     }
 
-    card.title = title || null;
-    card.subtitle = subtitle || null;
-    card.description = description || null;
-    card.dDay = dDay || null;
+    card.title = title || card.title;
+    card.subtitle = subtitle || card.subtitle;
+    card.description = description || card.description;
+    card.dDay = dDay || card.dDay;
     await card.save();
 
     res.status(200).json({
