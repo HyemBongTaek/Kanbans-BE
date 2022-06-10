@@ -1,4 +1,7 @@
-const { Comment, User, Card } = require('../models/index');
+const { QueryTypes } = require('sequelize');
+
+const { Comment, Card, sequelize } = require('../models/index');
+const { getCommentQuery } = require('../utils/query');
 
 const getComment = async (req, res, next) => {
   const { cardId } = req.params;
@@ -14,23 +17,25 @@ const getComment = async (req, res, next) => {
         .json({ ok: false, message: 'cardId가 존재하지 않습니다.' });
       return;
     }
-    const comments = await Comment.findAll({
-      where: {
-        cardId,
-      },
+    const comment = await sequelize.query(getCommentQuery, {
+      type: QueryTypes.SELECT,
+      replacements: [+cardId],
     });
-    const comment = comments.reduce((acc, cur) => {
-      acc[cur.id] = {
-        id: cur.id,
-        content: cur.content,
-        createdAt: cur.createdAt.toLocaleString('ko-KR', {
-          timeZone: 'Asia/Seoul',
-        }),
-        userId: cur.userId,
-        cardId: cur.cardId,
-      };
-      return acc;
-    }, {});
+    // const comment = await Comment.findAll({
+    //   where: {
+    //     cardId,
+    //   },
+    // });
+    // const comment = comments.reduce((acc, cur) => {
+    //   acc[cur.id] = {
+    //     id: cur.id,
+    //     content: cur.content,
+    //     createdAt: cur.createdAt,
+    //     userId: cur.userId,
+    //     cardId: cur.cardId,
+    //   };
+    //   return acc;
+    // }, {});
     res.status(200).json({ ok: true, comment });
     return;
   } catch (err) {
@@ -39,19 +44,11 @@ const getComment = async (req, res, next) => {
 };
 
 const createComment = async (req, res, next) => {
-  const { content, userId, cardId } = req.body;
+  const {
+    userId,
+    body: { content, cardId },
+  } = req;
   try {
-    const user = await User.findOne({
-      where: {
-        id: userId,
-      },
-    });
-    if (!user) {
-      res
-        .status(400)
-        .json({ ok: false, message: 'userId가 존재하지 않습니다.' });
-      return;
-    }
     const card = await Card.findOne({
       where: {
         id: cardId,

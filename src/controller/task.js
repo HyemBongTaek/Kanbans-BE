@@ -14,11 +14,20 @@ const getTask = async (req, res, next) => {
         .json({ ok: false, message: 'cardId가 존재하지 않습니다.' });
       return;
     }
-    const task = await Task.findAll({
+    const tasks = await Task.findAll({
       where: {
         cardId,
       },
     });
+    const task = tasks.reduce((acc, cur) => {
+      acc[cur.id] = {
+        id: cur.id,
+        content: cur.content,
+        check: cur.check,
+        cardId: cur.cardId,
+      };
+      return acc;
+    }, {});
     res.status(200).json({ ok: true, task });
     return;
   } catch (err) {
