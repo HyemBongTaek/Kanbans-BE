@@ -350,6 +350,11 @@ const loadCardData = async (req, res, next) => {
           ],
         },
         {
+          model: Image,
+          as: 'images',
+          attributes: ['id', 'url'],
+        },
+        {
           model: Task,
           as: 'tasks',
         },
@@ -394,6 +399,7 @@ const loadCardData = async (req, res, next) => {
       ok: true,
       card: cardInfo,
       users: card.users.map((value) => value.user),
+      images: card.images,
       tasks: card.tasks,
       comment: card.comments,
     });
