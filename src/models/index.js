@@ -13,6 +13,7 @@ const Task = require('./task');
 const UserCard = require('./userCard');
 const Comment = require('./comment');
 const CardOrder = require('./cardOrder');
+const Image = require('./image');
 
 const db = {};
 
@@ -34,6 +35,7 @@ db.Task = Task;
 db.UserCard = UserCard;
 db.Comment = Comment;
 db.CardOrder = CardOrder;
+db.Image = Image;
 
 User.init(sequelize);
 Project.init(sequelize);
@@ -45,6 +47,7 @@ Task.init(sequelize);
 UserCard.init(sequelize);
 Comment.init(sequelize);
 CardOrder.init(sequelize);
+Image.init(sequelize);
 
 User.associate(db);
 Project.associate(db);
@@ -56,5 +59,6 @@ Task.associate(db);
 UserCard.associate(db);
 Comment.associate(db);
 CardOrder.associate(db);
+Image.associate(db);
 
 module.exports = db;
