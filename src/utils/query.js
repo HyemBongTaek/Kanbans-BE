@@ -43,8 +43,21 @@ const getBoardQuery = `SELECT b.id AS 'boardId'
                                          ON b.id=co.board_id
                        WHERE b.project_id=?`;
 
+const getCommentQuery = `SELECT c.id AS 'id',
+                                c.content AS 'content',
+                                c.created_at AS 'createdAt',
+                                c.user_id AS 'userId',
+                                c.card_id AS 'cardId',
+                                u.profile_image AS 'profileImage',
+                                u.name AS 'name'
+                         FROM comments AS c
+                              LEFT OUTER JOIN users AS u
+                                   ON c.user_id = u.id
+                         WHERE c.card_id=?`;
+
 module.exports = {
   loadProjectsQuery,
   findProjectsQuery,
   getBoardQuery,
+  getCommentQuery,
 };
