@@ -119,9 +119,6 @@ const updateBoard = async (req, res, next) => {
       },
       { where: { id: updateId } }
     );
-    // const findUpdateId = await Board.findOne({
-    //   where: { id: updateId },
-    // });
     const userProjectId = findUpdateId.dataValues.projectId;
     const updatedBoard = await Board.findAll({
       where: {
@@ -212,8 +209,6 @@ const updateBoardLocation = async (req, res, next) => {
         },
       }
     );
-
-    // await setBoardOrderInRedis(projectId, boardOrder.join(';'));
 
     res.status(200).json({
       ok: true,

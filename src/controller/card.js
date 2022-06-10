@@ -2,16 +2,18 @@ const {
   Card,
   CardOrder,
   Comment,
+  Image,
   User,
   UserCard,
   Task,
 } = require('../models/index');
+const { cardImageUploadFn } = require('../utils/image');
 
 const createCard = async (req, res, next) => {
   const {
     userId,
     params: { boardId },
-    body: { title, subtitle, description, dDay },
+    body: { title },
   } = req;
 
   try {
@@ -25,9 +27,6 @@ const createCard = async (req, res, next) => {
 
     const newCard = await Card.create({
       title,
-      subtitle: subtitle || null,
-      description: description || null,
-      dDay: dDay || null,
       boardId: +boardId,
     });
 
@@ -56,19 +55,13 @@ const createCard = async (req, res, next) => {
       await cardOrder.save();
     }
 
-    const newCardRes = {
-      id: newCard.id,
-      title: newCard.title,
-      dDay: newCard.dDay,
-      status: newCard.status,
-      check: newCard.check,
-      boardId: newCard.boardId,
-      createdAt: newCard.createdAt,
-    };
-
     res.status(201).json({
       ok: true,
-      newCard: newCardRes,
+      newCard: {
+        id: newCard.id,
+        title: newCard.title,
+        createdAt: newCard.createdAt,
+      },
     });
   } catch (err) {
     next(err);
@@ -168,6 +161,69 @@ const deleteAllCards = async (req, res, next) => {
     res.status(200).json({
       ok: true,
       message: 'Cards deleted',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const inputCardDetails = async (req, res, next) => {
+  const {
+    body: { title, subtitle, description, dDay },
+    params: { cardId },
+  } = req;
+
+  try {
+    const card = await Card.findOne({
+      where: {
+        id: cardId,
+      },
+    });
+
+    if (!card) {
+      res.status(404).json({
+        ok: false,
+        message: 'Card not found',
+      });
+      return;
+    }
+
+    card.title = title || card.title;
+    card.subtitle = subtitle || card.subtitle;
+    card.description = description || card.description;
+    card.dDay = dDay || card.dDay;
+    await card.save();
+
+    res.status(200).json({
+      ok: true,
+      cardDetail: {
+        title: card.title,
+        subtitle: card.subtitle,
+        description: card.description,
+        dDay: card.dDay,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const inputCardImages = async (req, res, next) => {
+  const {
+    files,
+    params: { cardId },
+  } = req;
+
+  try {
+    const fileUrl = await Promise.all(
+      files.map((file) => cardImageUploadFn(cardId, file))
+    );
+
+    const images = await Image.bulkCreate(fileUrl);
+
+    res.status(200).json({
+      ok: true,
+      images,
     });
   } catch (err) {
     next(err);
@@ -410,6 +466,8 @@ module.exports = {
   createCard,
   deleteCard,
   deleteAllCards,
+  inputCardDetails,
+  inputCardImages,
   modifyCardCheck,
   modifyCardStatus,
   loadCardData,

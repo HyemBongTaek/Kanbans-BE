@@ -8,7 +8,13 @@ const filter = (req, file, cb) => {
   ) {
     cb(null, true);
   } else {
-    cb(null, false);
+    cb(
+      {
+        message: 'Only *.jpg, *.jpeg, *.png files can be uploaded',
+        statusCode: 400,
+      },
+      false
+    );
   }
 };
 
@@ -21,7 +27,9 @@ const upload = multer({
 });
 
 const profileUpload = upload.single('profileImage');
+const cardImagesUploadMiddleware = upload.array('images');
 
 module.exports = {
+  cardImagesUploadMiddleware,
   profileUpload,
 };
