@@ -8,7 +8,13 @@ const filter = (req, file, cb) => {
   ) {
     cb(null, true);
   } else {
-    cb({ message: 'Only *.jpg, *.jpeg, *.png files can be uploaded' }, false);
+    cb(
+      {
+        message: 'Only *.jpg, *.jpeg, *.png files can be uploaded',
+        statusCode: 400,
+      },
+      false
+    );
   }
 };
 
