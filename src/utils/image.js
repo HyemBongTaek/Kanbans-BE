@@ -1,5 +1,6 @@
 const path = require('path');
 const sharp = require('sharp');
+const { v4: uuidv4 } = require('uuid');
 
 const { bucket, storageBucket } = require('../firebase');
 
@@ -15,6 +16,31 @@ function getProfileFilename(profileImageUrl) {
   const filename = splitUrl[splitUrl.length - 1].split('?')[0].split('%2F')[1];
 
   return filename;
+}
+
+async function cardImageUploadFn(cardId, file) {
+  const ext = path.extname(file.originalname);
+  const filename = `${cardId}_${uuidv4()}${ext}`;
+
+  try {
+    await bucket
+      .file(`images/${filename}`)
+      .createWriteStream({
+        metadata: {
+          contentType: file.mimetype,
+        },
+      })
+      .end(file.buffer);
+
+    const profileImageUrl = `https://firebasestorage.googleapis.com/v0/b/${storageBucket}/o/images%2F${filename}?alt=media`;
+
+    return {
+      url: profileImageUrl,
+      cardId,
+    };
+  } catch (err) {
+    throw new Error(err.message);
+  }
 }
 
 async function deleteProfileImage(filename) {
@@ -80,6 +106,7 @@ async function profileImageUploadFn(file, id, profileImage) {
 }
 
 module.exports = {
+  cardImageUploadFn,
   deleteProfileImage,
   getProfileFilename,
   getProfileFileStorage,

@@ -2,10 +2,12 @@ const {
   Card,
   CardOrder,
   Comment,
+  Image,
   User,
   UserCard,
   Task,
 } = require('../models/index');
+const { cardImageUploadFn } = require('../utils/image');
 
 const createCard = async (req, res, next) => {
   const {
@@ -200,6 +202,28 @@ const inputCardDetails = async (req, res, next) => {
         description: card.description,
         dDay: card.dDay,
       },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const inputCardImages = async (req, res, next) => {
+  const {
+    files,
+    params: { cardId },
+  } = req;
+
+  try {
+    const fileUrl = await Promise.all(
+      files.map((file) => cardImageUploadFn(cardId, file))
+    );
+
+    const images = await Image.bulkCreate(fileUrl);
+
+    res.status(200).json({
+      ok: true,
+      images,
     });
   } catch (err) {
     next(err);
@@ -443,6 +467,7 @@ module.exports = {
   deleteCard,
   deleteAllCards,
   inputCardDetails,
+  inputCardImages,
   modifyCardCheck,
   modifyCardStatus,
   loadCardData,
