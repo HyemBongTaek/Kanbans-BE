@@ -68,19 +68,18 @@ const changeProfile = async (req, res, next) => {
       return;
     }
 
+    const profile = await getUserProfile(userId);
+
     if (file) {
       const url = await profileImageUploadFn(file, userId, user.profileImage);
 
-      await User.update(
-        {
-          profileImage: url,
-        },
-        {
-          where: {
-            id: +userId,
-          },
-        }
-      );
+      if (profile) {
+        profile.profileImage = url;
+        await setUserProfile(userId, profile);
+      }
+
+      user.profileImage = url;
+      await user.save();
 
       res.status(200).json({
         ok: true,
@@ -88,16 +87,13 @@ const changeProfile = async (req, res, next) => {
         imageUrl: url,
       });
     } else if (name) {
-      await User.update(
-        {
-          name,
-        },
-        {
-          where: {
-            id: +userId,
-          },
-        }
-      );
+      if (profile) {
+        profile.name = name;
+        await setUserProfile(userId, profile);
+      }
+
+      user.name = name;
+      await user.save();
 
       res.status(200).json({
         ok: true,
