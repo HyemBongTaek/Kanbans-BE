@@ -83,6 +83,7 @@ module.exports = class Card extends Sequelize.Model {
         sourceKey: 'id',
         allowNull: false,
       },
+      as: 'images',
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
     });

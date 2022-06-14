@@ -4,6 +4,8 @@ const logger = require('morgan');
 const cors = require('cors');
 
 const dbConnector = require('./db');
+const { redisConnect } = require('./redis');
+
 const authRoutes = require('./routes/auth');
 const projectRoutes = require('./routes/project');
 const userRoutes = require('./routes/user');
@@ -49,6 +51,7 @@ app.use((error, req, res, next) => {
 async function listener() {
   console.log(`✅ Server listening on http://localhost:${PORT}`);
   await dbConnector();
+  await redisConnect();
 }
 
 app.listen(PORT, listener);

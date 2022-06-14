@@ -8,27 +8,38 @@ const {
   getProfileFileStorage,
 } = require('../utils/image');
 const { findProjectsQuery } = require('../utils/query');
+const { getUserProfile, setUserProfile } = require('../utils/redis');
 
 const getProfileInfo = async (req, res, next) => {
-  try {
-    const user = await User.findOne({
-      where: {
-        id: req.userId,
-      },
-      attributes: ['id', 'profileImage', 'name'],
-    });
+  const { userId } = req;
 
-    if (!user) {
-      res.status(404).json({
-        ok: false,
-        message: 'User not found',
+  try {
+    let profile = await getUserProfile(userId);
+
+    if (!profile) {
+      const user = await User.findOne({
+        where: {
+          id: +userId,
+        },
+        attributes: ['id', 'profileImage', 'name'],
       });
-      return;
+
+      if (!user) {
+        res.status(404).json({
+          ok: false,
+          message: 'User not found',
+        });
+        return;
+      }
+
+      await setUserProfile(userId, user);
+
+      profile = user;
     }
 
     res.status(200).json({
       ok: true,
-      user,
+      user: profile,
     });
   } catch (err) {
     next(err);
@@ -57,19 +68,18 @@ const changeProfile = async (req, res, next) => {
       return;
     }
 
+    const profile = await getUserProfile(userId);
+
     if (file) {
       const url = await profileImageUploadFn(file, userId, user.profileImage);
 
-      await User.update(
-        {
-          profileImage: url,
-        },
-        {
-          where: {
-            id: +userId,
-          },
-        }
-      );
+      if (profile) {
+        profile.profileImage = url;
+        await setUserProfile(userId, profile);
+      }
+
+      user.profileImage = url;
+      await user.save();
 
       res.status(200).json({
         ok: true,
@@ -77,16 +87,13 @@ const changeProfile = async (req, res, next) => {
         imageUrl: url,
       });
     } else if (name) {
-      await User.update(
-        {
-          name,
-        },
-        {
-          where: {
-            id: +userId,
-          },
-        }
-      );
+      if (profile) {
+        profile.name = name;
+        await setUserProfile(userId, profile);
+      }
+
+      user.name = name;
+      await user.save();
 
       res.status(200).json({
         ok: true,
