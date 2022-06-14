@@ -13,7 +13,7 @@ async function setUserProfile(userId, profile) {
   try {
     await redisClient.setEx(
       `user:${userId}:profile`,
-      1200000,
+      1800,
       JSON.stringify(profile)
     );
   } catch (err) {
