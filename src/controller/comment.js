@@ -1,6 +1,6 @@
 const { QueryTypes } = require('sequelize');
 
-const { Comment, Card, sequelize } = require('../models/index');
+const { Comment, Card, User, sequelize } = require('../models/index');
 const { getCommentQuery } = require('../utils/query');
 
 const getComment = async (req, res, next) => {
@@ -69,6 +69,11 @@ const createComment = async (req, res, next) => {
       userId,
       cardId,
     });
+    const user = await User.findOne({
+      where: {
+        id: userId,
+      },
+    });
     const comment = {
       id: newComment.id,
       content: newComment.content,
@@ -77,6 +82,8 @@ const createComment = async (req, res, next) => {
       }),
       userId: newComment.userId,
       cardId: newComment.cardId,
+      profileImage: user.profileImage,
+      name: user.name,
     };
     res.status(201).json({ ok: true, message: '작성 완료', comment });
     return;
