@@ -8,7 +8,7 @@ const {
   UserProject,
   BoardOrder,
 } = require('../models/index');
-const { loadProjectsQuery, insertUserProjectQuery } = require('../utils/query');
+const { loadProjectsQuery } = require('../utils/query');
 const { getBytes, projectDataFormatChangeFn } = require('../utils/service');
 
 const createProject = async (req, res, next) => {
@@ -178,13 +178,13 @@ const bookmark = async (req, res, next) => {
 const joinProject = async (req, res, next) => {
   const {
     userId,
-    body: { projectId, inviteCode },
+    body: { inviteCode },
   } = req;
 
   try {
     const project = await Project.findOne({
       where: {
-        id: projectId,
+        inviteCode,
       },
     });
 
@@ -192,6 +192,21 @@ const joinProject = async (req, res, next) => {
       res.status(404).json({
         ok: false,
         message: 'Project not found',
+      });
+      return;
+    }
+
+    const userProject = await UserProject.findOne({
+      where: {
+        userId: +userId,
+        projectId: +project.id,
+      },
+    });
+
+    if (userProject) {
+      res.status(400).json({
+        ok: false,
+        message: 'Already participated in the project',
       });
       return;
     }
@@ -204,9 +219,9 @@ const joinProject = async (req, res, next) => {
       return;
     }
 
-    await sequelize.query(insertUserProjectQuery, {
-      type: QueryTypes.INSERT,
-      replacements: [+userId, +projectId],
+    await UserProject.create({
+      userId: +userId,
+      projectId: +project.id,
     });
 
     res.status(200).json({
