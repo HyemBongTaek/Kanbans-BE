@@ -43,6 +43,16 @@ async function cardImageUploadFn(cardId, file) {
   }
 }
 
+async function deleteCardImageFn(cardId, url) {
+  const filename = url.split('images%2F')[1].split('?')[0];
+
+  try {
+    await bucket.file(`images/${filename}`).delete();
+  } catch (err) {
+    throw new Error(err.message);
+  }
+}
+
 async function deleteProfileImage(filename) {
   try {
     await bucket.file(`profile/${filename}`).delete();
@@ -107,6 +117,7 @@ async function profileImageUploadFn(file, id, profileImage) {
 
 module.exports = {
   cardImageUploadFn,
+  deleteCardImageFn,
   deleteProfileImage,
   getProfileFilename,
   getProfileFileStorage,

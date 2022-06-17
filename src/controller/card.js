@@ -7,7 +7,7 @@ const {
   UserCard,
   Task,
 } = require('../models/index');
-const { cardImageUploadFn } = require('../utils/image');
+const { cardImageUploadF, deleteCardImageFn } = require('../utils/image');
 
 const createCard = async (req, res, next) => {
   const {
@@ -119,6 +119,51 @@ const deleteCard = async (req, res, next) => {
     res.status(200).json({
       ok: true,
       message: 'Card deleted',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const deleteCardImage = async (req, res, next) => {
+  const { cardId, imgId } = req.params;
+
+  try {
+    const image = await Image.findOne({
+      where: {
+        id: imgId,
+        cardId,
+      },
+    });
+
+    if (!image) {
+      res.status(400).json({
+        ok: false,
+        message: 'Image not found',
+      });
+      return;
+    }
+
+    const deletedCardImageCount = await Image.destroy({
+      where: {
+        id: imgId,
+        cardId,
+      },
+    });
+
+    if (deletedCardImageCount === 0) {
+      res.status(400).json({
+        ok: false,
+        message: 'Card image not deleted',
+      });
+      return;
+    }
+
+    await deleteCardImageFn(cardId, image.url);
+
+    res.status(200).json({
+      ok: true,
+      message: 'Card image deleted',
     });
   } catch (err) {
     next(err);
@@ -473,6 +518,7 @@ const updateCardLocation = async (req, res, next) => {
 module.exports = {
   createCard,
   deleteCard,
+  deleteCardImage,
   deleteAllCards,
   inputCardDetails,
   inputCardImages,

@@ -5,6 +5,7 @@ const router = express.Router();
 const { auth } = require('../middlewares/auth');
 const { cardImagesUploadMiddleware } = require('../middlewares/upload');
 const {
+  deleteCardImage,
   inputCardDetails,
   inputCardImages,
   loadCardData,
@@ -19,6 +20,8 @@ router.post(
   cardImagesUploadMiddleware,
   inputCardImages
 );
+// 카드 이미지 삭제
+router.delete('/:cardId/image/:imgId', auth, deleteCardImage);
 // 카드 세부정보 입력
 router.patch('/:cardId/card-details', auth, inputCardDetails);
 
