@@ -7,7 +7,7 @@ const {
   UserCard,
   Task,
 } = require('../models/index');
-const { cardImageUploadF, deleteCardImageFn } = require('../utils/image');
+const { cardImageUploadFn, deleteCardImageFn } = require('../utils/image');
 
 const createCard = async (req, res, next) => {
   const {
