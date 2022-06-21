@@ -8,8 +8,73 @@ const {
   UserProject,
   BoardOrder,
 } = require('../models/index');
-const { loadProjectsQuery } = require('../utils/query');
+const { getProjectMembers, loadProjectsQuery } = require('../utils/query');
 const { getBytes, projectDataFormatChangeFn } = require('../utils/service');
+
+const bookmark = async (req, res, next) => {
+  try {
+    const project = await Project.findOne({
+      where: {
+        id: req.body.projectId,
+      },
+    });
+
+    if (!project) {
+      res.status(404).json({
+        ok: false,
+        message: 'Cannot find project',
+      });
+      return;
+    }
+
+    const userProject = await UserProject.findOne({
+      where: {
+        userId: +req.userId,
+        projectId: req.body.projectId,
+      },
+      attributes: ['user_id', 'project_id', 'bookmark'],
+    });
+
+    if (!userProject.bookmark) {
+      await UserProject.update(
+        {
+          bookmark: 1,
+        },
+        {
+          where: {
+            userId: +req.userId,
+            projectId: req.body.projectId,
+          },
+        }
+      );
+
+      res.status(200).json({
+        ok: true,
+        message: 'Project bookmark on',
+      });
+      return;
+    }
+
+    await UserProject.update(
+      {
+        bookmark: 0,
+      },
+      {
+        where: {
+          userId: +req.userId,
+          projectId: req.body.projectId,
+        },
+      }
+    );
+
+    res.status(200).json({
+      ok: true,
+      message: 'Project bookmark off',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 
 const createProject = async (req, res, next) => {
   const {
@@ -84,91 +149,72 @@ const createProject = async (req, res, next) => {
   }
 };
 
-const loadAllProject = async (req, res, next) => {
+const deleteProject = async (req, res, next) => {
+  const { id: projectId } = req.params;
+
   try {
-    const projects = await sequelize.query(loadProjectsQuery, {
-      type: QueryTypes.SELECT,
-      replacements: [req.userId],
+    const deleteProjectCount = await Project.destroy({
+      where: {
+        id: +projectId,
+      },
     });
 
-    if (projects.length === 0) {
-      res.status(200).json({
-        ok: true,
-        projects: [],
+    if (deleteProjectCount === 0) {
+      res.status(400).json({
+        ok: false,
+        message: 'No project deleted. Check the project ID',
       });
       return;
     }
 
-    const projectData = projectDataFormatChangeFn(projects);
-
     res.status(200).json({
       ok: true,
-      projects: projectData,
+      message: 'Delete project complete',
     });
   } catch (err) {
     next(err);
   }
 };
 
-const bookmark = async (req, res, next) => {
+const getMembers = async (req, res, next) => {
+  const { projectId } = req.params;
+
+  try {
+    const members = await sequelize.query(getProjectMembers, {
+      type: QueryTypes.SELECT,
+      replacements: [projectId],
+    });
+
+    res.status(200).json({
+      ok: true,
+      members,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const getProjectInviteCode = async (req, res, next) => {
+  const { projectId } = req.params;
+
   try {
     const project = await Project.findOne({
       where: {
-        id: req.body.projectId,
+        id: projectId,
       },
     });
 
     if (!project) {
       res.status(404).json({
         ok: false,
-        message: 'Cannot find project',
+        message: 'Project not found',
       });
       return;
     }
-
-    const userProject = await UserProject.findOne({
-      where: {
-        userId: +req.userId,
-        projectId: req.body.projectId,
-      },
-      attributes: ['user_id', 'project_id', 'bookmark'],
-    });
-
-    if (!userProject.bookmark) {
-      await UserProject.update(
-        {
-          bookmark: 1,
-        },
-        {
-          where: {
-            userId: +req.userId,
-            projectId: req.body.projectId,
-          },
-        }
-      );
-
-      res.status(200).json({
-        ok: true,
-        message: 'Project bookmark on',
-      });
-      return;
-    }
-
-    await UserProject.update(
-      {
-        bookmark: 0,
-      },
-      {
-        where: {
-          userId: +req.userId,
-          projectId: req.body.projectId,
-        },
-      }
-    );
 
     res.status(200).json({
       ok: true,
-      message: 'Project bookmark off',
+      inviteCode: project.inviteCode,
     });
   } catch (err) {
     next(err);
@@ -233,33 +279,6 @@ const joinProject = async (req, res, next) => {
   }
 };
 
-const deleteProject = async (req, res, next) => {
-  const { id: projectId } = req.params;
-
-  try {
-    const deleteProjectCount = await Project.destroy({
-      where: {
-        id: +projectId,
-      },
-    });
-
-    if (deleteProjectCount === 0) {
-      res.status(400).json({
-        ok: false,
-        message: 'No project deleted. Check the project ID',
-      });
-      return;
-    }
-
-    res.status(200).json({
-      ok: true,
-      message: 'Delete project complete',
-    });
-  } catch (err) {
-    next(err);
-  }
-};
-
 const leaveProject = async (req, res, next) => {
   const {
     userId,
@@ -308,6 +327,32 @@ const leaveProject = async (req, res, next) => {
       ok: true,
       message: 'Project leave',
       deleteCount,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const loadAllProject = async (req, res, next) => {
+  try {
+    const projects = await sequelize.query(loadProjectsQuery, {
+      type: QueryTypes.SELECT,
+      replacements: [req.userId],
+    });
+
+    if (projects.length === 0) {
+      res.status(200).json({
+        ok: true,
+        projects: [],
+      });
+      return;
+    }
+
+    const projectData = projectDataFormatChangeFn(projects);
+
+    res.status(200).json({
+      ok: true,
+      projects: projectData,
     });
   } catch (err) {
     next(err);
@@ -366,37 +411,11 @@ const updateProject = async (req, res, next) => {
   }
 };
 
-const getProjectInviteCode = async (req, res, next) => {
-  const { projectId } = req.params;
-
-  try {
-    const project = await Project.findOne({
-      where: {
-        id: projectId,
-      },
-    });
-
-    if (!project) {
-      res.status(404).json({
-        ok: false,
-        message: 'Project not found',
-      });
-      return;
-    }
-
-    res.status(200).json({
-      ok: true,
-      inviteCode: project.inviteCode,
-    });
-  } catch (err) {
-    next(err);
-  }
-};
-
 module.exports = {
   bookmark,
   createProject,
   deleteProject,
+  getMembers,
   getProjectInviteCode,
   leaveProject,
   loadAllProject,

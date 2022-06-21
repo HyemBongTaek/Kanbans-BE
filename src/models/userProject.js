@@ -39,6 +39,7 @@ module.exports = class UserProject extends Sequelize.Model {
         targetKey: 'id',
         allowNull: false,
       },
+      as: 'user',
       onDelete: 'cascade',
       onUpdate: 'cascade',
     });

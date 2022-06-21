@@ -55,9 +55,18 @@ const getCommentQuery = `SELECT c.id AS 'id',
                                    ON c.user_id = u.id
                          WHERE c.card_id=?`;
 
+const getProjectMembers = `SELECT u.id AS 'id'
+                                , u.name AS 'name'
+                                , u.profile_image AS 'profileImage'
+                           FROM user_project AS up
+                                INNER JOIN users AS u
+                                        ON up.user_id=u.id
+                           WHERE project_id=?`;
+
 module.exports = {
   loadProjectsQuery,
   findProjectsQuery,
   getBoardQuery,
   getCommentQuery,
+  getProjectMembers,
 };

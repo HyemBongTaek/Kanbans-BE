@@ -5,6 +5,7 @@ const {
   bookmark,
   createProject,
   deleteProject,
+  getMembers,
   getProjectInviteCode,
   leaveProject,
   loadAllProject,
@@ -21,6 +22,8 @@ router.post('/', auth, createProject);
 router.get('/', auth, loadAllProject);
 // 프로젝트 초대코드 불러오기
 router.get('/:projectId/invite-code', auth, getProjectInviteCode);
+// 프로젝트 멤버 불러오기
+router.get('/:projectId/members', auth, getMembers);
 // 프로젝트 수정
 router.patch('/:id', auth, updateProject);
 // 프로젝트 삭제
