@@ -277,6 +277,33 @@ const inputCardImages = async (req, res, next) => {
   }
 };
 
+const inviteUser = async (req, res, next) => {
+  const {
+    body: { members },
+    params: { cardId },
+  } = req;
+
+  try {
+    const newMemberArray = [];
+
+    members.forEach((memberId) => {
+      newMemberArray.push({
+        userId: memberId,
+        cardId,
+      });
+    });
+
+    await UserCard.bulkCreate(newMemberArray);
+
+    res.status(200).json({
+      ok: true,
+      message: 'Add members',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 const modifyCardCheck = async (req, res, next) => {
   const { boardId, cardId } = req.params;
 
@@ -532,6 +559,7 @@ module.exports = {
   deleteAllCards,
   inputCardDetails,
   inputCardImages,
+  inviteUser,
   modifyCardCheck,
   modifyCardStatus,
   loadCardData,

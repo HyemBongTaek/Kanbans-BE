@@ -8,6 +8,7 @@ const {
   deleteCardImage,
   inputCardDetails,
   inputCardImages,
+  inviteUser,
   loadCardData,
 } = require('../controller/card');
 
@@ -20,6 +21,8 @@ router.post(
   cardImagesUploadMiddleware,
   inputCardImages
 );
+// 카드에 멤버 초대
+router.post('/:cardId/invite', auth, inviteUser);
 // 카드 이미지 삭제
 router.delete('/:cardId/image/:imgId', auth, deleteCardImage);
 // 카드 세부정보 입력
