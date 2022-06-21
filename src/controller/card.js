@@ -1,3 +1,4 @@
+const { QueryTypes } = require('sequelize');
 const {
   Card,
   CardOrder,
@@ -6,8 +7,10 @@ const {
   User,
   UserCard,
   Task,
+  sequelize,
 } = require('../models/index');
 const { cardImageUploadFn, deleteCardImageFn } = require('../utils/image');
+const { uninvitedMembersQuery } = require('../utils/query');
 
 const createCard = async (req, res, next) => {
   const {
@@ -208,6 +211,24 @@ const deleteAllCards = async (req, res, next) => {
     res.status(200).json({
       ok: true,
       message: 'Cards deleted',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const getUninvitedMembers = async (req, res, next) => {
+  const { projectId, cardId } = req.params;
+
+  try {
+    const uninvitedMembers = await sequelize.query(uninvitedMembersQuery, {
+      type: QueryTypes.SELECT,
+      replacements: [projectId, cardId],
+    });
+
+    res.status(200).json({
+      ok: true,
+      members: uninvitedMembers,
     });
   } catch (err) {
     next(err);
@@ -557,6 +578,7 @@ module.exports = {
   deleteCard,
   deleteCardImage,
   deleteAllCards,
+  getUninvitedMembers,
   inputCardDetails,
   inputCardImages,
   inviteUser,

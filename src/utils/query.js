@@ -63,10 +63,22 @@ const getProjectMembers = `SELECT u.id AS 'id'
                                         ON up.user_id=u.id
                            WHERE project_id=?`;
 
+const uninvitedMembersQuery = `SELECT u.id AS 'userId'
+                                    , u.profile_image AS 'profileImage'
+                                    , u.name AS 'name'
+                               FROM user_project AS up
+                                    INNER JOIN users AS u
+                                            ON up.user_id=u.id
+                               WHERE up.project_id=?
+                               AND up.user_id NOT IN (SELECT user_id
+                                                      FROM user_card
+                                                      WHERE card_id=?)`;
+
 module.exports = {
   loadProjectsQuery,
   findProjectsQuery,
   getBoardQuery,
   getCommentQuery,
   getProjectMembers,
+  uninvitedMembersQuery,
 };
