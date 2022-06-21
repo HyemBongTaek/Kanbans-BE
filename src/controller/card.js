@@ -419,6 +419,16 @@ const loadCardData = async (req, res, next) => {
       where: {
         id: cardId,
       },
+      order: [
+        [
+          {
+            model: Image,
+            as: 'images',
+          },
+          'id',
+          'DESC',
+        ],
+      ],
     });
 
     if (!card) {
