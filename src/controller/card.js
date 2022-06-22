@@ -1,3 +1,4 @@
+const { QueryTypes } = require('sequelize');
 const {
   Card,
   CardOrder,
@@ -6,8 +7,10 @@ const {
   User,
   UserCard,
   Task,
+  sequelize,
 } = require('../models/index');
-const { cardImageUploadFn } = require('../utils/image');
+const { cardImageUploadFn, deleteCardImageFn } = require('../utils/image');
+const { uninvitedMembersQuery } = require('../utils/query');
 
 const createCard = async (req, res, next) => {
   const {
@@ -125,6 +128,51 @@ const deleteCard = async (req, res, next) => {
   }
 };
 
+const deleteCardImage = async (req, res, next) => {
+  const { cardId, imgId } = req.params;
+
+  try {
+    const image = await Image.findOne({
+      where: {
+        id: imgId,
+        cardId,
+      },
+    });
+
+    if (!image) {
+      res.status(400).json({
+        ok: false,
+        message: 'Image not found',
+      });
+      return;
+    }
+
+    const deletedCardImageCount = await Image.destroy({
+      where: {
+        id: imgId,
+        cardId,
+      },
+    });
+
+    if (deletedCardImageCount === 0) {
+      res.status(400).json({
+        ok: false,
+        message: 'Card image not deleted',
+      });
+      return;
+    }
+
+    await deleteCardImageFn(cardId, image.url);
+
+    res.status(200).json({
+      ok: true,
+      message: 'Card image deleted',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 const deleteAllCards = async (req, res, next) => {
   const { boardId } = req.params;
 
@@ -163,6 +211,24 @@ const deleteAllCards = async (req, res, next) => {
     res.status(200).json({
       ok: true,
       message: 'Cards deleted',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const getUninvitedMembers = async (req, res, next) => {
+  const { projectId, cardId } = req.params;
+
+  try {
+    const uninvitedMembers = await sequelize.query(uninvitedMembersQuery, {
+      type: QueryTypes.SELECT,
+      replacements: [projectId, cardId],
+    });
+
+    res.status(200).json({
+      ok: true,
+      members: uninvitedMembers,
     });
   } catch (err) {
     next(err);
@@ -226,6 +292,33 @@ const inputCardImages = async (req, res, next) => {
     res.status(200).json({
       ok: true,
       images,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const inviteUser = async (req, res, next) => {
+  const {
+    body: { members },
+    params: { cardId },
+  } = req;
+
+  try {
+    const newMemberArray = [];
+
+    members.forEach((memberId) => {
+      newMemberArray.push({
+        userId: memberId,
+        cardId,
+      });
+    });
+
+    await UserCard.bulkCreate(newMemberArray);
+
+    res.status(200).json({
+      ok: true,
+      message: 'Add members',
     });
   } catch (err) {
     next(err);
@@ -374,6 +467,16 @@ const loadCardData = async (req, res, next) => {
       where: {
         id: cardId,
       },
+      order: [
+        [
+          {
+            model: Image,
+            as: 'images',
+          },
+          'id',
+          'DESC',
+        ],
+      ],
     });
 
     if (!card) {
@@ -473,9 +576,12 @@ const updateCardLocation = async (req, res, next) => {
 module.exports = {
   createCard,
   deleteCard,
+  deleteCardImage,
   deleteAllCards,
+  getUninvitedMembers,
   inputCardDetails,
   inputCardImages,
+  inviteUser,
   modifyCardCheck,
   modifyCardStatus,
   loadCardData,
