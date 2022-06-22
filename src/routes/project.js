@@ -50,7 +50,7 @@ router.get('/:projectId/card/:cardId', auth, getUninvitedMembers);
 // 라벨 조회
 router.get('/:projectId/label', auth, getLabels);
 // 라벨 추가
-router.post('/:projectId/label', auth, createCommonLabel);
+router.post('/:projectId/card/:cardId/label', auth, createCommonLabel);
 // 라벨 삭제
 router.delete('/:projectId/label/:labelId', auth, deleteCommonLabel);
 

@@ -31,7 +31,7 @@ const addCardLabel = async (req, res, next) => {
 const createCommonLabel = async (req, res, next) => {
   const {
     body: { title, color },
-    params: { projectId },
+    params: { projectId, cardId },
   } = req;
 
   try {
@@ -56,6 +56,11 @@ const createCommonLabel = async (req, res, next) => {
       title,
       color,
       projectId,
+    });
+
+    await CardLabel.create({
+      cardId,
+      labelId: newLabel.id,
     });
 
     res.status(200).json({
