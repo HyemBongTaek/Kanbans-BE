@@ -1,24 +1,26 @@
 const Sequelize = require('sequelize');
 
-module.exports = class Label extends Sequelize.Model {
+module.exports = class CardLabel extends Sequelize.Model {
   static init(sequelize) {
     return super.init(
       {
-        title: {
-          type: Sequelize.STRING(50),
+        cardId: {
+          type: Sequelize.INTEGER,
           allowNull: false,
+          primaryKey: true,
         },
-        color: {
-          type: Sequelize.STRING(20),
+        labelId: {
+          type: Sequelize.INTEGER,
           allowNull: false,
+          primaryKey: true,
         },
       },
       {
         sequelize,
         timestamps: false,
         underscored: true,
-        modelName: 'Label',
-        tableName: 'labels',
+        modelName: 'CardLabel',
+        tableName: 'card_label',
         charset: 'utf8mb4',
         collate: 'utf8mb4_general_ci',
       }
@@ -26,19 +28,19 @@ module.exports = class Label extends Sequelize.Model {
   }
 
   static associate(db) {
-    db.Label.belongsTo(db.Project, {
+    db.CardLabel.belongsTo(db.Label, {
       foreignKey: {
-        name: 'projectId',
+        name: 'labelId',
         targetKey: 'id',
       },
       onDelete: 'cascade',
       onUpdate: 'cascade',
     });
 
-    db.Label.hasMany(db.CardLabel, {
+    db.CardLabel.belongsTo(db.Card, {
       foreignKey: {
-        name: 'labelId',
-        sourceKey: 'id',
+        name: 'cardId',
+        targetKey: 'id',
       },
       onDelete: 'cascade',
       onUpdate: 'cascade',

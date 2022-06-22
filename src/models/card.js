@@ -87,5 +87,14 @@ module.exports = class Card extends Sequelize.Model {
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
     });
+
+    db.Card.hasMany(db.CardLabel, {
+      foreignKey: {
+        name: 'cardId',
+        sourceKey: 'id',
+      },
+      onDelete: 'cascade',
+      onUpdate: 'cascade',
+    });
   }
 };

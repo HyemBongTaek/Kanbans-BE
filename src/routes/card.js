@@ -5,6 +5,7 @@ const router = express.Router();
 const { auth } = require('../middlewares/auth');
 const { cardImagesUploadMiddleware } = require('../middlewares/upload');
 const {
+  addLabels,
   deleteCardImage,
   inputCardDetails,
   inputCardImages,
@@ -27,5 +28,8 @@ router.post('/:cardId/invite', auth, inviteUser);
 router.delete('/:cardId/image/:imgId', auth, deleteCardImage);
 // 카드 세부정보 입력
 router.patch('/:cardId/card-details', auth, inputCardDetails);
+
+// 카드에 라벨 추가
+router.post('/:cardId/label', auth, addLabels);
 
 module.exports = router;

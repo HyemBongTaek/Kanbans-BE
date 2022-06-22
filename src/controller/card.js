@@ -1,9 +1,11 @@
 const { QueryTypes } = require('sequelize');
 const {
   Card,
+  CardLabel,
   CardOrder,
   Comment,
   Image,
+  Label,
   User,
   UserCard,
   Task,
@@ -11,6 +13,34 @@ const {
 } = require('../models/index');
 const { cardImageUploadFn, deleteCardImageFn } = require('../utils/image');
 const { uninvitedMembersQuery } = require('../utils/query');
+
+const addLabels = async (req, res, next) => {
+  const {
+    body: { labelId },
+    params: { cardId },
+  } = req;
+
+  try {
+    await CardLabel.create({
+      cardId,
+      labelId,
+    });
+
+    const label = await Label.findOne({
+      where: {
+        id: labelId,
+      },
+      attributes: ['id', 'title', 'color'],
+    });
+
+    res.status(200).json({
+      ok: true,
+      label,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 
 const createCard = async (req, res, next) => {
   const {
@@ -574,6 +604,7 @@ const updateCardLocation = async (req, res, next) => {
 };
 
 module.exports = {
+  addLabels,
   createCard,
   deleteCard,
   deleteCardImage,
