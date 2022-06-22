@@ -14,7 +14,7 @@ const {
 } = require('../controller/project');
 const { updateBoardLocation } = require('../controller/board');
 const { getUninvitedMembers } = require('../controller/card');
-const { createLabel } = require('../controller/label');
+const { createLabel, deleteLabel } = require('../controller/label');
 
 const router = express.Router();
 
@@ -45,5 +45,7 @@ router.get('/:projectId/card/:cardId', auth, getUninvitedMembers);
 
 // 라벨 추가
 router.post('/:projectId/label', auth, createLabel);
+// 라벨 삭제
+router.delete('/:projectId/label/:labelId', auth, deleteLabel);
 
 module.exports = router;

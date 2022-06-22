@@ -24,7 +24,7 @@ const createLabel = async (req, res, next) => {
       return;
     }
 
-    await Label.create({
+    const newLabel = await Label.create({
       title,
       color,
       projectId,
@@ -32,7 +32,35 @@ const createLabel = async (req, res, next) => {
 
     res.status(200).json({
       ok: true,
-      message: 'Label created',
+      label: newLabel,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const deleteLabel = async (req, res, next) => {
+  const { projectId, labelId } = req.params;
+
+  try {
+    const deletedLabelCount = await Label.destroy({
+      where: {
+        id: labelId,
+        projectId,
+      },
+    });
+
+    if (deletedLabelCount === 0) {
+      res.status(400).json({
+        ok: false,
+        message: 'Label not deleted',
+      });
+      return;
+    }
+
+    res.status(200).json({
+      ok: true,
+      message: 'Label deleted',
     });
   } catch (err) {
     next(err);
@@ -41,4 +69,5 @@ const createLabel = async (req, res, next) => {
 
 module.exports = {
   createLabel,
+  deleteLabel,
 };
