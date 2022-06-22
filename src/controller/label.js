@@ -67,7 +67,28 @@ const deleteLabel = async (req, res, next) => {
   }
 };
 
+const getLabels = async (req, res, next) => {
+  const { projectId } = req.params;
+
+  try {
+    const labels = await Label.findAll({
+      where: {
+        projectId,
+      },
+      attributes: ['id', 'title', 'color'],
+    });
+
+    res.status(200).json({
+      ok: true,
+      labels,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   createLabel,
   deleteLabel,
+  getLabels,
 };

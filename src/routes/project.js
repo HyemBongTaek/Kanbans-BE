@@ -14,7 +14,7 @@ const {
 } = require('../controller/project');
 const { updateBoardLocation } = require('../controller/board');
 const { getUninvitedMembers } = require('../controller/card');
-const { createLabel, deleteLabel } = require('../controller/label');
+const { createLabel, deleteLabel, getLabels } = require('../controller/label');
 
 const router = express.Router();
 
@@ -43,6 +43,8 @@ router.patch('/:projectId/board-location', auth, updateBoardLocation);
 // 카드에 초대되지 않은 멤버보기
 router.get('/:projectId/card/:cardId', auth, getUninvitedMembers);
 
+// 라벨 조회
+router.get('/:projectId/label', auth, getLabels);
 // 라벨 추가
 router.post('/:projectId/label', auth, createLabel);
 // 라벨 삭제
