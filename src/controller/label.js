@@ -28,7 +28,7 @@ const addCardLabel = async (req, res, next) => {
   }
 };
 
-const createLabel = async (req, res, next) => {
+const createCommonLabel = async (req, res, next) => {
   const {
     body: { title, color },
     params: { projectId },
@@ -145,7 +145,7 @@ const getLabels = async (req, res, next) => {
 
 module.exports = {
   addCardLabel,
-  createLabel,
+  createCommonLabel,
   deleteCommonLabel,
   deleteCardLabel,
   getLabels,

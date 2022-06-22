@@ -15,7 +15,7 @@ const {
 const { updateBoardLocation } = require('../controller/board');
 const { getUninvitedMembers } = require('../controller/card');
 const {
-  createLabel,
+  createCommonLabel,
   deleteCommonLabel,
   getLabels,
 } = require('../controller/label');
@@ -50,7 +50,7 @@ router.get('/:projectId/card/:cardId', auth, getUninvitedMembers);
 // 라벨 조회
 router.get('/:projectId/label', auth, getLabels);
 // 라벨 추가
-router.post('/:projectId/label', auth, createLabel);
+router.post('/:projectId/label', auth, createCommonLabel);
 // 라벨 삭제
 router.delete('/:projectId/label/:labelId', auth, deleteCommonLabel);
 
