@@ -7,6 +7,7 @@ const { cardImagesUploadMiddleware } = require('../middlewares/upload');
 const {
   addLabels,
   deleteCardImage,
+  deleteLabel,
   inputCardDetails,
   inputCardImages,
   inviteUser,
@@ -31,5 +32,7 @@ router.patch('/:cardId/card-details', auth, inputCardDetails);
 
 // 카드에 라벨 추가
 router.post('/:cardId/label', auth, addLabels);
+// 카드에서 라벨 삭제
+router.delete('/:cardId/label/:labelId', auth, deleteLabel);
 
 module.exports = router;

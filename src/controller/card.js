@@ -247,6 +247,34 @@ const deleteAllCards = async (req, res, next) => {
   }
 };
 
+const deleteLabel = async (req, res, next) => {
+  const { cardId, labelId } = req.params;
+
+  try {
+    const deletedCardLabelCount = await CardLabel.destroy({
+      where: {
+        cardId,
+        labelId,
+      },
+    });
+
+    if (deletedCardLabelCount === 0) {
+      res.status(400).json({
+        ok: false,
+        message: 'Card label not deleted',
+      });
+      return;
+    }
+
+    res.status(200).json({
+      ok: true,
+      message: 'Card label deleted',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 const getUninvitedMembers = async (req, res, next) => {
   const { projectId, cardId } = req.params;
 
@@ -609,6 +637,7 @@ module.exports = {
   deleteCard,
   deleteCardImage,
   deleteAllCards,
+  deleteLabel,
   getUninvitedMembers,
   inputCardDetails,
   inputCardImages,
