@@ -1,4 +1,32 @@
-const { Label } = require('../models/index');
+const { CardLabel, Label } = require('../models/index');
+
+const addCardLabel = async (req, res, next) => {
+  const {
+    body: { labelId },
+    params: { cardId },
+  } = req;
+
+  try {
+    await CardLabel.create({
+      cardId,
+      labelId,
+    });
+
+    const label = await Label.findOne({
+      where: {
+        id: labelId,
+      },
+      attributes: ['id', 'title', 'color'],
+    });
+
+    res.status(200).json({
+      ok: true,
+      label,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 
 const createLabel = async (req, res, next) => {
   const {
@@ -67,6 +95,34 @@ const deleteCommonLabel = async (req, res, next) => {
   }
 };
 
+const deleteCardLabel = async (req, res, next) => {
+  const { cardId, labelId } = req.params;
+
+  try {
+    const deletedCardLabelCount = await CardLabel.destroy({
+      where: {
+        cardId,
+        labelId,
+      },
+    });
+
+    if (deletedCardLabelCount === 0) {
+      res.status(400).json({
+        ok: false,
+        message: 'Card label not deleted',
+      });
+      return;
+    }
+
+    res.status(200).json({
+      ok: true,
+      message: 'Card label deleted',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 const getLabels = async (req, res, next) => {
   const { projectId } = req.params;
 
@@ -88,7 +144,9 @@ const getLabels = async (req, res, next) => {
 };
 
 module.exports = {
+  addCardLabel,
   createLabel,
   deleteCommonLabel,
+  deleteCardLabel,
   getLabels,
 };
