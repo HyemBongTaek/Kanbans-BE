@@ -39,7 +39,7 @@ const createLabel = async (req, res, next) => {
   }
 };
 
-const deleteLabel = async (req, res, next) => {
+const deleteCommonLabel = async (req, res, next) => {
   const { projectId, labelId } = req.params;
 
   try {
@@ -89,6 +89,6 @@ const getLabels = async (req, res, next) => {
 
 module.exports = {
   createLabel,
-  deleteLabel,
+  deleteCommonLabel,
   getLabels,
 };
