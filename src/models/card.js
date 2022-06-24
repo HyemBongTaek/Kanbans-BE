@@ -93,6 +93,7 @@ module.exports = class Card extends Sequelize.Model {
         name: 'cardId',
         sourceKey: 'id',
       },
+      as: 'cardLabels',
       onDelete: 'cascade',
       onUpdate: 'cascade',
     });

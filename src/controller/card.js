@@ -1,9 +1,11 @@
 const { QueryTypes } = require('sequelize');
 const {
   Card,
+  CardLabel,
   CardOrder,
   Comment,
   Image,
+  Label,
   User,
   UserCard,
   Task,
@@ -443,6 +445,17 @@ const loadCardData = async (req, res, next) => {
           ],
         },
         {
+          model: CardLabel,
+          as: 'cardLabels',
+          include: [
+            {
+              model: Label,
+              as: 'label',
+              attributes: ['id', 'title', 'color'],
+            },
+          ],
+        },
+        {
           model: Image,
           as: 'images',
           attributes: ['id', 'url'],
@@ -501,6 +514,7 @@ const loadCardData = async (req, res, next) => {
     res.status(200).json({
       ok: true,
       card: cardInfo,
+      labels: card.cardLabels.map((cardLabel) => cardLabel.label),
       users: card.users.map((value) => value.user),
       images: card.images,
       tasks: card.tasks,

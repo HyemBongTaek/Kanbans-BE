@@ -33,6 +33,7 @@ module.exports = class CardLabel extends Sequelize.Model {
         name: 'labelId',
         targetKey: 'id',
       },
+      as: 'label',
       onDelete: 'cascade',
       onUpdate: 'cascade',
     });
@@ -42,6 +43,7 @@ module.exports = class CardLabel extends Sequelize.Model {
         name: 'cardId',
         targetKey: 'id',
       },
+      as: 'card',
       onDelete: 'cascade',
       onUpdate: 'cascade',
     });
