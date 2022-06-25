@@ -7,12 +7,14 @@ const addCardLabel = async (req, res, next) => {
   } = req;
 
   try {
-    await CardLabel.create({
+    const labelIdObj = labelId.map((id) => ({
       cardId,
-      labelId,
-    });
+      labelId: id,
+    }));
 
-    const label = await Label.findOne({
+    await CardLabel.bulkCreate(labelIdObj);
+
+    const label = await Label.findAll({
       where: {
         id: labelId,
       },
