@@ -36,11 +36,18 @@ const getBoardQuery = `SELECT b.id AS 'boardId'
                             , c.check AS 'check'
                             , c.created_at AS 'createdAt'
                             , co.order AS 'cardOrder'
+                            , l.id AS 'labelId'
+                            , l.title AS 'labelTitle'
+                            , l.color AS 'labelColor'
                        FROM boards AS b
                             LEFT OUTER JOIN cards AS c
                                          ON b.id=c.board_id
                             LEFT OUTER JOIN card_order AS co
                                          ON b.id=co.board_id
+                            LEFT OUTER JOIN card_label AS cl
+                                         ON cl.card_id=c.id
+                            LEFT OUTER JOIN labels AS l
+                                         ON cl.label_id=l.id
                        WHERE b.project_id=?`;
 
 const getCommentQuery = `SELECT c.id AS 'id',
