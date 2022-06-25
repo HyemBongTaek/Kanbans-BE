@@ -219,6 +219,34 @@ const deleteAllCards = async (req, res, next) => {
   }
 };
 
+const deleteUserInCard = async (req, res, next) => {
+  const { cardId, userId } = req.params;
+
+  try {
+    const deletedCount = await UserCard.destroy({
+      where: {
+        userId,
+        cardId,
+      },
+    });
+
+    if (deletedCount === 0) {
+      res.status(400).json({
+        ok: false,
+        message: 'Cannot delete user in card',
+      });
+      return;
+    }
+
+    res.status(200).json({
+      ok: true,
+      message: 'Delete user from card complete',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 const getUninvitedMembers = async (req, res, next) => {
   const { projectId, cardId } = req.params;
 
@@ -592,6 +620,7 @@ module.exports = {
   deleteCard,
   deleteCardImage,
   deleteAllCards,
+  deleteUserInCard,
   getUninvitedMembers,
   inputCardDetails,
   inputCardImages,

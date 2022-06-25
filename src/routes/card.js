@@ -6,6 +6,7 @@ const { auth } = require('../middlewares/auth');
 const { cardImagesUploadMiddleware } = require('../middlewares/upload');
 const {
   deleteCardImage,
+  deleteUserInCard,
   inputCardDetails,
   inputCardImages,
   inviteUser,
@@ -26,6 +27,8 @@ router.post(
 router.post('/:cardId/invite', auth, inviteUser);
 // 카드 이미지 삭제
 router.delete('/:cardId/image/:imgId', auth, deleteCardImage);
+// 카드에서 멤버 삭제
+router.delete('/:cardId/exit/:userId', auth, deleteUserInCard);
 // 카드 세부정보 입력
 router.patch('/:cardId/card-details', auth, inputCardDetails);
 
