@@ -1,4 +1,5 @@
 const { CardLabel, Label } = require('../models/index');
+const { getBytes } = require('../utils/service');
 
 const addCardLabel = async (req, res, next) => {
   const {
@@ -36,24 +37,34 @@ const createCommonLabel = async (req, res, next) => {
     params: { projectId, cardId },
   } = req;
 
+  const charBytes = getBytes(title);
+
+  if (charBytes > 8) {
+    res.status(400).json({
+      ok: false,
+      message: `Title is too long (Length: ${charBytes})`,
+    });
+    return;
+  }
+
+  const colorList = [
+    'red',
+    'pink',
+    'orange',
+    'yellow',
+    'emerald_green',
+    'green',
+  ];
+
+  if (!colorList.includes(color)) {
+    res.status(400).json({
+      ok: false,
+      message: 'Color is not correct',
+    });
+    return;
+  }
+
   try {
-    const colorList = [
-      'red',
-      'pink',
-      'orange',
-      'yellow',
-      'emerald_green',
-      'green',
-    ];
-
-    if (!colorList.includes(color)) {
-      res.status(400).json({
-        ok: false,
-        message: 'Color is not correct',
-      });
-      return;
-    }
-
     const newLabel = await Label.create({
       title,
       color,
