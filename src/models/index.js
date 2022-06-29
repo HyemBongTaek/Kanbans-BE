@@ -14,6 +14,8 @@ const UserCard = require('./userCard');
 const Comment = require('./comment');
 const CardOrder = require('./cardOrder');
 const Image = require('./image');
+const Label = require('./label');
+const CardLabel = require('./cardLabel');
 
 const db = {};
 
@@ -36,6 +38,8 @@ db.UserCard = UserCard;
 db.Comment = Comment;
 db.CardOrder = CardOrder;
 db.Image = Image;
+db.Label = Label;
+db.CardLabel = CardLabel;
 
 User.init(sequelize);
 Project.init(sequelize);
@@ -48,6 +52,8 @@ UserCard.init(sequelize);
 Comment.init(sequelize);
 CardOrder.init(sequelize);
 Image.init(sequelize);
+Label.init(sequelize);
+CardLabel.init(sequelize);
 
 User.associate(db);
 Project.associate(db);
@@ -60,5 +66,7 @@ UserCard.associate(db);
 Comment.associate(db);
 CardOrder.associate(db);
 Image.associate(db);
+Label.associate(db);
+CardLabel.associate(db);
 
 module.exports = db;

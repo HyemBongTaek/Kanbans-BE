@@ -55,8 +55,24 @@ function makeBoardCardObject(data) {
           check: cur.check,
           createdAt: cur.createdAt,
           boardId: cur.boardId,
+          labels: cur.labelId
+            ? [
+                {
+                  labelId: cur.labelId,
+                  title: cur.labelTitle,
+                  color: cur.labelColor,
+                },
+              ]
+            : [],
         };
+      } else if (cardIndex >= 0 && cur.cardId) {
+        acc.cardObj[cur.cardId].labels.push({
+          labelId: cur.labelId,
+          title: cur.labelTitle,
+          color: cur.labelColor,
+        });
       }
+
       return acc;
     },
     {
