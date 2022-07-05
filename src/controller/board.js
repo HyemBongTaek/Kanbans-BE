@@ -1,7 +1,7 @@
 const { QueryTypes } = require('sequelize');
 
 const { Board, BoardOrder, sequelize } = require('../models/index');
-const { getBoardQuery } = require('../utils/query');
+const { getBoardQuery, getCardQuery } = require('../utils/query');
 const { makeBoardCardObject } = require('../utils/service');
 
 const getBoard = async (req, res, next) => {
@@ -103,11 +103,13 @@ const createBoard = async (req, res, next) => {
 const updateBoard = async (req, res, next) => {
   try {
     const updateId = req.params.id;
+
     const findUpdateId = await Board.findOne({
       where: {
         id: updateId,
       },
     });
+
     const condition = req.body.title === '';
     if (condition === true) {
       res.status(400).json({ ok: false, message: '타이틀을 작성해주세요.' });
@@ -119,13 +121,16 @@ const updateBoard = async (req, res, next) => {
       },
       { where: { id: updateId } }
     );
+
     const userProjectId = findUpdateId.dataValues.projectId;
+
     const updatedBoard = await Board.findAll({
       where: {
         projectId: userProjectId,
       },
     });
-    const updateBoard = updatedBoard.reduce((acc, cur) => {
+
+    const updateBoards = updatedBoard.reduce((acc, cur) => {
       acc[cur.id] = {
         id: cur.id,
         title: cur.title,
@@ -133,7 +138,21 @@ const updateBoard = async (req, res, next) => {
       };
       return acc;
     }, {});
-    res.status(201).json({ ok: true, message: '수정 완료', updateBoard });
+
+    const card = await sequelize.query(getCardQuery, {
+      type: QueryTypes.SELECT,
+      replacements: [updateId],
+    });
+
+    const cards = [];
+
+    for (let i = 0; i < card.length; i += 1) {
+      cards.push(card[i].cardId);
+    }
+
+    res
+      .status(201)
+      .json({ ok: true, message: '수정 완료', cards, updateBoards });
     return;
   } catch (err) {
     next(err);
