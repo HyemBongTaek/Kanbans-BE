@@ -11,7 +11,7 @@ const {
   loadAllProject,
   joinProject,
   updateProject,
-  userExile,
+  kickOutUser,
 } = require('../controller/project');
 const { updateBoardLocation } = require('../controller/board');
 const { getUninvitedMembers } = require('../controller/card');
@@ -42,7 +42,7 @@ router.post('/join', auth, joinProject);
 // 프로젝트 나가기
 router.delete('/leave/:id', auth, leaveProject);
 // 프로젝트 멤버 추방
-router.delete('/:projectId/exile/:userId', auth, userExile);
+router.delete('/:projectId/kick-out/:userId', auth, kickOutUser);
 
 // 보드 위치 변경
 router.patch('/:projectId/board-location', auth, updateBoardLocation);

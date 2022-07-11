@@ -4,11 +4,12 @@ const { User } = require('../models/index');
 
 const { JWT_SECRET } = process.env;
 
-async function signAccessToken(value) {
+async function signAccessToken(userId, username) {
   return new Promise((resolve, reject) => {
     jwt.sign(
       {
-        id: value,
+        id: userId,
+        name: username,
       },
       JWT_SECRET,
       {

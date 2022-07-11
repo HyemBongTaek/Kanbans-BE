@@ -279,6 +279,50 @@ const joinProject = async (req, res, next) => {
   }
 };
 
+const kickOutUser = async (req, res, next) => {
+  const {
+    userId,
+    params: { projectId, userId: userIdToBeExile },
+  } = req;
+
+  try {
+    const project = await Project.findOne({
+      where: {
+        id: projectId,
+      },
+    });
+
+    if (project.owner !== userId) {
+      res.status(400).json({
+        ok: false,
+        message: 'No permission',
+      });
+      return;
+    }
+
+    if (project.owner === +userIdToBeExile) {
+      res.status(400).json({
+        ok: false,
+        message: 'Owner cannot be exile',
+      });
+      return;
+    }
+
+    await UserProject.destroy({
+      where: {
+        userId: userIdToBeExile,
+      },
+    });
+
+    res.status(200).json({
+      ok: true,
+      message: 'User exile complete',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 const leaveProject = async (req, res, next) => {
   const {
     userId,
@@ -411,50 +455,6 @@ const updateProject = async (req, res, next) => {
   }
 };
 
-const userExile = async (req, res, next) => {
-  const {
-    userId,
-    params: { projectId, userId: userIdToBeExile },
-  } = req;
-
-  try {
-    const project = await Project.findOne({
-      where: {
-        id: projectId,
-      },
-    });
-
-    if (project.owner !== userId) {
-      res.status(400).json({
-        ok: false,
-        message: 'No permission',
-      });
-      return;
-    }
-
-    if (project.owner === +userIdToBeExile) {
-      res.status(400).json({
-        ok: false,
-        message: 'Owner cannot be exile',
-      });
-      return;
-    }
-
-    await UserProject.destroy({
-      where: {
-        userId: userIdToBeExile,
-      },
-    });
-
-    res.status(200).json({
-      ok: true,
-      message: 'User exile complete',
-    });
-  } catch (err) {
-    next(err);
-  }
-};
-
 module.exports = {
   bookmark,
   createProject,
@@ -465,5 +465,5 @@ module.exports = {
   loadAllProject,
   joinProject,
   updateProject,
-  userExile,
+  kickOutUser,
 };

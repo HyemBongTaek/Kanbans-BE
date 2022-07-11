@@ -217,7 +217,7 @@ const refreshToken = async (req, res, next) => {
       return;
     }
 
-    const newAccessToken = await signAccessToken(user.id);
+    const newAccessToken = await signAccessToken(user.id, user.name);
     const newRefreshToken = await signRefreshToken();
 
     user.refreshToken = newRefreshToken;
