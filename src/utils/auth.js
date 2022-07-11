@@ -16,7 +16,10 @@ async function createUserOrLogin({
   });
 
   if (existingUser) {
-    const accessToken = await signAccessToken(existingUser.id.toString());
+    const accessToken = await signAccessToken(
+      existingUser.id,
+      existingUser.name
+    );
     const refreshToken = await signRefreshToken();
 
     existingUser.refreshToken = refreshToken;
@@ -37,7 +40,7 @@ async function createUserOrLogin({
     email,
   });
 
-  const accessToken = await signAccessToken(newUser.id.toString());
+  const accessToken = await signAccessToken(newUser.id, newUser.name);
   const refreshToken = await signRefreshToken();
 
   newUser.refreshToken = refreshToken;
