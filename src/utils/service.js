@@ -59,7 +59,6 @@ function makeBoardCardObject(data) {
             ? [
                 {
                   labelId: cur.labelId,
-                  title: cur.labelTitle,
                   color: cur.labelColor,
                 },
               ]
@@ -68,7 +67,6 @@ function makeBoardCardObject(data) {
       } else if (cardIndex >= 0 && cur.cardId) {
         acc.cardObj[cur.cardId].labels.push({
           labelId: cur.labelId,
-          title: cur.labelTitle,
           color: cur.labelColor,
         });
       }

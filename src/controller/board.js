@@ -1,6 +1,6 @@
 const { QueryTypes } = require('sequelize');
 
-const { Board, BoardOrder, sequelize } = require('../models/index');
+const { Board, BoardOrder, Project, sequelize } = require('../models/index');
 const { getBoardQuery, getCardQuery } = require('../utils/query');
 const { makeBoardCardObject } = require('../utils/service');
 
@@ -27,10 +27,11 @@ const getBoard = async (req, res, next) => {
 
     const boardCardObj = makeBoardCardObject(getBoards);
 
-    const boardOrder = await BoardOrder.findOne({
+    const { boardOrder } = await Project.findOne({
       where: {
-        projectId,
+        id: projectId,
       },
+      attributes: ['boardOrder'],
     });
 
     res.status(200).json({
@@ -38,7 +39,7 @@ const getBoard = async (req, res, next) => {
       kanbans: {
         cards: boardCardObj.cardObj,
         board: boardCardObj.boardObj,
-        columnOrders: boardOrder.order.split(';'),
+        columnOrders: boardOrder.split(';'),
       },
     });
     return;
