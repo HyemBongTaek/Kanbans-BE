@@ -122,37 +122,41 @@ const updateBoard = async (req, res, next) => {
       { where: { id: updateId } }
     );
 
-    const userProjectId = findUpdateId.dataValues.projectId;
-
-    const updatedBoard = await Board.findAll({
+    const updateBoards = await Board.findOne({
       where: {
-        projectId: userProjectId,
+        id: updateId,
       },
+      attributes: { exclude: ['projectId'] },
     });
+    // const userProjectId = findUpdateId.dataValues.projectId;
 
-    const updateBoards = updatedBoard.reduce((acc, cur) => {
-      acc[cur.id] = {
-        id: cur.id,
-        title: cur.title,
-        projectId: cur.projectId,
-      };
-      return acc;
-    }, {});
+    // const updatedBoard = await Board.findAll({
+    //   where: {
+    //     projectId: userProjectId,
+    //   },
+    // });
 
-    const card = await sequelize.query(getCardQuery, {
-      type: QueryTypes.SELECT,
-      replacements: [updateId],
-    });
+    // const updateBoards = updatedBoard.reduce((acc, cur) => {
+    //   acc[cur.id] = {
+    //     id: cur.id,
+    //     title: cur.title,
+    //     projectId: cur.projectId,
+    //   };
+    //   return acc;
+    // }, {});
 
-    const cards = [];
+    // const card = await sequelize.query(getCardQuery, {
+    //   type: QueryTypes.SELECT,
+    //   replacements: [updateId],
+    // });
 
-    for (let i = 0; i < card.length; i += 1) {
-      cards.push(card[i].cardId);
-    }
+    // const cards = [];
 
-    res
-      .status(201)
-      .json({ ok: true, message: '수정 완료', cards, updateBoards });
+    // for (let i = 0; i < card.length; i += 1) {
+    //   cards.push(card[i].cardId);
+    // }
+
+    res.status(201).json({ ok: true, message: '수정 완료', updateBoards });
     return;
   } catch (err) {
     next(err);
