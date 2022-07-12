@@ -12,6 +12,7 @@ const boardRoutes = require('./routes/board');
 const taskRoutes = require('./routes/task');
 const commentRoutes = require('./routes/comment');
 const cardRoutes = require('./routes/card');
+const alarmRoutes = require('./routes/alarm');
 
 const app = express();
 app.set('port', 4000);
@@ -33,6 +34,7 @@ app.use('/board', boardRoutes);
 app.use('/task', taskRoutes);
 app.use('/comment', commentRoutes);
 app.use('/card', cardRoutes);
+app.use('/alarm', alarmRoutes);
 
 app.use((error, req, res, next) => {
   console.error(error);

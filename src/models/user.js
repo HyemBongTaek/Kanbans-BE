@@ -67,5 +67,11 @@ module.exports = class User extends Sequelize.Model {
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
     });
+
+    db.User.hasMany(db.Alarm, {
+      foreignKey: { name: 'userId', sourceKey: 'id', allowNull: false },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
+    });
   }
 };
