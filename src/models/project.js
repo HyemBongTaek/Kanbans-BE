@@ -21,6 +21,10 @@ module.exports = class Project extends Sequelize.Model {
           type: Sequelize.STRING(50),
           allowNull: false,
         },
+        boardOrder: {
+          type: Sequelize.TEXT,
+          defaultValue: '',
+        },
       },
       {
         sequelize,

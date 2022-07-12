@@ -8,6 +8,10 @@ module.exports = class Board extends Sequelize.Model {
           type: Sequelize.STRING(50),
           allowNull: false,
         },
+        cardOrder: {
+          type: Sequelize.TEXT,
+          defaultValue: '',
+        },
       },
       {
         sequelize,
