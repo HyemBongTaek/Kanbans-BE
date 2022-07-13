@@ -40,13 +40,5 @@ module.exports = class Board extends Sequelize.Model {
       onDelete: 'cascade',
       onUpdate: 'cascade',
     });
-
-    db.Board.hasMany(db.CardOrder, {
-      foreignKey: {
-        name: 'boardId',
-      },
-      onDelete: 'cascade',
-      onUpdate: 'cascade',
-    });
   }
 };
