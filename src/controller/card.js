@@ -1,5 +1,6 @@
 const { QueryTypes } = require('sequelize');
 const {
+  Board,
   Card,
   CardLabel,
   CardOrder,
@@ -40,25 +41,18 @@ const createCard = async (req, res, next) => {
       cardId: newCard.id,
     });
 
-    const cardOrder = await CardOrder.findOne({
+    const board = await Board.findOne({
       where: {
-        boardId,
+        id: boardId,
       },
     });
 
-    if (!cardOrder) {
-      await CardOrder.create({
-        order: newCard.id,
-        boardId,
-      });
+    if (board.cardOrder === '') {
+      board.cardOrder = newCard.id;
     } else {
-      if (cardOrder.order === '') {
-        cardOrder.order = newCard.id;
-      } else {
-        cardOrder.order = `${cardOrder.order};${newCard.id}`;
-      }
-      await cardOrder.save();
+      board.cardOrder = `${board.cardOrder};${newCard.id}`;
     }
+    await board.save();
 
     res.status(201).json({
       ok: true,
