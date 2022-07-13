@@ -3,7 +3,6 @@ const {
   Board,
   Card,
   CardLabel,
-  CardOrder,
   Comment,
   Image,
   Label,
@@ -538,35 +537,35 @@ const updateCardLocation = async (req, res, next) => {
 
   try {
     if (start.boardId === end.boardId) {
-      await CardOrder.update(
+      await Board.update(
         {
-          order: end.cards.join(';'),
+          cardOrder: end.cards.join(';'),
         },
         {
           where: {
-            boardId: end.boardId,
+            id: end.boardId,
           },
         }
       );
     } else {
       await Promise.all([
-        CardOrder.update(
+        Board.update(
           {
-            order: start.cards.join(';'),
+            cardOrder: start.cards.join(';'),
           },
           {
             where: {
-              boardId: start.boardId,
+              id: start.boardId,
             },
           }
         ),
-        CardOrder.update(
+        Board.update(
           {
-            order: end.cards.join(';'),
+            cardOrder: end.cards.join(';'),
           },
           {
             where: {
-              boardId: end.boardId,
+              id: end.boardId,
             },
           }
         ),
