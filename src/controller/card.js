@@ -177,13 +177,13 @@ const deleteAllCards = async (req, res, next) => {
       },
     });
 
-    await CardOrder.update(
+    await Board.update(
       {
-        order: '',
+        cardOrder: '',
       },
       {
         where: {
-          boardId,
+          id: boardId,
         },
       }
     );
