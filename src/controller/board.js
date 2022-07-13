@@ -1,6 +1,6 @@
 const { QueryTypes } = require('sequelize');
 
-const { Board, BoardOrder, Project, sequelize } = require('../models/index');
+const { Board, Project, sequelize } = require('../models/index');
 const { getBoardQuery, getCardQuery } = require('../utils/query');
 const { makeBoardCardObject } = require('../utils/service');
 
@@ -213,13 +213,13 @@ const updateBoardLocation = async (req, res, next) => {
       return;
     }
 
-    await BoardOrder.update(
+    await Project.update(
       {
-        order: boardOrder.join(';'),
+        boardOrder: boardOrder.join(';'),
       },
       {
         where: {
-          projectId,
+          id: projectId,
         },
       }
     );
