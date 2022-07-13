@@ -73,29 +73,21 @@ const createBoard = async (req, res, next) => {
       projectId,
     });
 
-    const boardOrder = await BoardOrder.findOne({
+    const project = await Project.findOne({
       where: {
-        projectId,
+        id: projectId,
       },
     });
 
-    if (!boardOrder) {
-      await BoardOrder.create({
-        order: '',
-        projectId,
-      });
-    }
-
-    if (boardOrder.order === '') {
-      boardOrder.order = newBoard.id;
+    if (project.boardOrder === '') {
+      project.boardOrder = newBoard.id;
     } else {
-      boardOrder.order = `${boardOrder.order};${newBoard.id}`;
+      project.boardOrder = `${project.boardOrder};${newBoard.id}`;
     }
 
-    await boardOrder.save();
+    await project.save();
 
     res.status(201).json({ ok: true, message: '작성 완료', newBoard });
-    return;
   } catch (err) {
     next(err);
   }
@@ -179,17 +171,15 @@ const deleteBoard = async (req, res, next) => {
       return;
     }
 
-    const boardOrder = await BoardOrder.findOne({
+    const project = await Project.findOne({
       where: {
-        projectId: board.projectId,
+        id: board.projectId,
       },
     });
 
-    boardOrder.order = boardOrder.order
-      .split(';')
-      .filter((order) => order !== boardId)
-      .join(';');
-    await boardOrder.save();
+    const regex = new RegExp(`${boardId};|;${boardId}`, 'g');
+    project.boardOrder = project.boardOrder.replace(regex, '');
+    await project.save();
 
     await Board.destroy({ where: { id: boardId } });
 
