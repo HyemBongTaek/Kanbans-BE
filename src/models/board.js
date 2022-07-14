@@ -8,6 +8,10 @@ module.exports = class Board extends Sequelize.Model {
           type: Sequelize.STRING(50),
           allowNull: false,
         },
+        cardOrder: {
+          type: Sequelize.TEXT,
+          defaultValue: '',
+        },
       },
       {
         sequelize,
@@ -32,14 +36,6 @@ module.exports = class Board extends Sequelize.Model {
       foreignKey: {
         name: 'boardId',
         allowNull: false,
-      },
-      onDelete: 'cascade',
-      onUpdate: 'cascade',
-    });
-
-    db.Board.hasMany(db.CardOrder, {
-      foreignKey: {
-        name: 'boardId',
       },
       onDelete: 'cascade',
       onUpdate: 'cascade',

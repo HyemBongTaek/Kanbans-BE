@@ -21,6 +21,10 @@ module.exports = class Project extends Sequelize.Model {
           type: Sequelize.STRING(50),
           allowNull: false,
         },
+        boardOrder: {
+          type: Sequelize.TEXT,
+          defaultValue: '',
+        },
       },
       {
         sequelize,
@@ -48,14 +52,6 @@ module.exports = class Project extends Sequelize.Model {
       foreignKey: { name: 'projectId', sourceKey: 'id' },
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
-    });
-
-    db.Project.hasMany(db.BoardOrder, {
-      foreignKey: {
-        name: 'projectId',
-      },
-      onDelete: 'cascade',
-      onUpdate: 'cascade',
     });
 
     db.Project.hasMany(db.Label, {
