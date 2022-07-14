@@ -50,7 +50,7 @@ const changeProfile = async (req, res, next) => {
   const {
     userId,
     file,
-    body: { name },
+    body: { name, introduce },
   } = req;
 
   try {
@@ -99,6 +99,20 @@ const changeProfile = async (req, res, next) => {
         ok: true,
         message: 'Name has been changed',
         name,
+      });
+    } else if (introduce) {
+      if (profile) {
+        profile.introduce = introduce;
+        await setUserProfile(userId, profile);
+      }
+
+      user.introduce = introduce;
+      await user.save();
+
+      res.status(200).json({
+        ok: true,
+        message: 'Introduce has been changed',
+        introduce,
       });
     }
   } catch (err) {
