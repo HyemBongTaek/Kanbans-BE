@@ -100,7 +100,7 @@ const deleteCard = async (req, res, next) => {
     res.status(200).json({
       ok: true,
       message: 'Card deleted',
-      newCardOrder: board.cardOrder.split(';'),
+      newCardOrder: board.cardOrder === '' ? [] : board.cardOrder.split(';'),
     });
   } catch (err) {
     next(err);
