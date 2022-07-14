@@ -9,7 +9,7 @@ module.exports = class Alarm extends Sequelize.Model {
           allowNull: false,
         },
         createdAt: {
-          type: Sequelize.INTEGER,
+          type: Sequelize.DATEONLY,
           allowNull: false,
         },
       },

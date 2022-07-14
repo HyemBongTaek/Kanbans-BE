@@ -95,62 +95,33 @@ const createBoard = async (req, res, next) => {
 
 const updateBoard = async (req, res, next) => {
   try {
-    const updateId = req.params.id;
+    const boardId = req.params.id;
+    const { title } = req.body;
 
-    const findUpdateId = await Board.findOne({
+    const board = await Board.findOne({
       where: {
-        id: updateId,
+        id: boardId,
       },
     });
 
-    const condition = req.body.title === '';
-    if (condition === true) {
+    if (!board) {
+      res.status(400).json({ ok: false, message: '보드가 존재하지 않습니다.' });
+      return;
+    }
+
+    if (title.trim() === '' || !title) {
       res.status(400).json({ ok: false, message: '타이틀을 작성해주세요.' });
       return;
     }
-    await Board.update(
-      {
-        title: req.body.title,
-      },
-      { where: { id: updateId } }
-    );
 
-    const updateBoards = await Board.findOne({
-      where: {
-        id: updateId,
-      },
-      attributes: { exclude: ['projectId'] },
+    board.title = title;
+    await board.save();
+
+    res.status(201).json({
+      ok: true,
+      message: '수정 완료',
+      updateBoards: { id: board.id, title: board.title },
     });
-    // const userProjectId = findUpdateId.dataValues.projectId;
-
-    // const updatedBoard = await Board.findAll({
-    //   where: {
-    //     projectId: userProjectId,
-    //   },
-    // });
-
-    // const updateBoards = updatedBoard.reduce((acc, cur) => {
-    //   acc[cur.id] = {
-    //     id: cur.id,
-    //     title: cur.title,
-    //     projectId: cur.projectId,
-    //   };
-    //   return acc;
-    // }, {});
-
-    // const card = await sequelize.query(getCardQuery, {
-    //   type: QueryTypes.SELECT,
-    //   replacements: [updateId],
-    // });
-
-    // const cards = [];
-
-    // for (let i = 0; i < card.length; i += 1) {
-    //   cards.push(card[i].cardId);
-    // }
-
-    res.status(201).json({ ok: true, message: '수정 완료', updateBoards });
-    return;
   } catch (err) {
     next(err);
   }
