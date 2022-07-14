@@ -148,7 +148,7 @@ const deleteBoard = async (req, res, next) => {
       },
     });
 
-    const regex = new RegExp(`${boardId};|;${boardId}`, 'g');
+    const regex = new RegExp(`${boardId};|;${boardId}|${boardId}`, 'g');
     project.boardOrder = project.boardOrder.replace(regex, '');
     await project.save();
 

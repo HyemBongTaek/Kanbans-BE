@@ -93,7 +93,7 @@ const deleteCard = async (req, res, next) => {
       },
     });
 
-    const regex = new RegExp(`${cardId};|;${cardId}`, 'g');
+    const regex = new RegExp(`${cardId};|;${cardId}|${cardId}`, 'g');
     board.cardOrder = board.cardOrder.replace(regex, '');
     await board.save();
 
