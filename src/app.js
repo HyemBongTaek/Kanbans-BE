@@ -5,14 +5,7 @@ const cors = require('cors');
 
 const io = require('./socket');
 
-const authRoutes = require('./routes/auth');
-const projectRoutes = require('./routes/project');
-const userRoutes = require('./routes/user');
-const boardRoutes = require('./routes/board');
-const taskRoutes = require('./routes/task');
-const commentRoutes = require('./routes/comment');
-const cardRoutes = require('./routes/card');
-const alarmRoutes = require('./routes/alarm');
+const routes = require('./routes');
 
 const app = express();
 app.set('port', 4000);
@@ -27,14 +20,7 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/oauth', authRoutes);
-app.use('/project', projectRoutes);
-app.use('/user', userRoutes);
-app.use('/board', boardRoutes);
-app.use('/task', taskRoutes);
-app.use('/comment', commentRoutes);
-app.use('/card', cardRoutes);
-app.use('/alarm', alarmRoutes);
+app.use('/', routes);
 
 app.use((error, req, res, next) => {
   console.error(error);
