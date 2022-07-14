@@ -93,14 +93,14 @@ const deleteCard = async (req, res, next) => {
       },
     });
 
-    const regex = new RegExp(`${cardId};|;${cardId}`, 'g');
+    const regex = new RegExp(`${cardId};|;${cardId}|${cardId}`, 'g');
     board.cardOrder = board.cardOrder.replace(regex, '');
     await board.save();
 
     res.status(200).json({
       ok: true,
       message: 'Card deleted',
-      newCardOrder: board.cardOrder.split(';'),
+      newCardOrder: board.cardOrder === '' ? [] : board.cardOrder.split(';'),
     });
   } catch (err) {
     next(err);
