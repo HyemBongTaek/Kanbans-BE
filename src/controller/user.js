@@ -21,7 +21,7 @@ const getProfileInfo = async (req, res, next) => {
         where: {
           id: +userId,
         },
-        attributes: ['id', 'profileImage', 'name'],
+        attributes: ['id', 'profileImage', 'name', 'introduce'],
       });
 
       if (!user) {
