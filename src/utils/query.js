@@ -26,26 +26,61 @@ const findProjectsQuery = `SELECT id
                            FROM projects 
                            WHERE owner=?`;
 
+// const getBoardQuery = `SELECT b.id AS 'boardId'
+//                                    , b.title AS 'boardTitle'
+//                                    , b.card_order AS 'cardOrder'
+//                                    , b.project_id AS 'projectId'
+//                                    , c.id AS 'cardId'
+//                                    , c.title AS 'cardTitle'
+//                                    , c.d_day AS 'dDay'
+//                                    , c.status AS 'status'
+//                                    , c.check AS 'check'
+//                                    , c.created_at AS 'createdAt'
+//                                    , l.id AS 'labelId'
+//                                    , l.color AS 'labelColor'
+//                               FROM boards AS b
+//                                    LEFT OUTER JOIN cards AS c
+//                                                 ON b.id=c.board_id
+//                                    LEFT OUTER JOIN card_label AS cl
+//                                                 ON cl.card_id=c.id
+//                                    LEFT OUTER JOIN labels AS l
+//                                                 ON cl.label_id=l.id
+//                               WHERE b.project_id=?`;
+
 const getBoardQuery = `SELECT b.id AS 'boardId'
-                                   , b.title AS 'boardTitle'
-                                   , b.card_order AS 'cardOrder'
-                                   , b.project_id AS 'projectId'
-                                   , c.id AS 'cardId'
-                                   , c.title AS 'cardTitle'
-                                   , c.d_day AS 'dDay'
-                                   , c.status AS 'status'
-                                   , c.check AS 'check'
-                                   , c.created_at AS 'createdAt'
-                                   , l.id AS 'labelId'
-                                   , l.color AS 'labelColor'
-                              FROM boards AS b
-                                   LEFT OUTER JOIN cards AS c
-                                                ON b.id=c.board_id
-                                   LEFT OUTER JOIN card_label AS cl
-                                                ON cl.card_id=c.id
-                                   LEFT OUTER JOIN labels AS l
-                                                ON cl.label_id=l.id
-                              WHERE b.project_id=?`;
+                            , b.title AS 'boardTitle'
+                            , b.card_order AS 'cardOrder'
+                            , b.project_id AS 'projectId'
+                            , c.id AS 'cardId'
+                            , c.title AS 'cardTitle'
+                            , c.d_day AS 'dDay'
+                            , c.status AS 'status'
+                            , c.check AS 'check'
+                            , c.created_at AS 'createdAt'
+                            , l.id AS 'labelId'
+                            , l.color AS 'labelColor'
+                            , t.task_count AS 'taskCount'
+                            , t.task_check_count AS 'taskCheckCount'
+                            , cm.comment_count AS 'commentCount'
+                       FROM boards AS b
+                            LEFT JOIN cards AS c
+                                   ON b.id=c.board_id
+                            LEFT JOIN card_label AS cl
+                                   ON cl.card_id=c.id
+                            LEFT JOIN labels AS l
+                                   ON cl.label_id=l.id
+                            LEFT JOIN (SELECT card_id
+                                            , COUNT(*) AS 'task_count'
+                                            , COUNT(CASE WHEN \`check\`=1 THEN 1 END) AS 'task_check_count'
+                                       FROM tasks
+                                       GROUP BY card_id) AS t
+                                   ON t.card_id=c.id
+                           LEFT JOIN (SELECT card_id
+                                           , COUNT(*) AS 'comment_count'
+                                      FROM comments
+                                      GROUP BY card_id) AS cm
+                                  ON cm.card_id=c.id
+                       WHERE b.project_id=?`;
 
 const getCommentQuery = `SELECT c.id AS 'id',
                                 c.content AS 'content',

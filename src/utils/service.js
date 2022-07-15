@@ -63,6 +63,9 @@ function makeBoardCardObject(data) {
                 },
               ]
             : [],
+          taskCount: cur.taskCount || 0,
+          taskCheckCount: cur.taskCheckCount || 0,
+          commentCount: cur.commentCount || 0,
         };
       } else if (cardIndex >= 0 && cur.cardId) {
         acc.cardObj[cur.cardId].labels.push({
