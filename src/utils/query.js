@@ -113,14 +113,6 @@ const uninvitedMembersQuery = `SELECT u.id AS 'userId'
                                                       FROM user_card
                                                       WHERE card_id=?)`;
 
-const getCardQuery = `SELECT b.id AS 'id',
-                             c.id AS 'cardId',
-                             c.board_id AS 'boardId'  
-                      FROM boards AS b
-                           LEFT OUTER JOIN cards AS c
-                                ON b.id=c.board_id
-                      WHERE b.id=?`;
-
 module.exports = {
   loadProjectsQuery,
   findProjectsQuery,
@@ -128,5 +120,4 @@ module.exports = {
   getCommentQuery,
   getProjectMembers,
   uninvitedMembersQuery,
-  getCardQuery,
 };
