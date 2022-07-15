@@ -1,7 +1,7 @@
 const { QueryTypes } = require('sequelize');
 
 const { Board, Project, sequelize } = require('../models/index');
-const { getBoardQuery, getCardQuery } = require('../utils/query');
+const { getBoardQuery } = require('../utils/query');
 const { makeBoardCardObject } = require('../utils/service');
 
 const getBoard = async (req, res, next) => {
@@ -42,7 +42,6 @@ const getBoard = async (req, res, next) => {
         columnOrders: boardOrder.split(';'),
       },
     });
-    return;
   } catch (err) {
     next(err);
   }
