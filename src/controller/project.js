@@ -1,9 +1,12 @@
-const { v4: uuidv4 } = require('uuid');
 const { QueryTypes } = require('sequelize');
 
 const { Project, User, UserProject, sequelize } = require('../models/index');
 const { getProjectMembers, loadProjectsQuery } = require('../utils/query');
-const { getBytes, projectDataFormatChangeFn } = require('../utils/service');
+const {
+  makeInviteCode,
+  getBytes,
+  projectDataFormatChangeFn,
+} = require('../utils/service');
 
 const bookmark = async (req, res, next) => {
   try {
@@ -99,7 +102,7 @@ const createProject = async (req, res, next) => {
       owner: userId,
       title,
       permission,
-      inviteCode: uuidv4(),
+      inviteCode: makeInviteCode(),
     });
 
     await UserProject.create({

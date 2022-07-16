@@ -1,3 +1,5 @@
+const { customAlphabet } = require('nanoid');
+
 function projectDataFormatChangeFn(projects) {
   return projects.reduce((acc, cur) => {
     const index = acc.findIndex((idx) => idx.projectId === cur.projectId);
@@ -97,8 +99,17 @@ function getBytes(str) {
   return charBytes;
 }
 
+function makeInviteCode() {
+  const customNanoid = customAlphabet(
+    '1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  );
+
+  return customNanoid(10);
+}
+
 module.exports = {
   getBytes,
   makeBoardCardObject,
+  makeInviteCode,
   projectDataFormatChangeFn,
 };
