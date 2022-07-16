@@ -7,6 +7,7 @@ const {
   getBytes,
   projectDataFormatChangeFn,
 } = require('../utils/service');
+const { getUserProfile } = require('../utils/redis');
 
 const bookmark = async (req, res, next) => {
   try {
@@ -110,12 +111,16 @@ const createProject = async (req, res, next) => {
       projectId: newProject.id,
     });
 
-    const loggedInUser = await User.findOne({
-      where: {
-        id: userId,
-      },
-      attributes: ['id', 'profileImage', 'name'],
-    });
+    let loggedInUser = await getUserProfile(+userId);
+
+    if (!loggedInUser) {
+      loggedInUser = await User.findOne({
+        where: {
+          id: userId,
+        },
+        attributes: ['id', 'profileImage', 'name'],
+      });
+    }
 
     const newProjectResponse = {
       title: newProject.title,
