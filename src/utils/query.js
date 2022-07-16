@@ -97,6 +97,7 @@ const getCommentQuery = `SELECT c.id AS 'id',
 const getProjectMembers = `SELECT u.id AS 'id'
                                 , u.name AS 'name'
                                 , u.profile_image AS 'profileImage'
+                                , u.introduce AS 'introduce'
                            FROM user_project AS up
                                 INNER JOIN users AS u
                                         ON up.user_id=u.id
