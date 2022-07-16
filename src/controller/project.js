@@ -99,11 +99,22 @@ const createProject = async (req, res, next) => {
   }
 
   try {
+    const inviteCodes = (await Project.findAll({})).map((el) =>
+      el.get('inviteCode')
+    );
+
+    let newInviteCode = makeInviteCode();
+
+    while (true) {
+      if (inviteCodes.indexOf(newInviteCode) === -1) break;
+      else newInviteCode = makeInviteCode();
+    }
+
     const newProject = await Project.create({
       owner: userId,
       title,
       permission,
-      inviteCode: makeInviteCode(),
+      inviteCode: newInviteCode,
     });
 
     await UserProject.create({
