@@ -1,9 +1,13 @@
-const { v4: uuidv4 } = require('uuid');
 const { QueryTypes } = require('sequelize');
 
 const { Project, User, UserProject, sequelize } = require('../models/index');
 const { getProjectMembers, loadProjectsQuery } = require('../utils/query');
-const { getBytes, projectDataFormatChangeFn } = require('../utils/service');
+const {
+  makeInviteCode,
+  getBytes,
+  projectDataFormatChangeFn,
+} = require('../utils/service');
+const { getUserProfile } = require('../utils/redis');
 
 const bookmark = async (req, res, next) => {
   try {
@@ -95,11 +99,22 @@ const createProject = async (req, res, next) => {
   }
 
   try {
+    const inviteCodes = (await Project.findAll({})).map((el) =>
+      el.get('inviteCode')
+    );
+
+    let newInviteCode = makeInviteCode();
+
+    while (true) {
+      if (inviteCodes.indexOf(newInviteCode) === -1) break;
+      else newInviteCode = makeInviteCode();
+    }
+
     const newProject = await Project.create({
       owner: userId,
       title,
       permission,
-      inviteCode: uuidv4(),
+      inviteCode: newInviteCode,
     });
 
     await UserProject.create({
@@ -107,12 +122,16 @@ const createProject = async (req, res, next) => {
       projectId: newProject.id,
     });
 
-    const loggedInUser = await User.findOne({
-      where: {
-        id: userId,
-      },
-      attributes: ['id', 'profileImage', 'name'],
-    });
+    let loggedInUser = await getUserProfile(+userId);
+
+    if (!loggedInUser) {
+      loggedInUser = await User.findOne({
+        where: {
+          id: userId,
+        },
+        attributes: ['id', 'profileImage', 'name'],
+      });
+    }
 
     const newProjectResponse = {
       title: newProject.title,
