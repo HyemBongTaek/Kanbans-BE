@@ -121,6 +121,13 @@ module.exports = (app) => {
         title,
       });
     });
+
+    socket.on('boardDelete', ({ room, boardId }) => {
+      console.log('Board Delete Event: room', room, 'boardId', boardId);
+      socket.broadcast.to(room.toString()).emit('boardDeleteResult', {
+        boardId,
+      });
+    });
   });
 
   async function listener() {
