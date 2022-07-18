@@ -128,6 +128,32 @@ module.exports = (app) => {
         boardId,
       });
     });
+
+    socket.on('cardCreate', ({ room, cardId, title, user, createdAt }) => {
+      console.log(
+        'Card Create Event: room',
+        room,
+        'cardId',
+        cardId,
+        'title',
+        title,
+        'user',
+        user
+      );
+      socket.broadcast.to(room.toString()).emit('cardCreateResult', {
+        cardId,
+        title,
+        user,
+        createdAt,
+      });
+    });
+
+    socket.on('cardDelete', ({ room, cardId }) => {
+      console.log('Card Delete Event: room', room, 'cardId', cardId);
+      socket.broadcast.to(room.toString()).emit('cardDeleteEvent', {
+        cardId,
+      });
+    });
   });
 
   async function listener() {
