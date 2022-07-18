@@ -106,6 +106,21 @@ module.exports = (app) => {
         console.log('DROP DRAGGABLE', draggable);
       }
     );
+
+    socket.on('boardCreate', ({ room, boardId, title }) => {
+      console.log(
+        'Board Create Event: room',
+        room,
+        'boardId',
+        boardId,
+        'title',
+        title
+      );
+      socket.broadcast.to(room.toString()).emit('boardCreateResult', {
+        boardId,
+        title,
+      });
+    });
   });
 
   async function listener() {
