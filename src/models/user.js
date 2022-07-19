@@ -9,7 +9,7 @@ module.exports = class User extends Sequelize.Model {
           allowNull: false,
         },
         platformId: {
-          type: Sequelize.STRING(30),
+          type: Sequelize.STRING(50),
           allowNull: false,
         },
         profileImage: {
