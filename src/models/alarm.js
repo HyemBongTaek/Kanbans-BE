@@ -26,7 +26,7 @@ module.exports = class Alarm extends Sequelize.Model {
   }
 
   static associate(db) {
-    db.User.hasMany(db.Comment, {
+    db.Alarm.belongsTo(db.User, {
       foreignKey: { name: 'userId', targetKey: 'id', allowNull: false },
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
