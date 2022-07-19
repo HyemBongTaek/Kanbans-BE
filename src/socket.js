@@ -117,8 +117,10 @@ module.exports = (app) => {
         title
       );
       socket.broadcast.to(room.toString()).emit('boardCreateResult', {
-        boardId,
+        id: boardId,
+        projectId: room,
         title,
+        cardId: [],
       });
     });
 
