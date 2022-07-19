@@ -83,10 +83,18 @@ const createBoard = async (req, res, next) => {
     } else {
       project.boardOrder = `${project.boardOrder};${newBoard.id}`;
     }
-
     await project.save();
 
-    res.status(201).json({ ok: true, message: '작성 완료', newBoard });
+    res.status(201).json({
+      ok: true,
+      message: '작성 완료',
+      newBoard: {
+        id: newBoard.id,
+        title: newBoard.title,
+        projectId: newBoard.projectId,
+        cardId: [],
+      },
+    });
   } catch (err) {
     next(err);
   }
