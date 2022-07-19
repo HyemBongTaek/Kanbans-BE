@@ -106,6 +106,54 @@ module.exports = (app) => {
         console.log('DROP DRAGGABLE', draggable);
       }
     );
+
+    socket.on('boardCreate', ({ room, boardId, title }) => {
+      console.log(
+        'Board Create Event: room',
+        room,
+        'boardId',
+        boardId,
+        'title',
+        title
+      );
+      socket.broadcast.to(room.toString()).emit('boardCreateResult', {
+        boardId,
+        title,
+      });
+    });
+
+    socket.on('boardDelete', ({ room, boardId }) => {
+      console.log('Board Delete Event: room', room, 'boardId', boardId);
+      socket.broadcast.to(room.toString()).emit('boardDeleteResult', {
+        boardId,
+      });
+    });
+
+    socket.on('cardCreate', ({ room, cardId, title, user, createdAt }) => {
+      console.log(
+        'Card Create Event: room',
+        room,
+        'cardId',
+        cardId,
+        'title',
+        title,
+        'user',
+        user
+      );
+      socket.broadcast.to(room.toString()).emit('cardCreateResult', {
+        cardId,
+        title,
+        user,
+        createdAt,
+      });
+    });
+
+    socket.on('cardDelete', ({ room, cardId }) => {
+      console.log('Card Delete Event: room', room, 'cardId', cardId);
+      socket.broadcast.to(room.toString()).emit('cardDeleteEvent', {
+        cardId,
+      });
+    });
   });
 
   async function listener() {
