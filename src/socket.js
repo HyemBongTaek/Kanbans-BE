@@ -172,13 +172,30 @@ module.exports = (app) => {
       socket.broadcast.to(room.toString()).emit('cardCheckResult', {
         cardId,
         check: true,
+        status: 'finish',
       });
     });
 
     socket.on('cardAllDelete', ({ room, boardId }) => {
       console.log('Card All Delete: room', room, 'boardId:', boardId);
-      socket.broadcast.to(room.toString()).emit('cardAllDeleteEvent', {
+      socket.broadcast.to(room.toString()).emit('cardAllDeleteResult', {
         boardId,
+      });
+    });
+
+    socket.on('cardStatus', ({ room, cardId, status }) => {
+      console.log(
+        'Card Status: room',
+        room,
+        'cardId:',
+        cardId,
+        'status:',
+        status
+      );
+      socket.broadcast.to(room.toString()).emit('cardStatusResult', {
+        cardId,
+        status,
+        check: status === 'finish',
       });
     });
   });
