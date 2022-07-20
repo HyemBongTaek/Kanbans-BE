@@ -174,6 +174,13 @@ module.exports = (app) => {
         check: true,
       });
     });
+
+    socket.on('cardAllDelete', ({ room, boardId }) => {
+      console.log('Card All Delete: room', room, 'boardId:', boardId);
+      socket.broadcast.to(room.toString()).emit('cardAllDeleteEvent', {
+        boardId,
+      });
+    });
   });
 
   async function listener() {
