@@ -166,6 +166,14 @@ module.exports = (app) => {
         cardId,
       });
     });
+
+    socket.on('cardCheck', ({ room, cardId }) => {
+      console.log('Card Check: room', room, 'cardId:', cardId);
+      socket.broadcast.to(room.toString()).emit('cardCheckResult', {
+        cardId,
+        check: true,
+      });
+    });
   });
 
   async function listener() {
