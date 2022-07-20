@@ -131,28 +131,38 @@ module.exports = (app) => {
       });
     });
 
-    socket.on('cardCreate', ({ room, cardId, title, user, createdAt }) => {
+    socket.on('cardCreate', ({ room, boardId, cardId, title, createdAt }) => {
       console.log(
         'Card Create Event: room',
         room,
+        'boardId',
+        boardId,
         'cardId',
         cardId,
         'title',
-        title,
-        'user',
-        user
+        title
       );
       socket.broadcast.to(room.toString()).emit('cardCreateResult', {
-        cardId,
+        id: cardId,
+        boardId,
         title,
-        user,
         createdAt,
+        status: 'progress',
+        check: false,
       });
     });
 
-    socket.on('cardDelete', ({ room, cardId }) => {
-      console.log('Card Delete Event: room', room, 'cardId', cardId);
-      socket.broadcast.to(room.toString()).emit('cardDeleteEvent', {
+    socket.on('cardDelete', ({ room, boardId, cardId }) => {
+      console.log(
+        'Card Delete Event: room',
+        room,
+        'boardId',
+        boardId,
+        'cardId',
+        cardId
+      );
+      socket.broadcast.to(room.toString()).emit('cardDeleteResult', {
+        boardId,
         cardId,
       });
     });
