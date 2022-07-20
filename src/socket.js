@@ -167,12 +167,12 @@ module.exports = (app) => {
       });
     });
 
-    socket.on('cardCheck', ({ room, cardId }) => {
-      console.log('Card Check: room', room, 'cardId:', cardId);
+    socket.on('cardCheck', ({ room, cardId, check }) => {
+      console.log('Card Check: room', room, 'cardId:', cardId, 'check:', check);
       socket.broadcast.to(room.toString()).emit('cardCheckResult', {
         cardId,
-        check: true,
-        status: 'finish',
+        check,
+        status: check ? 'finish' : 'progress',
       });
     });
 
