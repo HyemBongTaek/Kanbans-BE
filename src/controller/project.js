@@ -74,6 +74,56 @@ const bookmark = async (req, res, next) => {
   }
 };
 
+const changeOwner = async (req, res, next) => {
+  const {
+    userId,
+    body: { sender, receiver },
+    params: { projectId },
+  } = req;
+
+  if (+userId !== sender) {
+    res.status(400).json({
+      ok: false,
+      message: 'Do not have permission to change the owner',
+    });
+    return;
+  }
+
+  if (sender === receiver) {
+    res.status(400).json({
+      ok: false,
+      message: 'Sender and receiver match',
+    });
+    return;
+  }
+
+  try {
+    const project = await Project.findOne({
+      where: {
+        id: projectId,
+      },
+    });
+
+    if (sender !== project.owner) {
+      res.status(400).json({
+        ok: false,
+        message: 'Owner not matched',
+      });
+      return;
+    }
+
+    project.owner = +receiver;
+    await project.save();
+
+    res.status(200).json({
+      ok: true,
+      message: `Owner changed`,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 const createProject = async (req, res, next) => {
   const {
     userId,
@@ -465,6 +515,7 @@ const updateProject = async (req, res, next) => {
 
 module.exports = {
   bookmark,
+  changeOwner,
   createProject,
   deleteProject,
   getMembers,

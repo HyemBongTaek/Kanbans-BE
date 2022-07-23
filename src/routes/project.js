@@ -3,6 +3,7 @@ const express = require('express');
 const { auth } = require('../middlewares/auth');
 const {
   bookmark,
+  changeOwner,
   createProject,
   deleteProject,
   getMembers,
@@ -31,6 +32,8 @@ router.get('/', auth, loadAllProject);
 router.get('/:projectId/invite-code', auth, getProjectInviteCode);
 // 프로젝트 멤버 불러오기
 router.get('/:projectId/members', auth, getMembers);
+// 프로젝트 owner 변경
+router.patch('/:projectId/change-owner', auth, changeOwner);
 // 프로젝트 수정
 router.patch('/:id', auth, updateProject);
 // 프로젝트 삭제
