@@ -13,6 +13,7 @@ const {
 } = require('../models/index');
 const { cardImageUploadFn, deleteCardImageFn } = require('../utils/image');
 const { uninvitedMembersQuery } = require('../utils/query');
+const { getCardOrder, setCardOrder } = require('../utils/redis');
 
 const createCard = async (req, res, next) => {
   const {
@@ -40,23 +41,28 @@ const createCard = async (req, res, next) => {
       cardId: newCard.id,
     });
 
-    const board = await Board.findOne({
-      where: {
-        id: boardId,
-      },
-    });
+    const cardOrder = await getCardOrder(boardId);
 
-    if (board.cardOrder === '') {
-      board.cardOrder = newCard.id;
+    if (!cardOrder) {
+      const board = await Board.findOne({
+        where: {
+          id: boardId,
+        },
+      });
+      if (board.cardOrder === '') {
+        await setCardOrder(boardId, `${newCard.id}`);
+      } else {
+        await setCardOrder(boardId, `${board.cardOrder};${newCard.id}`);
+      }
     } else {
-      board.cardOrder = `${board.cardOrder};${newCard.id}`;
+      await setCardOrder(boardId, `${cardOrder};${newCard.id}`);
     }
-    await board.save();
 
     res.status(201).json({
       ok: true,
       newCard: {
         id: newCard.id,
+        boardId: newCard.boardId,
         title: newCard.title,
         status: newCard.status,
         check: newCard.check,
@@ -87,20 +93,25 @@ const deleteCard = async (req, res, next) => {
       return;
     }
 
-    const board = await Board.findOne({
-      where: {
-        id: boardId,
-      },
-    });
-
     const regex = new RegExp(`${cardId};|;${cardId}|${cardId}`, 'g');
-    board.cardOrder = board.cardOrder.replace(regex, '');
-    await board.save();
+
+    const cardOrder = await getCardOrder(boardId);
+
+    if (!cardOrder) {
+      const board = await Board.findOne({
+        where: {
+          id: boardId,
+        },
+      });
+      await setCardOrder(boardId, board.cardOrder.replace(regex, ''));
+    } else {
+      await setCardOrder(boardId, cardOrder.replace(regex, ''));
+    }
 
     res.status(200).json({
       ok: true,
       message: 'Card deleted',
-      newCardOrder: board.cardOrder === '' ? [] : board.cardOrder.split(';'),
+      cardId,
     });
   } catch (err) {
     next(err);
@@ -176,16 +187,7 @@ const deleteAllCards = async (req, res, next) => {
       },
     });
 
-    await Board.update(
-      {
-        cardOrder: '',
-      },
-      {
-        where: {
-          id: boardId,
-        },
-      }
-    );
+    await setCardOrder(boardId, '');
 
     res.status(200).json({
       ok: true,
@@ -537,48 +539,11 @@ const updateCardLocation = async (req, res, next) => {
 
   try {
     if (start.boardId === end.boardId) {
-      await Board.update(
-        {
-          cardOrder: end.cards.join(';'),
-        },
-        {
-          where: {
-            id: end.boardId,
-          },
-        }
-      );
+      await setCardOrder(end.boardId, end.cards.join(';'));
     } else {
       await Promise.all([
-        Board.update(
-          {
-            cardOrder: start.cards.join(';'),
-          },
-          {
-            where: {
-              id: start.boardId,
-            },
-          }
-        ),
-        Board.update(
-          {
-            cardOrder: end.cards.join(';'),
-          },
-          {
-            where: {
-              id: end.boardId,
-            },
-          }
-        ),
-        Card.update(
-          {
-            boardId: end.boardId,
-          },
-          {
-            where: {
-              id: end.cards,
-            },
-          }
-        ),
+        setCardOrder(start.boardId, start.cards.join(';')),
+        setCardOrder(end.boardId, end.cards.join(';')),
       ]);
     }
 
