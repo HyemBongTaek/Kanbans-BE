@@ -2,6 +2,7 @@ const http = require('http');
 const io = require('socket.io');
 
 const dbConnector = require('./db');
+const scheduler = require('./scheduler');
 const { redisConnect } = require('./redis');
 const { verifyJWT } = require('./utils/jwt');
 
@@ -56,7 +57,6 @@ module.exports = (app) => {
     });
 
     socket.on('dragStart', ({ type, id }) => {
-      console.log('DRAGGABLE', draggable);
       if (draggable[`${type}_${id}`]) {
         draggable[`${type}_${id}`].dragging = true;
         const draggingUser = draggable[`${type}_${id}`].socketId;
@@ -71,27 +71,22 @@ module.exports = (app) => {
           dragging: false,
         };
       }
-      console.log('DRAG DRAGGABLE', draggable);
     });
 
     socket.on(
       'dragEnd',
       ({ type, id, room, startPoint, endPoint, startOrder, endOrder }) => {
-        console.log('DRAG END');
-        console.log(type, id, room, startPoint, endPoint, startOrder, endOrder);
         const isDragging = draggable[`${type}_${id}`].dragging;
 
         if (!isDragging) {
           delete draggable[`${type}_${id}`];
 
           if (type === 'column') {
-            console.log('Board 이동');
             socket.broadcast.to(room.toString()).emit('moveResult', {
               type,
               order: endOrder,
             });
           } else if (type === 'card') {
-            console.log('Card 이동');
             socket.broadcast.to(room.toString()).emit('moveResult', {
               type,
               startPoint: startPoint || null,
@@ -103,55 +98,68 @@ module.exports = (app) => {
         } else {
           draggable[`${type}_${id}`].dragging = false;
         }
-        console.log('DROP DRAGGABLE', draggable);
       }
     );
 
     socket.on('boardCreate', ({ room, boardId, title }) => {
-      console.log(
-        'Board Create Event: room',
-        room,
-        'boardId',
-        boardId,
-        'title',
-        title
-      );
       socket.broadcast.to(room.toString()).emit('boardCreateResult', {
-        boardId,
+        id: boardId,
+        projectId: room,
         title,
+        cardId: [],
       });
     });
 
     socket.on('boardDelete', ({ room, boardId }) => {
-      console.log('Board Delete Event: room', room, 'boardId', boardId);
       socket.broadcast.to(room.toString()).emit('boardDeleteResult', {
         boardId,
       });
     });
 
-    socket.on('cardCreate', ({ room, cardId, title, user, createdAt }) => {
-      console.log(
-        'Card Create Event: room',
-        room,
-        'cardId',
-        cardId,
-        'title',
-        title,
-        'user',
-        user
-      );
+    socket.on('cardCreate', ({ room, boardId, cardId, title, createdAt }) => {
       socket.broadcast.to(room.toString()).emit('cardCreateResult', {
-        cardId,
+        id: cardId,
+        boardId,
         title,
-        user,
         createdAt,
+        status: 'progress',
+        check: false,
       });
     });
 
-    socket.on('cardDelete', ({ room, cardId }) => {
-      console.log('Card Delete Event: room', room, 'cardId', cardId);
-      socket.broadcast.to(room.toString()).emit('cardDeleteEvent', {
+    socket.on('cardDelete', ({ room, boardId, cardId }) => {
+      socket.broadcast.to(room.toString()).emit('cardDeleteResult', {
+        boardId,
         cardId,
+      });
+    });
+
+    socket.on('cardCheck', ({ room, cardId, check }) => {
+      socket.broadcast.to(room.toString()).emit('cardCheckResult', {
+        cardId,
+        check,
+        status: check ? 'finish' : 'progress',
+      });
+    });
+
+    socket.on('cardAllDelete', ({ room, boardId }) => {
+      socket.broadcast.to(room.toString()).emit('cardAllDeleteResult', {
+        boardId,
+      });
+    });
+
+    socket.on('cardStatus', ({ room, cardId, status }) => {
+      socket.broadcast.to(room.toString()).emit('cardStatusResult', {
+        cardId,
+        status,
+        check: status === 'finish',
+      });
+    });
+
+    socket.on('boardTitle', ({ room, boardId, title }) => {
+      socket.broadcast.to(room.toString()).emit('boardTitleResult', {
+        boardId,
+        title,
       });
     });
   });
@@ -160,6 +168,7 @@ module.exports = (app) => {
     console.log(`✅ Server listening on http://localhost:${app.get('port')}`);
     await dbConnector();
     await redisConnect();
+    scheduler();
   }
 
   httpServer.listen(app.get('port'), listener);

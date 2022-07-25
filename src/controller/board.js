@@ -3,6 +3,7 @@ const { QueryTypes } = require('sequelize');
 const { Board, Project, sequelize } = require('../models/index');
 const { getBoardQuery } = require('../utils/query');
 const { makeBoardCardObject } = require('../utils/service');
+const { getBoardOrder, setBoardOrder } = require('../utils/redis');
 
 const getBoard = async (req, res, next) => {
   const { projectId } = req.params;
@@ -25,14 +26,21 @@ const getBoard = async (req, res, next) => {
       return;
     }
 
-    const boardCardObj = makeBoardCardObject(getBoards);
+    const boardCardObj = await makeBoardCardObject(getBoards);
 
-    const { boardOrder } = await Project.findOne({
-      where: {
-        id: projectId,
-      },
-      attributes: ['boardOrder'],
-    });
+    let boardOrder = await getBoardOrder(projectId);
+
+    if (!boardOrder) {
+      const project = await Project.findOne({
+        where: {
+          id: projectId,
+        },
+        attributes: ['boardOrder'],
+      });
+
+      boardOrder = project.boardOrder;
+      await setBoardOrder(projectId, project.boardOrder);
+    }
 
     res.status(200).json({
       ok: true,
@@ -72,18 +80,22 @@ const createBoard = async (req, res, next) => {
       projectId,
     });
 
-    const project = await Project.findOne({
-      where: {
-        id: projectId,
-      },
-    });
+    const boardOrder = await getBoardOrder(projectId);
 
-    if (project.boardOrder === '') {
-      project.boardOrder = newBoard.id;
+    if (!boardOrder) {
+      const project = await Project.findOne({
+        where: {
+          id: projectId,
+        },
+      });
+      if (project.boardOrder === '') {
+        await setBoardOrder(projectId, `${newBoard.id}`);
+      } else {
+        await setBoardOrder(projectId, `${project.boardOrder};${newBoard.id}`);
+      }
     } else {
-      project.boardOrder = `${project.boardOrder};${newBoard.id}`;
+      await setBoardOrder(projectId, `${boardOrder};${newBoard.id}`);
     }
-    await project.save();
 
     res.status(201).json({
       ok: true,
@@ -149,20 +161,24 @@ const deleteBoard = async (req, res, next) => {
       return;
     }
 
-    const project = await Project.findOne({
-      where: {
-        id: board.projectId,
-      },
-    });
-
     const regex = new RegExp(`${boardId};|;${boardId}|${boardId}`, 'g');
-    project.boardOrder = project.boardOrder.replace(regex, '');
-    await project.save();
+
+    let boardOrder = await getBoardOrder(board.projectId);
+
+    if (!boardOrder) {
+      const project = await Project.findOne({
+        where: {
+          id: board.projectId,
+        },
+      });
+      boardOrder = project.boardOrder;
+    }
+
+    await setBoardOrder(board.projectId, boardOrder.replace(regex, ''));
 
     await Board.destroy({ where: { id: boardId } });
 
     res.status(200).json({ ok: true, message: '삭제 완료' });
-    return;
   } catch (err) {
     next(err);
   }
@@ -191,16 +207,7 @@ const updateBoardLocation = async (req, res, next) => {
       return;
     }
 
-    await Project.update(
-      {
-        boardOrder: boardOrder.join(';'),
-      },
-      {
-        where: {
-          id: projectId,
-        },
-      }
-    );
+    await setBoardOrder(projectId, boardOrder.join(';'));
 
     res.status(200).json({
       ok: true,

@@ -1,6 +1,6 @@
 const { QueryTypes } = require('sequelize');
 
-const { sequelize, User, Project } = require('../models/index');
+const { sequelize, User, UserProject, Project } = require('../models/index');
 const {
   profileImageUploadFn,
   deleteProfileImage,
@@ -121,10 +121,12 @@ const changeProfile = async (req, res, next) => {
 };
 
 const deleteUser = async (req, res, next) => {
+  const { userId } = req;
+
   try {
     const user = await User.findOne({
       where: {
-        id: req.userId,
+        id: userId,
       },
     });
 
@@ -136,18 +138,45 @@ const deleteUser = async (req, res, next) => {
       return;
     }
 
-    const projectToDelete = await sequelize.query(findProjectsQuery, {
-      type: QueryTypes.SELECT,
-      replacements: [req.userId],
+    await User.destroy({
+      where: {
+        id: req.userId,
+      },
     });
 
-    const ids = [];
-    projectToDelete.forEach((value) => ids.push(value.id));
-
-    await Project.destroy({
+    const project = await Project.findAll({
       where: {
-        id: [...ids],
+        owner: userId,
       },
+      attributes: ['id'],
+    });
+
+    project.map(async ({ id }) => {
+      const userProject = await UserProject.findAll({
+        where: {
+          projectId: id,
+        },
+        attributes: ['userId'],
+      });
+
+      if (userProject.length === 0) {
+        await Project.destroy({
+          where: {
+            id,
+          },
+        });
+      } else {
+        await Project.update(
+          {
+            owner: userProject[0].userId,
+          },
+          {
+            where: {
+              id,
+            },
+          }
+        );
+      }
     });
 
     const profileImageStorage = getProfileFileStorage(user.profileImage);
@@ -156,12 +185,6 @@ const deleteUser = async (req, res, next) => {
       const profileFilename = getProfileFilename(user.profileImage);
       await deleteProfileImage(profileFilename);
     }
-
-    await User.destroy({
-      where: {
-        id: req.userId,
-      },
-    });
 
     res.status(200).json({
       ok: true,

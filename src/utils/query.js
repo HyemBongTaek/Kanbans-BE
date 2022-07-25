@@ -94,13 +94,16 @@ const getCommentQuery = `SELECT c.id AS 'id',
                                    ON c.user_id = u.id
                          WHERE c.card_id=?`;
 
-const getProjectMembers = `SELECT u.id AS 'id'
-                                , u.name AS 'name'
-                                , u.profile_image AS 'profileImage'
+const getProjectMembers = `SELECT u.id AS \`id\`
+                                , u.name AS \`name\`
+                                , u.profile_image AS \`profileImage\`
                                 , u.introduce AS 'introduce'
+                                , (CASE WHEN p.\`owner\`=u.\`id\` THEN 1 ELSE 0 END) AS \`owner\`
                            FROM user_project AS up
                                 INNER JOIN users AS u
                                         ON up.user_id=u.id
+                                INNER JOIN projects AS p
+                                        ON up.project_id=p.id
                            WHERE project_id=?`;
 
 const uninvitedMembersQuery = `SELECT u.id AS 'userId'
