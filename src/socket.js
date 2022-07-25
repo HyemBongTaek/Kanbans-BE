@@ -2,6 +2,7 @@ const http = require('http');
 const io = require('socket.io');
 
 const dbConnector = require('./db');
+const scheduler = require('./scheduler');
 const { redisConnect } = require('./redis');
 const { verifyJWT } = require('./utils/jwt');
 
@@ -167,6 +168,7 @@ module.exports = (app) => {
     console.log(`✅ Server listening on http://localhost:${app.get('port')}`);
     await dbConnector();
     await redisConnect();
+    scheduler();
   }
 
   httpServer.listen(app.get('port'), listener);
