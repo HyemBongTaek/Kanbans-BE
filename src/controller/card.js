@@ -81,7 +81,6 @@ const deleteCard = async (req, res, next) => {
     const deleteCardCount = await Card.destroy({
       where: {
         id: +cardId,
-        boardId: +boardId,
       },
     });
 

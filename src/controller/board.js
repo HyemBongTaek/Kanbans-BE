@@ -3,7 +3,11 @@ const { QueryTypes } = require('sequelize');
 const { Board, Project, sequelize } = require('../models/index');
 const { getBoardQuery } = require('../utils/query');
 const { makeBoardCardObject } = require('../utils/service');
-const { getBoardOrder, setBoardOrder } = require('../utils/redis');
+const {
+  delCardOrder,
+  getBoardOrder,
+  setBoardOrder,
+} = require('../utils/redis');
 
 const getBoard = async (req, res, next) => {
   const { projectId } = req.params;
@@ -175,6 +179,7 @@ const deleteBoard = async (req, res, next) => {
     }
 
     await setBoardOrder(board.projectId, boardOrder.replace(regex, ''));
+    await delCardOrder(boardId);
 
     await Board.destroy({ where: { id: boardId } });
 

@@ -7,7 +7,12 @@ const {
   getBytes,
   projectDataFormatChangeFn,
 } = require('../utils/service');
-const { getUserProfile } = require('../utils/redis');
+const {
+  delBoardOrder,
+  delCardOrder,
+  getUserProfile,
+  getBoardOrder,
+} = require('../utils/redis');
 
 const bookmark = async (req, res, next) => {
   try {
@@ -224,6 +229,16 @@ const deleteProject = async (req, res, next) => {
       });
       return;
     }
+
+    const boardOrder = await getBoardOrder(projectId);
+
+    if (boardOrder) {
+      await Promise.allSettled(
+        boardOrder.split(';').map((id) => delCardOrder(id))
+      );
+    }
+
+    await delBoardOrder(projectId);
 
     res.status(200).json({
       ok: true,
