@@ -59,7 +59,7 @@ async function redisSchedule() {
     const data = await redisClient.SCAN(0);
 
     if (data.keys.length > 0) {
-      await Promise.all(data.keys.map((key) => autoSave(key)));
+      await Promise.allSettled(data.keys.map((key) => autoSave(key)));
     }
   } catch (err) {
     throw new Error(err.message);
