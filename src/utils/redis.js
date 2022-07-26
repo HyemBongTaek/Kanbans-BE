@@ -43,6 +43,14 @@ async function getBoardOrder(id) {
   }
 }
 
+async function delBoardOrder(id) {
+  try {
+    await redisClient.del(`project:${id}:board-order`);
+  } catch (e) {
+    throw new Error(e.message);
+  }
+}
+
 async function setCardOrder(id, order) {
   try {
     await redisClient.setEx(`board:${id}:card-order`, 900, order);
@@ -65,7 +73,17 @@ async function getCardOrder(id) {
   }
 }
 
+async function delCardOrder(id) {
+  try {
+    await redisClient.del(`board:${id}:card-order`);
+  } catch (e) {
+    throw new Error(e.message);
+  }
+}
+
 module.exports = {
+  delBoardOrder,
+  delCardOrder,
   getBoardOrder,
   getCardOrder,
   getUserProfile,
