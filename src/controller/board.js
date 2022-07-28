@@ -34,7 +34,7 @@ const getBoard = async (req, res, next) => {
 
     let boardOrder = await getBoardOrder(projectId);
 
-    if (!boardOrder) {
+    if (boardOrder === null) {
       const project = await Project.findOne({
         where: {
           id: projectId,
@@ -86,7 +86,7 @@ const createBoard = async (req, res, next) => {
 
     const boardOrder = await getBoardOrder(projectId);
 
-    if (!boardOrder) {
+    if (boardOrder === null) {
       const project = await Project.findOne({
         where: {
           id: projectId,
@@ -97,6 +97,8 @@ const createBoard = async (req, res, next) => {
       } else {
         await setBoardOrder(projectId, `${project.boardOrder};${newBoard.id}`);
       }
+    } else if (boardOrder === '') {
+      await setBoardOrder(projectId, `${newBoard.id}`);
     } else {
       await setBoardOrder(projectId, `${boardOrder};${newBoard.id}`);
     }
