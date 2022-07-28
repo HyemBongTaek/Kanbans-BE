@@ -43,7 +43,7 @@ const createCard = async (req, res, next) => {
 
     const cardOrder = await getCardOrder(boardId);
 
-    if (!cardOrder) {
+    if (cardOrder === null) {
       const board = await Board.findOne({
         where: {
           id: boardId,
@@ -54,6 +54,8 @@ const createCard = async (req, res, next) => {
       } else {
         await setCardOrder(boardId, `${board.cardOrder};${newCard.id}`);
       }
+    } else if (cardOrder === '') {
+      await setCardOrder(boardId, `${newCard.id}`);
     } else {
       await setCardOrder(boardId, `${cardOrder};${newCard.id}`);
     }
@@ -166,11 +168,28 @@ const deleteAllCards = async (req, res, next) => {
   const { boardId } = req.params;
 
   try {
-    const cards = await Card.findAll({
-      where: {
-        boardId,
-      },
-    });
+    const cardOrder = await getCardOrder(boardId);
+    let cards;
+
+    if (cardOrder === null) {
+      cards = await Card.findAll({
+        where: {
+          boardId,
+        },
+      });
+    } else if (cardOrder === '') {
+      res.status(400).json({
+        ok: false,
+        message: 'No cards to delete',
+      });
+      return;
+    } else {
+      cards = await Card.findAll({
+        where: {
+          id: cardOrder.split(';'),
+        },
+      });
+    }
 
     if (cards.length === 0) {
       res.status(400).json({
@@ -180,11 +199,19 @@ const deleteAllCards = async (req, res, next) => {
       return;
     }
 
-    await Card.destroy({
-      where: {
-        boardId,
-      },
-    });
+    if (cardOrder === null) {
+      await Card.destroy({
+        where: {
+          boardId,
+        },
+      });
+    } else {
+      await Card.destroy({
+        where: {
+          id: cardOrder.split(';'),
+        },
+      });
+    }
 
     await setCardOrder(boardId, '');
 
@@ -291,7 +318,7 @@ const inputCardImages = async (req, res, next) => {
   } = req;
 
   try {
-    const fileUrl = await Promise.all(
+    const fileUrl = await Promise.allSettled(
       files.map((file) => cardImageUploadFn(cardId, file))
     );
 
@@ -340,7 +367,6 @@ const modifyCardCheck = async (req, res, next) => {
     const card = await Card.findOne({
       where: {
         id: cardId,
-        boardId,
       },
     });
 
@@ -392,7 +418,6 @@ const modifyCardStatus = async (req, res, next) => {
     const card = await Card.findOne({
       where: {
         id: cardId,
-        boardId,
       },
     });
 

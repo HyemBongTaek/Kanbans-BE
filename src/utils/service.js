@@ -35,10 +35,14 @@ async function makeBoardCardObject(data) {
   try {
     return (
       await Promise.all(
-        data.map(async (d) => ({
-          ...d,
-          cardOrder: (await getCardOrder(d.boardId)) || d.cardOrder,
-        }))
+        data.map(async (d) => {
+          const cardOrder = await getCardOrder(d.boardId);
+
+          return {
+            ...d,
+            cardOrder: cardOrder === null ? d.cardOrder : cardOrder,
+          };
+        })
       )
     ).reduce(
       (acc, cur) => {
@@ -53,7 +57,10 @@ async function makeBoardCardObject(data) {
             id: cur.boardId,
             title: cur.boardTitle,
             projectId: cur.projectId,
-            cardId: !cur.cardOrder ? [] : cur.cardOrder.split(';'),
+            cardId:
+              cur.cardOrder === null || cur.cardOrder === ''
+                ? []
+                : cur.cardOrder.split(';'),
           };
         }
 
