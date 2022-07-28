@@ -35,7 +35,7 @@ async function autoSave(key) {
         }
       );
 
-      if (cardOrder !== null) {
+      if (cardOrder !== null || cardOrder !== '') {
         await Card.update(
           {
             boardId: id,
@@ -68,7 +68,7 @@ async function redisSchedule() {
 
 function job() {
   console.log('✅ 스케줄러 실행!');
-  return schedule.scheduleJob('0 0/10 * * * ?', redisSchedule);
+  return schedule.scheduleJob('0 0/15 * * * ?', redisSchedule);
 }
 
 module.exports = job;
