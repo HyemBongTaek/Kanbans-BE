@@ -1,5 +1,7 @@
 const { redisClient } = require('../redis');
 
+const TIME = 1200;
+
 async function getUserProfile(userId) {
   try {
     const userProfile = await redisClient.get(`user:${userId}:profile`);
@@ -23,7 +25,11 @@ async function setUserProfile(userId, profile) {
 
 async function setBoardOrder(id, order) {
   try {
-    await redisClient.setEx(`project:${id}:board-order`, 900, order);
+    await redisClient.setEx(
+      `project:${id}:board-order`,
+      TIME,
+      JSON.stringify(order)
+    );
   } catch (err) {
     throw new Error(err.message);
   }
@@ -37,7 +43,7 @@ async function getBoardOrder(id) {
       return null;
     }
 
-    return boardOrder;
+    return JSON.parse(boardOrder);
   } catch (err) {
     throw new Error(err.message);
   }
@@ -53,7 +59,11 @@ async function delBoardOrder(id) {
 
 async function setCardOrder(id, order) {
   try {
-    await redisClient.setEx(`board:${id}:card-order`, 900, order);
+    await redisClient.setEx(
+      `board:${id}:card-order`,
+      TIME,
+      JSON.stringify(order)
+    );
   } catch (err) {
     throw new Error(err.message);
   }
@@ -67,7 +77,7 @@ async function getCardOrder(id) {
       return null;
     }
 
-    return cardOrder;
+    return JSON.parse(cardOrder);
   } catch (err) {
     throw new Error(err.message);
   }
