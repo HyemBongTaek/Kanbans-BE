@@ -316,13 +316,14 @@ const inputCardImages = async (req, res, next) => {
     files,
     params: { cardId },
   } = req;
+  console.log('파일', files);
 
   try {
     const fileUrl = await Promise.allSettled(
       files.map((file) => cardImageUploadFn(cardId, file))
     );
 
-    const images = await Image.bulkCreate(fileUrl);
+    const images = await Image.bulkCreate(fileUrl.map((url) => url.value));
 
     res.status(200).json({
       ok: true,
