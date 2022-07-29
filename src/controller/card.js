@@ -189,6 +189,7 @@ const deleteAllCards = async (req, res, next) => {
         where: {
           boardId,
         },
+        attributes: ['id'],
       });
     } else if (cardOrder === '') {
       res.status(400).json({
@@ -201,6 +202,7 @@ const deleteAllCards = async (req, res, next) => {
         where: {
           id: cardOrder.split(';'),
         },
+        attributes: ['id'],
       });
     }
 
@@ -210,6 +212,18 @@ const deleteAllCards = async (req, res, next) => {
         message: 'No cards to delete',
       });
       return;
+    }
+
+    const cardImages = await Image.findAll({
+      where: {
+        cardId: cards.map(({ id }) => id),
+      },
+    });
+
+    if (cardImages.length >= 1) {
+      await Promise.allSettled(
+        cardImages.map(({ id, url }) => deleteCardImageFn(id, url))
+      );
     }
 
     if (cardOrder === null) {
