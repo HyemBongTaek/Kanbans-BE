@@ -80,6 +80,19 @@ const deleteCard = async (req, res, next) => {
   const { boardId, cardId } = req.params;
 
   try {
+    // 카드 이미지 URL 검색
+    const cardImages = await Image.findAll({
+      where: {
+        cardId,
+      },
+    });
+
+    if (cardImages.length >= 1) {
+      await Promise.allSettled(
+        cardImages.map(({ url }) => deleteCardImageFn(cardId, url))
+      );
+    }
+
     const deleteCardCount = await Card.destroy({
       where: {
         id: +cardId,
@@ -316,7 +329,6 @@ const inputCardImages = async (req, res, next) => {
     files,
     params: { cardId },
   } = req;
-  console.log('파일', files);
 
   try {
     const fileUrl = await Promise.allSettled(
