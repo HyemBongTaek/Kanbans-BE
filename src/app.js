@@ -13,7 +13,7 @@ app.set('port', 4000);
 app.use(logger('dev'));
 app.use(
   cors({
-    origin: ['http://localhost:3000'],
+    origin: ['http://localhost:3000', 'http://cocori.site'],
     credentials: true,
   })
 );

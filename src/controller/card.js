@@ -43,7 +43,7 @@ const createCard = async (req, res, next) => {
 
     const cardOrder = await getCardOrder(boardId);
 
-    if (!cardOrder) {
+    if (cardOrder === null) {
       const board = await Board.findOne({
         where: {
           id: boardId,
@@ -54,6 +54,8 @@ const createCard = async (req, res, next) => {
       } else {
         await setCardOrder(boardId, `${board.cardOrder};${newCard.id}`);
       }
+    } else if (cardOrder === '') {
+      await setCardOrder(boardId, `${newCard.id}`);
     } else {
       await setCardOrder(boardId, `${cardOrder};${newCard.id}`);
     }
@@ -78,10 +80,22 @@ const deleteCard = async (req, res, next) => {
   const { boardId, cardId } = req.params;
 
   try {
+    // 카드 이미지 URL 검색
+    const cardImages = await Image.findAll({
+      where: {
+        cardId,
+      },
+    });
+
+    if (cardImages.length >= 1) {
+      await Promise.allSettled(
+        cardImages.map(({ url }) => deleteCardImageFn(cardId, url))
+      );
+    }
+
     const deleteCardCount = await Card.destroy({
       where: {
         id: +cardId,
-        boardId: +boardId,
       },
     });
 
@@ -167,11 +181,30 @@ const deleteAllCards = async (req, res, next) => {
   const { boardId } = req.params;
 
   try {
-    const cards = await Card.findAll({
-      where: {
-        boardId,
-      },
-    });
+    const cardOrder = await getCardOrder(boardId);
+    let cards;
+
+    if (cardOrder === null) {
+      cards = await Card.findAll({
+        where: {
+          boardId,
+        },
+        attributes: ['id'],
+      });
+    } else if (cardOrder === '') {
+      res.status(400).json({
+        ok: false,
+        message: 'No cards to delete',
+      });
+      return;
+    } else {
+      cards = await Card.findAll({
+        where: {
+          id: cardOrder.split(';'),
+        },
+        attributes: ['id'],
+      });
+    }
 
     if (cards.length === 0) {
       res.status(400).json({
@@ -181,11 +214,31 @@ const deleteAllCards = async (req, res, next) => {
       return;
     }
 
-    await Card.destroy({
+    const cardImages = await Image.findAll({
       where: {
-        boardId,
+        cardId: cards.map(({ id }) => id),
       },
     });
+
+    if (cardImages.length >= 1) {
+      await Promise.allSettled(
+        cardImages.map(({ id, url }) => deleteCardImageFn(id, url))
+      );
+    }
+
+    if (cardOrder === null) {
+      await Card.destroy({
+        where: {
+          boardId,
+        },
+      });
+    } else {
+      await Card.destroy({
+        where: {
+          id: cardOrder.split(';'),
+        },
+      });
+    }
 
     await setCardOrder(boardId, '');
 
@@ -292,11 +345,11 @@ const inputCardImages = async (req, res, next) => {
   } = req;
 
   try {
-    const fileUrl = await Promise.all(
+    const fileUrl = await Promise.allSettled(
       files.map((file) => cardImageUploadFn(cardId, file))
     );
 
-    const images = await Image.bulkCreate(fileUrl);
+    const images = await Image.bulkCreate(fileUrl.map((url) => url.value));
 
     res.status(200).json({
       ok: true,
@@ -341,7 +394,6 @@ const modifyCardCheck = async (req, res, next) => {
     const card = await Card.findOne({
       where: {
         id: cardId,
-        boardId,
       },
     });
 
@@ -393,7 +445,6 @@ const modifyCardStatus = async (req, res, next) => {
     const card = await Card.findOne({
       where: {
         id: cardId,
-        boardId,
       },
     });
 

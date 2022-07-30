@@ -35,7 +35,7 @@ async function autoSave(key) {
         }
       );
 
-      if (cardOrder !== null) {
+      if (cardOrder !== null || cardOrder !== '') {
         await Card.update(
           {
             boardId: id,
@@ -59,7 +59,7 @@ async function redisSchedule() {
     const data = await redisClient.SCAN(0);
 
     if (data.keys.length > 0) {
-      await Promise.all(data.keys.map((key) => autoSave(key)));
+      await Promise.allSettled(data.keys.map((key) => autoSave(key)));
     }
   } catch (err) {
     throw new Error(err.message);
@@ -68,7 +68,7 @@ async function redisSchedule() {
 
 function job() {
   console.log('✅ 스케줄러 실행!');
-  return schedule.scheduleJob('0 0/10 * * * ?', redisSchedule);
+  return schedule.scheduleJob('0 0/15 * * * ?', redisSchedule);
 }
 
 module.exports = job;

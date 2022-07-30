@@ -1,9 +1,15 @@
 const { QueryTypes } = require('sequelize');
 
-const { Board, Project, sequelize } = require('../models/index');
+const { Board, Card, Image, Project, sequelize } = require('../models/index');
 const { getBoardQuery } = require('../utils/query');
 const { makeBoardCardObject } = require('../utils/service');
-const { getBoardOrder, setBoardOrder } = require('../utils/redis');
+const {
+  delCardOrder,
+  getBoardOrder,
+  getCardOrder,
+  setBoardOrder,
+} = require('../utils/redis');
+const { deleteCardImageFn } = require('../utils/image');
 
 const getBoard = async (req, res, next) => {
   const { projectId } = req.params;
@@ -30,7 +36,7 @@ const getBoard = async (req, res, next) => {
 
     let boardOrder = await getBoardOrder(projectId);
 
-    if (!boardOrder) {
+    if (boardOrder === null) {
       const project = await Project.findOne({
         where: {
           id: projectId,
@@ -82,7 +88,7 @@ const createBoard = async (req, res, next) => {
 
     const boardOrder = await getBoardOrder(projectId);
 
-    if (!boardOrder) {
+    if (boardOrder === null) {
       const project = await Project.findOne({
         where: {
           id: projectId,
@@ -93,6 +99,8 @@ const createBoard = async (req, res, next) => {
       } else {
         await setBoardOrder(projectId, `${project.boardOrder};${newBoard.id}`);
       }
+    } else if (boardOrder === '') {
+      await setBoardOrder(projectId, `${newBoard.id}`);
     } else {
       await setBoardOrder(projectId, `${boardOrder};${newBoard.id}`);
     }
@@ -161,6 +169,40 @@ const deleteBoard = async (req, res, next) => {
       return;
     }
 
+    const cardOrder = await getCardOrder(board.id);
+
+    if (cardOrder === null) {
+      const cards = await Card.findAll({
+        where: {
+          boardId,
+        },
+        attributes: ['id'],
+      });
+
+      const cardIds = cards.map(({ id }) => id);
+
+      const cardImages = await Image.findAll({
+        where: {
+          cardId: cardIds,
+        },
+      });
+
+      await Promise.allSettled(
+        cardImages.map(({ url, cardId }) => deleteCardImageFn(cardId, url))
+      );
+    } else if (cardOrder !== '') {
+      const cardImages = await Image.findAll({
+        where: {
+          cardId: cardOrder.split(';'),
+        },
+        attributes: ['id'],
+      });
+
+      await Promise.allSettled(
+        cardImages.map(({ url, cardId }) => deleteCardImageFn(cardId, url))
+      );
+    }
+
     const regex = new RegExp(`${boardId};|;${boardId}|${boardId}`, 'g');
 
     let boardOrder = await getBoardOrder(board.projectId);
@@ -175,6 +217,7 @@ const deleteBoard = async (req, res, next) => {
     }
 
     await setBoardOrder(board.projectId, boardOrder.replace(regex, ''));
+    await delCardOrder(boardId);
 
     await Board.destroy({ where: { id: boardId } });
 

@@ -1,5 +1,7 @@
 const { redisClient } = require('../redis');
 
+const TIME = 1200;
+
 async function getUserProfile(userId) {
   try {
     const userProfile = await redisClient.get(`user:${userId}:profile`);
@@ -23,7 +25,11 @@ async function setUserProfile(userId, profile) {
 
 async function setBoardOrder(id, order) {
   try {
-    await redisClient.setEx(`project:${id}:board-order`, 900, order);
+    await redisClient.setEx(
+      `project:${id}:board-order`,
+      TIME,
+      JSON.stringify(order)
+    );
   } catch (err) {
     throw new Error(err.message);
   }
@@ -37,15 +43,27 @@ async function getBoardOrder(id) {
       return null;
     }
 
-    return boardOrder;
+    return JSON.parse(boardOrder);
   } catch (err) {
     throw new Error(err.message);
   }
 }
 
+async function delBoardOrder(id) {
+  try {
+    await redisClient.del(`project:${id}:board-order`);
+  } catch (e) {
+    throw new Error(e.message);
+  }
+}
+
 async function setCardOrder(id, order) {
   try {
-    await redisClient.setEx(`board:${id}:card-order`, 900, order);
+    await redisClient.setEx(
+      `board:${id}:card-order`,
+      TIME,
+      JSON.stringify(order)
+    );
   } catch (err) {
     throw new Error(err.message);
   }
@@ -59,13 +77,23 @@ async function getCardOrder(id) {
       return null;
     }
 
-    return cardOrder;
+    return JSON.parse(cardOrder);
   } catch (err) {
     throw new Error(err.message);
   }
 }
 
+async function delCardOrder(id) {
+  try {
+    await redisClient.del(`board:${id}:card-order`);
+  } catch (e) {
+    throw new Error(e.message);
+  }
+}
+
 module.exports = {
+  delBoardOrder,
+  delCardOrder,
   getBoardOrder,
   getCardOrder,
   getUserProfile,
