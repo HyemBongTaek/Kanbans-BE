@@ -6,36 +6,28 @@ const { getCommentQuery } = require('../utils/query');
 const getComment = async (req, res, next) => {
   const { cardId } = req.params;
   try {
-    const card = await Comment.findOne({
-      where: {
-        cardId,
-      },
-    });
-    if (!card) {
-      res
-        .status(400)
-        .json({ ok: false, message: 'cardId가 존재하지 않습니다.' });
-      return;
-    }
     const comment = await sequelize.query(getCommentQuery, {
       type: QueryTypes.SELECT,
       replacements: [+cardId],
     });
-    // const comment = await Comment.findAll({
-    //   where: {
-    //     cardId,
-    //   },
-    // });
-    // const comment = comments.reduce((acc, cur) => {
-    //   acc[cur.id] = {
-    //     id: cur.id,
-    //     content: cur.content,
-    //     createdAt: cur.createdAt,
-    //     userId: cur.userId,
-    //     cardId: cur.cardId,
-    //   };
-    //   return acc;
-    // }, {});
+
+    if (comment.length <= 0) {
+      res.status(200).json({
+        ok: true,
+        comment: [
+          {
+            id: {},
+            content: {},
+            createdAt: {},
+            userId: {},
+            cardId: {},
+            profileImage: {},
+            name: {},
+          },
+        ],
+      });
+      return;
+    }
     res.status(200).json({ ok: true, comment });
     return;
   } catch (err) {
