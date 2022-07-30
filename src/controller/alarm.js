@@ -24,21 +24,6 @@ const getAlarm = async (req, res, next) => {
       limit: 7,
       order: [['createdAt', 'desc']],
     });
-    if (alarms.length <= 0) {
-      res.status(200).json({
-        ok: true,
-        allAlarm,
-        alarms: [
-          {
-            id: {},
-            time: {},
-            createdAt: {},
-            userId: {},
-          },
-        ],
-      });
-      return;
-    }
     res.status(200).json({ ok: true, allAlarm, alarms });
   } catch (err) {
     next(err);

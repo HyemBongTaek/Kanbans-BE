@@ -10,24 +10,6 @@ const getComment = async (req, res, next) => {
       type: QueryTypes.SELECT,
       replacements: [+cardId],
     });
-
-    if (comment.length <= 0) {
-      res.status(200).json({
-        ok: true,
-        comment: [
-          {
-            id: {},
-            content: {},
-            createdAt: {},
-            userId: {},
-            cardId: {},
-            profileImage: {},
-            name: {},
-          },
-        ],
-      });
-      return;
-    }
     res.status(200).json({ ok: true, comment });
     return;
   } catch (err) {
