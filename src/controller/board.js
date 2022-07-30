@@ -1,13 +1,15 @@
 const { QueryTypes } = require('sequelize');
 
-const { Board, Project, sequelize } = require('../models/index');
+const { Board, Card, Image, Project, sequelize } = require('../models/index');
 const { getBoardQuery } = require('../utils/query');
 const { makeBoardCardObject } = require('../utils/service');
 const {
   delCardOrder,
   getBoardOrder,
+  getCardOrder,
   setBoardOrder,
 } = require('../utils/redis');
+const { deleteCardImageFn } = require('../utils/image');
 
 const getBoard = async (req, res, next) => {
   const { projectId } = req.params;
@@ -165,6 +167,40 @@ const deleteBoard = async (req, res, next) => {
     if (!board) {
       res.status(400).json({ ok: false, message: '보드가 존재하지 않습니다.' });
       return;
+    }
+
+    const cardOrder = await getCardOrder(board.id);
+
+    if (cardOrder === null) {
+      const cards = await Card.findAll({
+        where: {
+          boardId,
+        },
+        attributes: ['id'],
+      });
+
+      const cardIds = cards.map(({ id }) => id);
+
+      const cardImages = await Image.findAll({
+        where: {
+          cardId: cardIds,
+        },
+      });
+
+      await Promise.allSettled(
+        cardImages.map(({ url, cardId }) => deleteCardImageFn(cardId, url))
+      );
+    } else if (cardOrder !== '') {
+      const cardImages = await Image.findAll({
+        where: {
+          cardId: cardOrder.split(';'),
+        },
+        attributes: ['id'],
+      });
+
+      await Promise.allSettled(
+        cardImages.map(({ url, cardId }) => deleteCardImageFn(cardId, url))
+      );
     }
 
     const regex = new RegExp(`${boardId};|;${boardId}|${boardId}`, 'g');
