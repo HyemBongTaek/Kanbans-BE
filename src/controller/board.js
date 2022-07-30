@@ -155,7 +155,10 @@ const updateBoard = async (req, res, next) => {
 };
 
 const deleteBoard = async (req, res, next) => {
-  const { boardId } = req.params;
+  const {
+    body: { cardIds: deletedCardIds },
+    params: { boardId },
+  } = req;
 
   try {
     const board = await Board.findOne({
@@ -169,33 +172,12 @@ const deleteBoard = async (req, res, next) => {
       return;
     }
 
-    const cardOrder = await getCardOrder(board.id);
-
-    if (cardOrder === null) {
-      const cards = await Card.findAll({
-        where: {
-          boardId,
-        },
-        attributes: ['id'],
-      });
-
-      const cardIds = cards.map(({ id }) => id);
-
+    if (deletedCardIds > 0) {
+      // 카드 이미지 삭제
       const cardImages = await Image.findAll({
         where: {
-          cardId: cardIds,
+          cardId: deletedCardIds,
         },
-      });
-
-      await Promise.allSettled(
-        cardImages.map(({ url, cardId }) => deleteCardImageFn(cardId, url))
-      );
-    } else if (cardOrder !== '') {
-      const cardImages = await Image.findAll({
-        where: {
-          cardId: cardOrder.split(';'),
-        },
-        attributes: ['id'],
       });
 
       await Promise.allSettled(

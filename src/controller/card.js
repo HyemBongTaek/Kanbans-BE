@@ -178,69 +178,42 @@ const deleteCardImage = async (req, res, next) => {
 };
 
 const deleteAllCards = async (req, res, next) => {
-  const { boardId } = req.params;
+  const {
+    body: { cardIds: deletedCardIds },
+    params: { boardId },
+  } = req;
+
+  if (deletedCardIds.length === 0) {
+    res.status(400).json({
+      ok: false,
+      message: '삭제할 카드가 없습니다.',
+    });
+    return;
+  }
 
   try {
-    const cardOrder = await getCardOrder(boardId);
-    let cards;
+    // 레디스에 카드 순서 삭제
+    await setCardOrder(boardId, '');
 
-    if (cardOrder === null) {
-      cards = await Card.findAll({
+    if (deletedCardIds.length > 0) {
+      // 카드 이미지 삭제
+      const cardImages = await Image.findAll({
         where: {
-          boardId,
+          cardId: deletedCardIds,
         },
-        attributes: ['id'],
       });
-    } else if (cardOrder === '') {
-      res.status(400).json({
-        ok: false,
-        message: 'No cards to delete',
-      });
-      return;
-    } else {
-      cards = await Card.findAll({
-        where: {
-          id: cardOrder.split(';'),
-        },
-        attributes: ['id'],
-      });
-    }
 
-    if (cards.length === 0) {
-      res.status(400).json({
-        ok: false,
-        message: 'No cards to delete',
-      });
-      return;
-    }
-
-    const cardImages = await Image.findAll({
-      where: {
-        cardId: cards.map(({ id }) => id),
-      },
-    });
-
-    if (cardImages.length >= 1) {
       await Promise.allSettled(
-        cardImages.map(({ id, url }) => deleteCardImageFn(id, url))
+        cardImages.map(({ url, cardId }) => deleteCardImageFn(cardId, url))
       );
     }
 
-    if (cardOrder === null) {
-      await Card.destroy({
-        where: {
-          boardId,
-        },
-      });
-    } else {
-      await Card.destroy({
-        where: {
-          id: cardOrder.split(';'),
-        },
-      });
-    }
-
-    await setCardOrder(boardId, '');
+    // 카드 삭제
+    await Card.destroy({
+      where: {
+        id: deletedCardIds,
+      },
+    });
 
     res.status(200).json({
       ok: true,
