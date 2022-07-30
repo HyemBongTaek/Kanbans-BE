@@ -180,9 +180,11 @@ const deleteBoard = async (req, res, next) => {
         },
       });
 
-      await Promise.allSettled(
-        cardImages.map(({ url, cardId }) => deleteCardImageFn(cardId, url))
-      );
+      if (cardImages.length > 0) {
+        await Promise.allSettled(
+          cardImages.map(({ url, cardId }) => deleteCardImageFn(cardId, url))
+        );
+      }
     }
 
     const regex = new RegExp(`${boardId};|;${boardId}|${boardId}`, 'g');

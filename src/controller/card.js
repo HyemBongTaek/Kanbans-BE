@@ -203,9 +203,11 @@ const deleteAllCards = async (req, res, next) => {
         },
       });
 
-      await Promise.allSettled(
-        cardImages.map(({ url, cardId }) => deleteCardImageFn(cardId, url))
-      );
+      if (cardImages.length > 0) {
+        await Promise.allSettled(
+          cardImages.map(({ url, cardId }) => deleteCardImageFn(cardId, url))
+        );
+      }
     }
 
     // 카드 삭제
