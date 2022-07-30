@@ -378,9 +378,17 @@ const inviteUser = async (req, res, next) => {
 
     await UserCard.bulkCreate(newMemberArray);
 
+    const users = await User.findAll({
+      where: {
+        id: members,
+      },
+      attributes: ['id', 'name', 'profileImage'],
+    });
+
     res.status(200).json({
       ok: true,
       message: 'Add members',
+      users,
     });
   } catch (err) {
     next(err);
