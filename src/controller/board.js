@@ -1,14 +1,8 @@
 const { QueryTypes } = require('sequelize');
 
-const { Board, Card, Image, Project, sequelize } = require('../models/index');
+const { Board, Image, Project, sequelize } = require('../models/index');
 const { getBoardQuery } = require('../utils/query');
 const { makeBoardCardObject } = require('../utils/service');
-const {
-  delCardOrder,
-  getBoardOrder,
-  getCardOrder,
-  setBoardOrder,
-} = require('../utils/redis');
 const { deleteCardImageFn } = require('../utils/image');
 
 const getBoard = async (req, res, next) => {
@@ -32,21 +26,27 @@ const getBoard = async (req, res, next) => {
       return;
     }
 
-    const boardCardObj = await makeBoardCardObject(getBoards);
+    const boardCardObj = makeBoardCardObject(getBoards);
 
-    let boardOrder = await getBoardOrder(projectId);
+    const { boardOrder } = await Project.findOne({
+      where: {
+        id: projectId,
+      },
+    });
 
-    if (boardOrder === null) {
-      const project = await Project.findOne({
-        where: {
-          id: projectId,
-        },
-        attributes: ['boardOrder'],
-      });
-
-      boardOrder = project.boardOrder;
-      await setBoardOrder(projectId, project.boardOrder);
-    }
+    // let boardOrder = await getBoardOrder(projectId);
+    //
+    // if (boardOrder === null) {
+    //   const project = await Project.findOne({
+    //     where: {
+    //       id: projectId,
+    //     },
+    //     attributes: ['boardOrder'],
+    //   });
+    //
+    //   boardOrder = project.boardOrder;
+    //   await setBoardOrder(projectId, project.boardOrder);
+    // }
 
     res.status(200).json({
       ok: true,
@@ -86,24 +86,37 @@ const createBoard = async (req, res, next) => {
       projectId,
     });
 
-    const boardOrder = await getBoardOrder(projectId);
+    const project = await Project.findOne({
+      where: {
+        id: projectId,
+      },
+    });
 
-    if (boardOrder === null) {
-      const project = await Project.findOne({
-        where: {
-          id: projectId,
-        },
-      });
-      if (project.boardOrder === '') {
-        await setBoardOrder(projectId, `${newBoard.id}`);
-      } else {
-        await setBoardOrder(projectId, `${project.boardOrder};${newBoard.id}`);
-      }
-    } else if (boardOrder === '') {
-      await setBoardOrder(projectId, `${newBoard.id}`);
+    if (project.boardOrder === '') {
+      project.boardOrder = `${newBoard.id}`;
     } else {
-      await setBoardOrder(projectId, `${boardOrder};${newBoard.id}`);
+      project.boardOrder = `${project.boardOrder};${newBoard.id}`;
     }
+    await project.save();
+
+    // const boardOrder = await getBoardOrder(projectId);
+
+    // if (boardOrder === null) {
+    //   const project = await Project.findOne({
+    //     where: {
+    //       id: projectId,
+    //     },
+    //   });
+    //   if (project.boardOrder === '') {
+    //     await setBoardOrder(projectId, `${newBoard.id}`);
+    //   } else {
+    //     await setBoardOrder(projectId, `${project.boardOrder};${newBoard.id}`);
+    //   }
+    // } else if (boardOrder === '') {
+    //   await setBoardOrder(projectId, `${newBoard.id}`);
+    // } else {
+    //   await setBoardOrder(projectId, `${boardOrder};${newBoard.id}`);
+    // }
 
     res.status(201).json({
       ok: true,
@@ -189,19 +202,27 @@ const deleteBoard = async (req, res, next) => {
 
     const regex = new RegExp(`${boardId};|;${boardId}|${boardId}`, 'g');
 
-    let boardOrder = await getBoardOrder(board.projectId);
+    const project = await Project.findOne({
+      where: {
+        id: board.projectId,
+      },
+    });
+    project.boardOrder = project.boardOrder.replace(regex, '');
+    await project.save();
 
-    if (!boardOrder) {
-      const project = await Project.findOne({
-        where: {
-          id: board.projectId,
-        },
-      });
-      boardOrder = project.boardOrder;
-    }
-
-    await setBoardOrder(board.projectId, boardOrder.replace(regex, ''));
-    await delCardOrder(boardId);
+    // let boardOrder = await getBoardOrder(board.projectId);
+    //
+    // if (!boardOrder) {
+    //   const project = await Project.findOne({
+    //     where: {
+    //       id: board.projectId,
+    //     },
+    //   });
+    //   boardOrder = project.boardOrder;
+    // }
+    //
+    // await setBoardOrder(board.projectId, boardOrder.replace(regex, ''));
+    // await delCardOrder(boardId);
 
     await Board.destroy({ where: { id: boardId } });
 
@@ -234,7 +255,18 @@ const updateBoardLocation = async (req, res, next) => {
       return;
     }
 
-    await setBoardOrder(projectId, boardOrder.join(';'));
+    await Board.update(
+      {
+        boardOrder,
+      },
+      {
+        where: {
+          id: projectId,
+        },
+      }
+    );
+
+    // await setBoardOrder(projectId, boardOrder.join(';'));
 
     res.status(200).json({
       ok: true,
