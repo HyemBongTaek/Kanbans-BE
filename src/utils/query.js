@@ -47,11 +47,11 @@ const findProjectsQuery = `SELECT id
 //                                                 ON cl.label_id=l.id
 //                               WHERE b.project_id=?`;
 
-const getBoardQuery = `SELECT b.id AS 'boardId'
+const getBoardQuery = `SELECT CONCAT('B', b.id) AS 'boardId'
                             , b.title AS 'boardTitle'
                             , b.card_order AS 'cardOrder'
                             , b.project_id AS 'projectId'
-                            , c.id AS 'cardId'
+                            , CONCAT('C', c.id) AS 'cardId'
                             , c.title AS 'cardTitle'
                             , c.d_day AS 'dDay'
                             , c.status AS 'status'

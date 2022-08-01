@@ -2,7 +2,6 @@ const http = require('http');
 const io = require('socket.io');
 
 const dbConnector = require('./db');
-const scheduler = require('./scheduler');
 const { redisConnect } = require('./redis');
 const { verifyJWT } = require('./utils/jwt');
 
@@ -10,7 +9,7 @@ module.exports = (app) => {
   const httpServer = http.createServer(app);
   const socketServer = new io.Server(httpServer, {
     cors: {
-      origin: 'http://localhost:3000',
+      origin: ['http://localhost:3000', 'http://cocori.site'],
     },
   });
 
@@ -41,13 +40,13 @@ module.exports = (app) => {
 
     socket.on('disconnect', () => {
       delete connectedUser[socket.id];
-      console.log('SOCKET DISCONNECT', connectedUser);
-      console.log(socket.adapter.rooms);
+      // console.log('SOCKET DISCONNECT', connectedUser);
+      // console.log(socket.adapter.rooms);
     });
 
     socket.on('join', (roomNo) => {
       socket.join(roomNo);
-      console.log('SOCKET CONNECT', connectedUser);
+      // console.log('SOCKET CONNECT', connectedUser);
       // const { rooms } = socket.adapter;
     });
 
@@ -57,6 +56,7 @@ module.exports = (app) => {
     });
 
     socket.on('dragStart', ({ type, id }) => {
+      console.log('드래그 시작', draggable);
       if (draggable[`${type}_${id}`]) {
         draggable[`${type}_${id}`].dragging = true;
         const draggingUser = draggable[`${type}_${id}`].socketId;
@@ -98,6 +98,7 @@ module.exports = (app) => {
         } else {
           draggable[`${type}_${id}`].dragging = false;
         }
+        console.log('드래그 끝', draggable);
       }
     );
 
@@ -168,7 +169,6 @@ module.exports = (app) => {
     console.log(`✅ Server listening on http://localhost:${app.get('port')}`);
     await dbConnector();
     await redisConnect();
-    scheduler();
   }
 
   httpServer.listen(app.get('port'), listener);

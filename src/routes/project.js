@@ -49,7 +49,6 @@ router.delete('/:projectId/kick-out/:userId', auth, kickOutUser);
 
 // 보드 위치 변경
 router.patch('/:projectId/board-location', auth, updateBoardLocation);
-
 // 카드에 초대되지 않은 멤버보기
 router.get('/:projectId/card/:cardId', auth, getUninvitedMembers);
 
