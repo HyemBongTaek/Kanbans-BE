@@ -2,7 +2,7 @@ const { QueryTypes } = require('sequelize');
 
 const { Board, Image, Project, sequelize } = require('../models/index');
 const { getBoardQuery } = require('../utils/query');
-const { makeBoardCardObject } = require('../utils/service');
+const { findNumericId, makeBoardCardObject } = require('../utils/service');
 const { deleteCardImageFn } = require('../utils/image');
 
 const getBoard = async (req, res, next) => {
@@ -140,7 +140,7 @@ const updateBoard = async (req, res, next) => {
 
     const board = await Board.findOne({
       where: {
-        id: boardId,
+        id: findNumericId(boardId, 'board'),
       },
     });
 
@@ -176,7 +176,7 @@ const deleteBoard = async (req, res, next) => {
   try {
     const board = await Board.findOne({
       where: {
-        id: boardId,
+        id: findNumericId(boardId, 'board'),
       },
     });
 

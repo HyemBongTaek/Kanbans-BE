@@ -1,5 +1,5 @@
 const { CardLabel, Label } = require('../models/index');
-const { getBytes } = require('../utils/service');
+const { getBytes, findNumericId } = require('../utils/service');
 
 const addCardLabel = async (req, res, next) => {
   const {
@@ -7,9 +7,11 @@ const addCardLabel = async (req, res, next) => {
     params: { cardId },
   } = req;
 
+  const numericCardId = findNumericId(cardId, 'card');
+
   try {
     const labelIdObj = labelId.map((id) => ({
-      cardId,
+      cardId: numericCardId,
       labelId: id,
     }));
 
@@ -72,7 +74,7 @@ const createCommonLabel = async (req, res, next) => {
     });
 
     await CardLabel.create({
-      cardId,
+      cardId: findNumericId(cardId, 'card'),
       labelId: newLabel.id,
     });
 
@@ -119,7 +121,7 @@ const deleteCardLabel = async (req, res, next) => {
   try {
     const deletedCardLabelCount = await CardLabel.destroy({
       where: {
-        cardId,
+        cardId: findNumericId(cardId, 'card'),
         labelId,
       },
     });

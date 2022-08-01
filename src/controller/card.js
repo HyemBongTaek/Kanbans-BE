@@ -13,6 +13,7 @@ const {
 } = require('../models/index');
 const { cardImageUploadFn, deleteCardImageFn } = require('../utils/image');
 const { uninvitedMembersQuery } = require('../utils/query');
+const { findNumericId } = require('../utils/service');
 
 const createCard = async (req, res, next) => {
   const {
@@ -20,6 +21,8 @@ const createCard = async (req, res, next) => {
     params: { boardId },
     body: { title },
   } = req;
+
+  const numericBoardId = findNumericId(boardId, 'board');
 
   try {
     if (title.trim() === '' || !title) {
@@ -32,7 +35,7 @@ const createCard = async (req, res, next) => {
 
     const newCard = await Card.create({
       title,
-      boardId: +boardId,
+      boardId: numericBoardId,
     });
 
     await UserCard.create({
@@ -42,7 +45,7 @@ const createCard = async (req, res, next) => {
 
     const board = await Board.findOne({
       where: {
-        id: boardId,
+        id: numericBoardId,
       },
     });
 
@@ -91,11 +94,14 @@ const createCard = async (req, res, next) => {
 const deleteCard = async (req, res, next) => {
   const { boardId, cardId } = req.params;
 
+  const numericCardId = findNumericId(cardId, 'card');
+  const numericBoardId = findNumericId(boardId, 'board');
+
   try {
     // 카드 이미지 URL 검색
     const cardImages = await Image.findAll({
       where: {
-        cardId,
+        cardId: numericCardId,
       },
     });
 
@@ -107,7 +113,7 @@ const deleteCard = async (req, res, next) => {
 
     const deleteCardCount = await Card.destroy({
       where: {
-        id: +cardId,
+        id: numericCardId,
       },
     });
 
@@ -123,7 +129,7 @@ const deleteCard = async (req, res, next) => {
 
     const board = await Board.findOne({
       where: {
-        id: boardId,
+        id: numericBoardId,
       },
     });
     board.cardOrder = board.cardOrder.replace(regex, '');
@@ -155,11 +161,13 @@ const deleteCard = async (req, res, next) => {
 const deleteCardImage = async (req, res, next) => {
   const { cardId, imgId } = req.params;
 
+  const numericCardId = findNumericId(cardId, 'card');
+
   try {
     const image = await Image.findOne({
       where: {
         id: imgId,
-        cardId,
+        cardId: numericCardId,
       },
     });
 
@@ -174,7 +182,7 @@ const deleteCardImage = async (req, res, next) => {
     const deletedCardImageCount = await Image.destroy({
       where: {
         id: imgId,
-        cardId,
+        cardId: numericCardId,
       },
     });
 
@@ -221,7 +229,7 @@ const deleteAllCards = async (req, res, next) => {
       },
       {
         where: {
-          id: boardId,
+          id: findNumericId(boardId, 'board'),
         },
       }
     );
@@ -236,7 +244,9 @@ const deleteAllCards = async (req, res, next) => {
 
       if (cardImages.length > 0) {
         await Promise.allSettled(
-          cardImages.map(({ url, cardId }) => deleteCardImageFn(cardId, url))
+          cardImages.map(({ url, cardId }) =>
+            deleteCardImageFn(findNumericId(cardId, 'card'), url)
+          )
         );
       }
     }
@@ -264,7 +274,7 @@ const deleteUserInCard = async (req, res, next) => {
     const deletedCount = await UserCard.destroy({
       where: {
         userId,
-        cardId,
+        cardId: findNumericId(cardId, 'card'),
       },
     });
 
@@ -291,7 +301,7 @@ const getUninvitedMembers = async (req, res, next) => {
   try {
     const uninvitedMembers = await sequelize.query(uninvitedMembersQuery, {
       type: QueryTypes.SELECT,
-      replacements: [projectId, cardId],
+      replacements: [projectId, findNumericId(cardId, 'card')],
     });
 
     res.status(200).json({
@@ -312,7 +322,7 @@ const inputCardDetails = async (req, res, next) => {
   try {
     const card = await Card.findOne({
       where: {
-        id: cardId,
+        id: findNumericId(cardId, 'card'),
       },
     });
 
@@ -352,7 +362,9 @@ const inputCardImages = async (req, res, next) => {
 
   try {
     const fileUrl = await Promise.allSettled(
-      files.map((file) => cardImageUploadFn(cardId, file))
+      files.map((file) =>
+        cardImageUploadFn(findNumericId(cardId, 'card'), file)
+      )
     );
 
     const images = await Image.bulkCreate(fileUrl.map((url) => url.value));
@@ -378,7 +390,7 @@ const inviteUser = async (req, res, next) => {
     members.forEach((memberId) => {
       newMemberArray.push({
         userId: memberId,
-        cardId,
+        cardId: findNumericId(cardId, 'card'),
       });
     });
 
@@ -407,7 +419,7 @@ const modifyCardCheck = async (req, res, next) => {
   try {
     const card = await Card.findOne({
       where: {
-        id: cardId,
+        id: findNumericId(cardId, 'card'),
       },
     });
 
@@ -458,7 +470,7 @@ const modifyCardStatus = async (req, res, next) => {
   try {
     const card = await Card.findOne({
       where: {
-        id: cardId,
+        id: findNumericId(cardId, 'card'),
       },
     });
 
@@ -550,7 +562,7 @@ const loadCardData = async (req, res, next) => {
         },
       ],
       where: {
-        id: cardId.replace(/C/g, ''),
+        id: findNumericId(cardId, 'card'),
       },
       order: [
         [
@@ -610,7 +622,7 @@ const updateCardLocation = async (req, res, next) => {
         },
         {
           where: {
-            id: end.boardId.replace(/B/g, ''),
+            id: findNumericId(end.boardId, 'board'),
           },
         }
       );
@@ -622,7 +634,7 @@ const updateCardLocation = async (req, res, next) => {
           },
           {
             where: {
-              id: start.boardId.replace(/B/g, ''),
+              id: findNumericId(start.boardId, 'board'),
             },
           }
         ),
@@ -632,13 +644,13 @@ const updateCardLocation = async (req, res, next) => {
           },
           {
             where: {
-              id: end.boardId.replace(/B/g, ''),
+              id: findNumericId(end.boardId, 'board'),
             },
           }
         ),
         Card.update(
           {
-            boardId: end.boardId.replace(/B/g, ''),
+            boardId: findNumericId(end.boardId, 'board'),
           },
           {
             where: {
