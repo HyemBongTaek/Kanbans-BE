@@ -550,7 +550,7 @@ const loadCardData = async (req, res, next) => {
         },
       ],
       where: {
-        id: cardId,
+        id: cardId.replace(/C/g, ''),
       },
       order: [
         [
