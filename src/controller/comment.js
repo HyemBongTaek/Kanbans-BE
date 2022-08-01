@@ -8,7 +8,7 @@ const getComment = async (req, res, next) => {
   try {
     const comment = await sequelize.query(getCommentQuery, {
       type: QueryTypes.SELECT,
-      replacements: [+cardId],
+      replacements: [+cardId.replace(/C/g, '')],
     });
     res.status(200).json({ ok: true, comment });
     return;
