@@ -93,9 +93,9 @@ const createBoard = async (req, res, next) => {
     });
 
     if (project.boardOrder === '') {
-      project.boardOrder = `${newBoard.id}`;
+      project.boardOrder = `B${newBoard.id}`;
     } else {
-      project.boardOrder = `${project.boardOrder};${newBoard.id}`;
+      project.boardOrder = `${project.boardOrder};B${newBoard.id}`;
     }
     await project.save();
 
@@ -200,7 +200,7 @@ const deleteBoard = async (req, res, next) => {
       }
     }
 
-    const regex = new RegExp(`${boardId};|;${boardId}|${boardId}`, 'g');
+    const regex = new RegExp(`B${boardId};|;B${boardId}|B${boardId}`, 'g');
 
     const project = await Project.findOne({
       where: {

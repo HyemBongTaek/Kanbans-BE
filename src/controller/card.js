@@ -47,9 +47,9 @@ const createCard = async (req, res, next) => {
     });
 
     if (board.cardOrder === '') {
-      board.cardOrder = `${newCard.id}`;
+      board.cardOrder = `C${newCard.id}`;
     } else {
-      board.cardOrder = `${board.cardOrder};${newCard.id}`;
+      board.cardOrder = `${board.cardOrder};C${newCard.id}`;
     }
     await board.save();
 
@@ -119,7 +119,7 @@ const deleteCard = async (req, res, next) => {
       return;
     }
 
-    const regex = new RegExp(`${cardId};|;${cardId}|${cardId}`, 'g');
+    const regex = new RegExp(`C${cardId};|;C${cardId}|C${cardId}`, 'g');
 
     const board = await Board.findOne({
       where: {
@@ -610,7 +610,7 @@ const updateCardLocation = async (req, res, next) => {
         },
         {
           where: {
-            id: end.boardId,
+            id: end.boardId.replace(/B/g, ''),
           },
         }
       );
@@ -622,7 +622,7 @@ const updateCardLocation = async (req, res, next) => {
           },
           {
             where: {
-              id: start.boardId,
+              id: start.boardId.replace(/B/g, ''),
             },
           }
         ),
@@ -632,13 +632,13 @@ const updateCardLocation = async (req, res, next) => {
           },
           {
             where: {
-              id: end.boardId,
+              id: end.boardId.replace(/B/g, ''),
             },
           }
         ),
         Card.update(
           {
-            boardId: end.boardId,
+            boardId: end.boardId.replace(/B/g, ''),
           },
           {
             where: {
