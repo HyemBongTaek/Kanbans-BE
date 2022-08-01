@@ -6,30 +6,25 @@ const getAlarm = async (req, res, next) => {
     query: { page },
   } = req;
   try {
-    const findAlarm = await Alarm.findOne({
+    const findAlarm = await Alarm.findAll({
       where: {
         userId,
       },
     });
-    if (!findAlarm) {
-      res
-        .status(400)
-        .json({ ok: false, message: '유저의 알람이 존재하지 않습니다.' });
-      return;
-    }
+    const allAlarm = findAlarm.length;
     let offset = 0;
     if (page > 1) {
-      offset = 4 * (page - 1);
+      offset = 7 * (page - 1);
     }
     const alarms = await Alarm.findAll({
       where: {
         userId,
       },
       offset,
-      limit: 4,
+      limit: 7,
       order: [['createdAt', 'desc']],
     });
-    res.status(200).json({ ok: true, alarms });
+    res.status(200).json({ ok: true, allAlarm, alarms });
   } catch (err) {
     next(err);
   }
