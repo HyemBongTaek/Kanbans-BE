@@ -78,8 +78,8 @@ const createCard = async (req, res, next) => {
     res.status(201).json({
       ok: true,
       newCard: {
-        id: newCard.id,
-        boardId: newCard.boardId,
+        id: `C${newCard.id}`,
+        boardId: `B${newCard.boardId}`,
         title: newCard.title,
         status: newCard.status,
         check: newCard.check,
@@ -125,7 +125,7 @@ const deleteCard = async (req, res, next) => {
       return;
     }
 
-    const regex = new RegExp(`C${cardId};|;C${cardId}|C${cardId}`, 'g');
+    const regex = new RegExp(`${cardId};|;${cardId}|${cardId}`, 'g');
 
     const board = await Board.findOne({
       where: {
