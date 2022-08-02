@@ -92,7 +92,8 @@ const getCommentQuery = `SELECT c.id AS 'id',
                          FROM comments AS c
                               LEFT OUTER JOIN users AS u
                                    ON c.user_id = u.id
-                         WHERE c.card_id=?`;
+                         WHERE c.card_id=?
+                         ORDER BY c.created_at DESC`;
 
 const getProjectMembers = `SELECT u.id AS \`id\`
                                 , u.name AS \`name\`
