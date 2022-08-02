@@ -2,7 +2,7 @@ const { QueryTypes } = require('sequelize');
 
 const { Board, Image, Project, sequelize } = require('../models/index');
 const { getBoardQuery } = require('../utils/query');
-const { makeBoardCardObject } = require('../utils/service');
+const { findNumericId, makeBoardCardObject } = require('../utils/service');
 const { deleteCardImageFn } = require('../utils/image');
 
 const getBoard = async (req, res, next) => {
@@ -122,7 +122,7 @@ const createBoard = async (req, res, next) => {
       ok: true,
       message: '작성 완료',
       newBoard: {
-        id: newBoard.id,
+        id: `B${newBoard.id}`,
         title: newBoard.title,
         projectId: newBoard.projectId,
         cardId: [],
@@ -140,7 +140,7 @@ const updateBoard = async (req, res, next) => {
 
     const board = await Board.findOne({
       where: {
-        id: boardId,
+        id: findNumericId(boardId, 'board'),
       },
     });
 
@@ -176,7 +176,7 @@ const deleteBoard = async (req, res, next) => {
   try {
     const board = await Board.findOne({
       where: {
-        id: boardId,
+        id: findNumericId(boardId, 'board'),
       },
     });
 
@@ -187,9 +187,13 @@ const deleteBoard = async (req, res, next) => {
 
     if (deletedCardIds > 0) {
       // 카드 이미지 삭제
+      const deletedNumericCardIds = deletedCardIds.map((id) =>
+        findNumericId(id, 'card')
+      );
+
       const cardImages = await Image.findAll({
         where: {
-          cardId: deletedCardIds,
+          cardId: deletedNumericCardIds,
         },
       });
 
@@ -200,7 +204,7 @@ const deleteBoard = async (req, res, next) => {
       }
     }
 
-    const regex = new RegExp(`B${boardId};|;B${boardId}|B${boardId}`, 'g');
+    const regex = new RegExp(`${boardId};|;${boardId}|${boardId}`, 'g');
 
     const project = await Project.findOne({
       where: {
@@ -224,7 +228,7 @@ const deleteBoard = async (req, res, next) => {
     // await setBoardOrder(board.projectId, boardOrder.replace(regex, ''));
     // await delCardOrder(boardId);
 
-    await Board.destroy({ where: { id: boardId } });
+    await Board.destroy({ where: { id: findNumericId(boardId, 'board') } });
 
     res.status(200).json({ ok: true, message: '삭제 완료' });
   } catch (err) {

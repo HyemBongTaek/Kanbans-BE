@@ -108,7 +108,13 @@ function makeInviteCode() {
   return customNanoid(10);
 }
 
+function findNumericId(str, type) {
+  const regex = new RegExp(`${type === 'board' ? 'B' : 'C'}`, 'g');
+  return str.replace(regex, '');
+}
+
 module.exports = {
+  findNumericId,
   getBytes,
   makeBoardCardObject,
   makeInviteCode,

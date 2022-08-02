@@ -1,11 +1,14 @@
 const { Task, Card } = require('../models/index');
+const { findNumericId } = require('../utils/service');
 
 const getTask = async (req, res, next) => {
   const { cardId } = req.params;
+  const numericCardId = findNumericId(cardId, 'card');
+
   try {
     const taskId = await Task.findOne({
       where: {
-        cardId,
+        cardId: numericCardId,
       },
     });
     if (!taskId) {
@@ -16,7 +19,7 @@ const getTask = async (req, res, next) => {
     }
     const tasks = await Task.findAll({
       where: {
-        cardId,
+        cardId: numericCardId,
       },
     });
     const task = tasks.reduce((acc, cur) => {
@@ -37,10 +40,12 @@ const getTask = async (req, res, next) => {
 
 const createTask = async (req, res, next) => {
   const { check, content, cardId } = req.body;
+  const numericCardId = findNumericId(cardId.toString(), 'card');
+
   try {
     const card = await Card.findOne({
       where: {
-        id: cardId,
+        id: numericCardId,
       },
     });
     if (!card) {
@@ -56,7 +61,7 @@ const createTask = async (req, res, next) => {
     const newTask = await Task.create({
       check,
       content,
-      cardId,
+      cardId: numericCardId,
     });
     const task = {
       id: newTask.id,

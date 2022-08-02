@@ -2,13 +2,17 @@ const { QueryTypes } = require('sequelize');
 
 const { Comment, Card, User, sequelize } = require('../models/index');
 const { getCommentQuery } = require('../utils/query');
+const { findNumericId } = require('../utils/service');
 
 const getComment = async (req, res, next) => {
   const { cardId } = req.params;
+
+  const numericCardId = findNumericId(cardId, 'card');
+
   try {
     const comment = await sequelize.query(getCommentQuery, {
       type: QueryTypes.SELECT,
-      replacements: [+cardId],
+      replacements: [+numericCardId],
     });
     res.status(200).json({ ok: true, comment });
     return;
@@ -22,10 +26,13 @@ const createComment = async (req, res, next) => {
     userId,
     body: { content, cardId },
   } = req;
+
+  const numericCardId = findNumericId(cardId, 'card');
+
   try {
     const card = await Card.findOne({
       where: {
-        id: cardId,
+        id: numericCardId,
       },
     });
     if (!card) {
@@ -41,7 +48,7 @@ const createComment = async (req, res, next) => {
     const newComment = await Comment.create({
       content,
       userId,
-      cardId,
+      cardId: numericCardId,
     });
     const user = await User.findOne({
       where: {
