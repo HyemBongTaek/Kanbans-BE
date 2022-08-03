@@ -2,7 +2,7 @@ const { Alarm } = require('../models/index');
 
 const getAlarm = async (req, res, next) => {
   const {
-    userId,
+    user: { id: userId },
     query: { page },
   } = req;
   try {
@@ -32,7 +32,7 @@ const getAlarm = async (req, res, next) => {
 
 const updateAlarm = async (req, res, next) => {
   const {
-    userId,
+    user: { id: userId },
     body: { time, createdAt },
   } = req;
   try {

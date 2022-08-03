@@ -11,15 +11,13 @@ const { findProjectsQuery } = require('../utils/query');
 const { getUserProfile, setUserProfile } = require('../utils/redis');
 
 const getProfileInfo = async (req, res, next) => {
-  const { userId } = req;
-
   try {
-    let profile = await getUserProfile(userId);
+    let profile = await getUserProfile(req.user.id);
 
     if (!profile) {
       const user = await User.findOne({
         where: {
-          id: +userId,
+          id: req.user.id,
         },
         attributes: ['id', 'profileImage', 'name', 'introduce'],
       });
@@ -32,7 +30,7 @@ const getProfileInfo = async (req, res, next) => {
         return;
       }
 
-      await setUserProfile(userId, user);
+      await setUserProfile(req.user.id, user);
 
       profile = user;
     }
@@ -48,7 +46,7 @@ const getProfileInfo = async (req, res, next) => {
 
 const changeProfile = async (req, res, next) => {
   const {
-    userId,
+    user: { id: userId },
     file,
     body: { name, introduce },
   } = req;
@@ -121,7 +119,9 @@ const changeProfile = async (req, res, next) => {
 };
 
 const deleteUser = async (req, res, next) => {
-  const { userId } = req;
+  const {
+    user: { id: userId },
+  } = req;
 
   try {
     const user = await User.findOne({
