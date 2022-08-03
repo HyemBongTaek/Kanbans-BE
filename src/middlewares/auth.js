@@ -23,7 +23,10 @@ const auth = async (req, res, next) => {
 
   try {
     const verifiedToken = await verifyJWT(token);
-    req.userId = verifiedToken.id;
+    req.user = {
+      id: verifiedToken.id,
+      name: verifiedToken.name,
+    };
     next();
   } catch (err) {
     if (err.message === 'jwt expired') {

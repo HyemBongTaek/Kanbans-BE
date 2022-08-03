@@ -140,7 +140,7 @@ const deleteUser = async (req, res, next) => {
 
     await User.destroy({
       where: {
-        id: req.userId,
+        id: req.user.id,
       },
     });
 

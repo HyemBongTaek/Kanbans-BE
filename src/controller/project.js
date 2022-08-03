@@ -27,7 +27,7 @@ const bookmark = async (req, res, next) => {
 
     const userProject = await UserProject.findOne({
       where: {
-        userId: +req.userId,
+        userId: +req.user.id,
         projectId: req.body.projectId,
       },
       attributes: ['user_id', 'project_id', 'bookmark'],
@@ -40,7 +40,7 @@ const bookmark = async (req, res, next) => {
         },
         {
           where: {
-            userId: +req.userId,
+            userId: +req.user.id,
             projectId: req.body.projectId,
           },
         }
@@ -59,7 +59,7 @@ const bookmark = async (req, res, next) => {
       },
       {
         where: {
-          userId: +req.userId,
+          userId: +req.user.id,
           projectId: req.body.projectId,
         },
       }
@@ -449,7 +449,7 @@ const loadAllProject = async (req, res, next) => {
   try {
     const projects = await sequelize.query(loadProjectsQuery, {
       type: QueryTypes.SELECT,
-      replacements: [req.userId],
+      replacements: [req.user.id],
     });
 
     if (projects.length === 0) {
