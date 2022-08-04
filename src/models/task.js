@@ -5,7 +5,7 @@ module.exports = class Task extends Sequelize.Model {
     return super.init(
       {
         content: {
-          type: Sequelize.STRING(50),
+          type: Sequelize.TEXT,
           allowNull: false,
         },
         check: {
