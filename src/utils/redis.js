@@ -91,12 +91,36 @@ async function delCardOrder(id) {
   }
 }
 
+async function protectDuplicatedSubmit(submitType, userId) {
+  try {
+    const submitTime = await redisClient.get(`${submitType}:${userId}`);
+    const now = Math.floor(Date.now() / 1000);
+
+    if (submitTime && 3 - (now - +submitTime) > 0) {
+      return {
+        duplicatedSubmit: true,
+        remainTime: 3 - (now - +submitTime),
+      };
+    }
+
+    await redisClient.setEx(`${submitType}:${userId}`, 3, `${now}`);
+
+    return {
+      duplicatedSubmit: false,
+      remainTime: 0,
+    };
+  } catch (e) {
+    throw new Error(e.message);
+  }
+}
+
 module.exports = {
   delBoardOrder,
   delCardOrder,
   getBoardOrder,
   getCardOrder,
   getUserProfile,
+  protectDuplicatedSubmit,
   setBoardOrder,
   setCardOrder,
   setUserProfile,

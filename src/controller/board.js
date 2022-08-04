@@ -259,9 +259,9 @@ const updateBoardLocation = async (req, res, next) => {
       return;
     }
 
-    await Board.update(
+    await Project.update(
       {
-        boardOrder,
+        boardOrder: boardOrder.join(';'),
       },
       {
         where: {

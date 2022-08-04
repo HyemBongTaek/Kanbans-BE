@@ -23,7 +23,7 @@ const getComment = async (req, res, next) => {
 
 const createComment = async (req, res, next) => {
   const {
-    userId,
+    user: { id: userId },
     body: { content, cardId },
   } = req;
 

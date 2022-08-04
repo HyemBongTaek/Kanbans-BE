@@ -14,10 +14,11 @@ const {
 const { cardImageUploadFn, deleteCardImageFn } = require('../utils/image');
 const { uninvitedMembersQuery } = require('../utils/query');
 const { findNumericId } = require('../utils/service');
+const { protectDuplicatedSubmit } = require('../utils/redis');
 
 const createCard = async (req, res, next) => {
   const {
-    userId,
+    user: { id: userId },
     params: { boardId },
     body: { title },
   } = req;
@@ -417,6 +418,20 @@ const modifyCardCheck = async (req, res, next) => {
   const { boardId, cardId } = req.params;
 
   try {
+    const { duplicatedSubmit, remainTime } = await protectDuplicatedSubmit(
+      'check',
+      req.user.id
+    );
+
+    if (duplicatedSubmit) {
+      res.status(400).json({
+        ok: false,
+        message: `3초 내에 같은 요청이 감지되었습니다. ${remainTime}초 후 다시 요청해주세요.`,
+        remainTime,
+      });
+      return;
+    }
+
     const card = await Card.findOne({
       where: {
         id: findNumericId(cardId, 'card'),

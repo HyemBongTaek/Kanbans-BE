@@ -27,7 +27,7 @@ const bookmark = async (req, res, next) => {
 
     const userProject = await UserProject.findOne({
       where: {
-        userId: +req.userId,
+        userId: +req.user.id,
         projectId: req.body.projectId,
       },
       attributes: ['user_id', 'project_id', 'bookmark'],
@@ -40,7 +40,7 @@ const bookmark = async (req, res, next) => {
         },
         {
           where: {
-            userId: +req.userId,
+            userId: +req.user.id,
             projectId: req.body.projectId,
           },
         }
@@ -59,7 +59,7 @@ const bookmark = async (req, res, next) => {
       },
       {
         where: {
-          userId: +req.userId,
+          userId: +req.user.id,
           projectId: req.body.projectId,
         },
       }
@@ -76,12 +76,12 @@ const bookmark = async (req, res, next) => {
 
 const changeOwner = async (req, res, next) => {
   const {
-    userId,
+    user: { id },
     body: { sender, receiver },
     params: { projectId },
   } = req;
 
-  if (+userId !== sender) {
+  if (id !== sender) {
     res.status(400).json({
       ok: false,
       message: 'Do not have permission to change the owner',
@@ -126,7 +126,7 @@ const changeOwner = async (req, res, next) => {
 
 const createProject = async (req, res, next) => {
   const {
-    userId,
+    user: { id },
     body: { title, permission },
   } = req;
 
@@ -161,23 +161,23 @@ const createProject = async (req, res, next) => {
     }
 
     const newProject = await Project.create({
-      owner: userId,
+      owner: id,
       title,
       permission,
       inviteCode: newInviteCode,
     });
 
     await UserProject.create({
-      userId: +userId,
+      id: +id,
       projectId: newProject.id,
     });
 
-    let loggedInUser = await getUserProfile(+userId);
+    let loggedInUser = await getUserProfile(+id);
 
     if (!loggedInUser) {
       loggedInUser = await User.findOne({
         where: {
-          id: userId,
+          id,
         },
         attributes: ['id', 'profileImage', 'name'],
       });
@@ -291,7 +291,7 @@ const getProjectInviteCode = async (req, res, next) => {
 
 const joinProject = async (req, res, next) => {
   const {
-    userId,
+    user: { id },
     body: { inviteCode },
   } = req;
 
@@ -312,7 +312,7 @@ const joinProject = async (req, res, next) => {
 
     const userProject = await UserProject.findOne({
       where: {
-        userId: +userId,
+        userId: id,
         projectId: +project.id,
       },
     });
@@ -334,7 +334,7 @@ const joinProject = async (req, res, next) => {
     }
 
     await UserProject.create({
-      userId: +userId,
+      userId: id,
       projectId: +project.id,
     });
 
@@ -349,7 +349,7 @@ const joinProject = async (req, res, next) => {
 
 const kickOutUser = async (req, res, next) => {
   const {
-    userId,
+    user: { id },
     params: { projectId, userId: userIdToBeExile },
   } = req;
 
@@ -360,7 +360,7 @@ const kickOutUser = async (req, res, next) => {
       },
     });
 
-    if (project.owner !== userId) {
+    if (project.owner !== id) {
       res.status(400).json({
         ok: false,
         message: 'No permission',
@@ -393,7 +393,7 @@ const kickOutUser = async (req, res, next) => {
 
 const leaveProject = async (req, res, next) => {
   const {
-    userId,
+    user: { id: userId },
     params: { id: projectId },
   } = req;
 
@@ -449,7 +449,7 @@ const loadAllProject = async (req, res, next) => {
   try {
     const projects = await sequelize.query(loadProjectsQuery, {
       type: QueryTypes.SELECT,
-      replacements: [req.userId],
+      replacements: [req.user.id],
     });
 
     if (projects.length === 0) {
