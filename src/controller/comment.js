@@ -10,10 +10,27 @@ const getComment = async (req, res, next) => {
   const numericCardId = findNumericId(cardId, 'card');
 
   try {
-    const comment = await sequelize.query(getCommentQuery, {
+    const newComment = await sequelize.query(getCommentQuery, {
       type: QueryTypes.SELECT,
       replacements: [+numericCardId],
     });
+
+    const comment = [];
+
+    for (let i = 0; i < newComment.length; i += 1) {
+      const comments = {
+        id: newComment[i].id,
+        content: newComment[i].content,
+        createdAt: newComment[i].createdAt.toLocaleString('ko-KR', {
+          timeZone: 'Asia/Seoul',
+        }),
+        userId: newComment[i].userId,
+        cardId: newComment[i].cardId,
+        profileImage: newComment[i].profileImage,
+        name: newComment[i].name,
+      };
+      comment.push(comments);
+    }
     res.status(200).json({ ok: true, comment });
     return;
   } catch (err) {
