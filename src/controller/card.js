@@ -588,6 +588,14 @@ const loadCardData = async (req, res, next) => {
           'id',
           'DESC',
         ],
+        [
+          {
+            model: Task,
+            as: 'tasks',
+          },
+          'id',
+          'desc',
+        ],
       ],
     });
 
