@@ -426,7 +426,7 @@ const modifyCardCheck = async (req, res, next) => {
     if (duplicatedSubmit) {
       res.status(400).json({
         ok: false,
-        message: `3초 내에 같은 요청이 감지되었습니다. ${remainTime}초 후 다시 요청해주세요.`,
+        message: `2초 내에 같은 요청이 감지되었습니다. ${remainTime}ms 후 다시 요청해주세요.`,
         remainTime,
       });
       return;

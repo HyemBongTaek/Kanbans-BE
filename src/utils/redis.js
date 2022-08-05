@@ -94,16 +94,16 @@ async function delCardOrder(id) {
 async function protectDuplicatedSubmit(submitType, userId) {
   try {
     const submitTime = await redisClient.get(`${submitType}:${userId}`);
-    const now = Math.floor(Date.now() / 1000);
+    const now = Date.now();
 
-    if (submitTime && 3 - (now - +submitTime) > 0) {
+    if (submitTime && now - +submitTime < 2000) {
       return {
         duplicatedSubmit: true,
-        remainTime: 3 - (now - +submitTime),
+        remainTime: 2000 - (now - +submitTime),
       };
     }
 
-    await redisClient.setEx(`${submitType}:${userId}`, 3, `${now}`);
+    await redisClient.setEx(`${submitType}:${userId}`, 2, `${now}`);
 
     return {
       duplicatedSubmit: false,
