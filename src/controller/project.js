@@ -145,7 +145,7 @@ const changeOwner = async (req, res, next) => {
 
 const createProject = async (req, res, next) => {
   const {
-    user: { id },
+    user: { id: userId },
     body: { title, permission },
   } = req;
 
@@ -180,23 +180,23 @@ const createProject = async (req, res, next) => {
     }
 
     const newProject = await Project.create({
-      owner: id,
+      owner: userId,
       title,
       permission,
       inviteCode: newInviteCode,
     });
 
     await UserProject.create({
-      id: +id,
+      userId,
       projectId: newProject.id,
     });
 
-    let loggedInUser = await getUserProfile(+id);
+    let loggedInUser = await getUserProfile(userID);
 
     if (!loggedInUser) {
       loggedInUser = await User.findOne({
         where: {
-          id,
+          id: userId,
         },
         attributes: ['id', 'profileImage', 'name'],
       });
