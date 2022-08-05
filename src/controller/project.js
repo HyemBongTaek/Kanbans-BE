@@ -191,7 +191,7 @@ const createProject = async (req, res, next) => {
       projectId: newProject.id,
     });
 
-    let loggedInUser = await getUserProfile(userID);
+    let loggedInUser = await getUserProfile(userId);
 
     if (!loggedInUser) {
       loggedInUser = await User.findOne({
