@@ -7,13 +7,32 @@ const {
   getBytes,
   projectDataFormatChangeFn,
 } = require('../utils/service');
-const { getUserProfile } = require('../utils/redis');
+const { getUserProfile, protectDuplicatedSubmit } = require('../utils/redis');
 
 const bookmark = async (req, res, next) => {
+  const {
+    user: { id: userId },
+    body: { projectId },
+  } = req;
+
   try {
+    const { duplicatedSubmit, remainTime } = await protectDuplicatedSubmit(
+      'bookmark',
+      userId
+    );
+
+    if (duplicatedSubmit) {
+      res.status(400).json({
+        ok: false,
+        message: `2초 내에 같은 요청이 감지되었습니다. ${remainTime}ms 후 다시 요청해주세요.`,
+        remainTime,
+      });
+      return;
+    }
+
     const project = await Project.findOne({
       where: {
-        id: req.body.projectId,
+        id: projectId,
       },
     });
 
@@ -27,8 +46,8 @@ const bookmark = async (req, res, next) => {
 
     const userProject = await UserProject.findOne({
       where: {
-        userId: +req.user.id,
-        projectId: req.body.projectId,
+        userId,
+        projectId,
       },
       attributes: ['user_id', 'project_id', 'bookmark'],
     });
@@ -40,8 +59,8 @@ const bookmark = async (req, res, next) => {
         },
         {
           where: {
-            userId: +req.user.id,
-            projectId: req.body.projectId,
+            userId,
+            projectId,
           },
         }
       );
@@ -59,8 +78,8 @@ const bookmark = async (req, res, next) => {
       },
       {
         where: {
-          userId: +req.user.id,
-          projectId: req.body.projectId,
+          userId,
+          projectId,
         },
       }
     );
