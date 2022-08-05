@@ -41,7 +41,7 @@ const createCommonLabel = async (req, res, next) => {
 
   const charBytes = getBytes(title);
 
-  if (charBytes > 8) {
+  if (charBytes > 10) {
     res.status(400).json({
       ok: false,
       message: `Title is too long (Length: ${charBytes})`,
