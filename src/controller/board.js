@@ -241,6 +241,7 @@ const updateBoardLocation = async (req, res, next) => {
     params: { projectId },
     body: { boardOrder },
   } = req;
+  console.log('보드순서', boardOrder);
 
   try {
     if (!projectId) {
@@ -259,9 +260,11 @@ const updateBoardLocation = async (req, res, next) => {
       return;
     }
 
+    const set = new Set(boardOrder);
+
     await Project.update(
       {
-        boardOrder: boardOrder.join(';'),
+        boardOrder: [...set].join(';'),
       },
       {
         where: {

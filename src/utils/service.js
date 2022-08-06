@@ -89,11 +89,17 @@ function makeBoardCardObject(data) {
           });
         }
 
-        acc.cardObj[cur.cardId].users.push({
-          userId: cur.id,
-          name: cur.name,
-          profileImage: cur.profileImage,
-        });
+        if (
+          acc.cardObj[cur.cardId].users.findIndex(
+            (user) => user.userId === cur.id
+          ) === -1
+        ) {
+          acc.cardObj[cur.cardId].users.push({
+            userId: cur.id,
+            name: cur.name,
+            profileImage: cur.profileImage,
+          });
+        }
       }
 
       return acc;
