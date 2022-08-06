@@ -1,6 +1,12 @@
 const { QueryTypes } = require('sequelize');
 
-const { Project, User, UserProject, sequelize } = require('../models/index');
+const {
+  Image,
+  Project,
+  User,
+  UserProject,
+  sequelize,
+} = require('../models/index');
 const { getProjectMembers, loadProjectsQuery } = require('../utils/query');
 const {
   makeInviteCode,
@@ -8,6 +14,7 @@ const {
   projectDataFormatChangeFn,
 } = require('../utils/service');
 const { getUserProfile, protectDuplicatedSubmit } = require('../utils/redis');
+const { deleteCardImageFn } = require('../utils/image');
 
 const bookmark = async (req, res, next) => {
   const {
@@ -230,6 +237,18 @@ const deleteProject = async (req, res, next) => {
   const { id: projectId } = req.params;
 
   try {
+    const images = await Image.findAll({
+      where: {
+        projectId,
+      },
+    });
+
+    if (images.length > 0) {
+      await Promise.allSettled(
+        images.map((image) => deleteCardImageFn(image.cardId, image.url))
+      );
+    }
+
     const deleteProjectCount = await Project.destroy({
       where: {
         id: +projectId,
