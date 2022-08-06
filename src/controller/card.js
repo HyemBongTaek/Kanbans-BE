@@ -359,16 +359,34 @@ const inputCardImages = async (req, res, next) => {
   const {
     files,
     params: { cardId },
+    query: { projectId },
   } = req;
 
   try {
+    const card = await Card.findOne({
+      where: {
+        id: cardId,
+      },
+      attributes: ['boardId'],
+    });
+
+    if (!card) {
+      res.status(404).json({
+        ok: false,
+        message: '카드를 찾을 수 없습니다.',
+      });
+      return;
+    }
+
     const fileUrl = await Promise.allSettled(
       files.map((file) =>
         cardImageUploadFn(findNumericId(cardId, 'card'), file)
       )
     );
 
-    const images = await Image.bulkCreate(fileUrl.map((url) => url.value));
+    const images = await Image.bulkCreate(
+      fileUrl.map((url) => ({ ...url.value, projectId }))
+    );
 
     res.status(200).json({
       ok: true,
