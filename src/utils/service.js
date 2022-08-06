@@ -78,7 +78,11 @@ function makeBoardCardObject(data) {
           ],
         };
       } else if (cardIndex >= 0 && cur.cardId) {
-        if (acc.cardObj[cur.cardId].labels.indexOf(cur.labelId) > -1) {
+        if (
+          acc.cardObj[cur.cardId].labels.findIndex(
+            (label) => label.labelId === cur.labelId
+          ) === -1
+        ) {
           acc.cardObj[cur.cardId].labels.push({
             labelId: cur.labelId,
             color: cur.labelColor,
