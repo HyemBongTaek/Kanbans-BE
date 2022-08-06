@@ -1,19 +1,45 @@
 const { QueryTypes } = require('sequelize');
 
-const { Project, User, UserProject, sequelize } = require('../models/index');
+const {
+  Image,
+  Project,
+  User,
+  UserProject,
+  sequelize,
+} = require('../models/index');
 const { getProjectMembers, loadProjectsQuery } = require('../utils/query');
 const {
   makeInviteCode,
   getBytes,
   projectDataFormatChangeFn,
 } = require('../utils/service');
-const { getUserProfile } = require('../utils/redis');
+const { getUserProfile, protectDuplicatedSubmit } = require('../utils/redis');
+const { deleteCardImageFn } = require('../utils/image');
 
 const bookmark = async (req, res, next) => {
+  const {
+    user: { id: userId },
+    body: { projectId },
+  } = req;
+
   try {
+    const { duplicatedSubmit, remainTime } = await protectDuplicatedSubmit(
+      'bookmark',
+      userId
+    );
+
+    if (duplicatedSubmit) {
+      res.status(400).json({
+        ok: false,
+        message: `2초 내에 같은 요청이 감지되었습니다. ${remainTime}ms 후 다시 요청해주세요.`,
+        remainTime,
+      });
+      return;
+    }
+
     const project = await Project.findOne({
       where: {
-        id: req.body.projectId,
+        id: projectId,
       },
     });
 
@@ -27,8 +53,8 @@ const bookmark = async (req, res, next) => {
 
     const userProject = await UserProject.findOne({
       where: {
-        userId: +req.user.id,
-        projectId: req.body.projectId,
+        userId,
+        projectId,
       },
       attributes: ['user_id', 'project_id', 'bookmark'],
     });
@@ -40,8 +66,8 @@ const bookmark = async (req, res, next) => {
         },
         {
           where: {
-            userId: +req.user.id,
-            projectId: req.body.projectId,
+            userId,
+            projectId,
           },
         }
       );
@@ -59,8 +85,8 @@ const bookmark = async (req, res, next) => {
       },
       {
         where: {
-          userId: +req.user.id,
-          projectId: req.body.projectId,
+          userId,
+          projectId,
         },
       }
     );
@@ -126,7 +152,7 @@ const changeOwner = async (req, res, next) => {
 
 const createProject = async (req, res, next) => {
   const {
-    user: { id },
+    user: { id: userId },
     body: { title, permission },
   } = req;
 
@@ -161,23 +187,23 @@ const createProject = async (req, res, next) => {
     }
 
     const newProject = await Project.create({
-      owner: id,
+      owner: userId,
       title,
       permission,
       inviteCode: newInviteCode,
     });
 
     await UserProject.create({
-      id: +id,
+      userId,
       projectId: newProject.id,
     });
 
-    let loggedInUser = await getUserProfile(+id);
+    let loggedInUser = await getUserProfile(userId);
 
     if (!loggedInUser) {
       loggedInUser = await User.findOne({
         where: {
-          id,
+          id: userId,
         },
         attributes: ['id', 'profileImage', 'name'],
       });
@@ -211,6 +237,18 @@ const deleteProject = async (req, res, next) => {
   const { id: projectId } = req.params;
 
   try {
+    const images = await Image.findAll({
+      where: {
+        projectId,
+      },
+    });
+
+    if (images.length > 0) {
+      await Promise.allSettled(
+        images.map((image) => deleteCardImageFn(image.cardId, image.url))
+      );
+    }
+
     const deleteProjectCount = await Project.destroy({
       where: {
         id: +projectId,

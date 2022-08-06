@@ -69,11 +69,30 @@ function makeBoardCardObject(data) {
           taskCount: cur.taskCount || 0,
           taskCheckCount: cur.taskCheckCount || 0,
           commentCount: cur.commentCount || 0,
+          users: [
+            {
+              userId: cur.id,
+              name: cur.name,
+              profileImage: cur.profileImage,
+            },
+          ],
         };
       } else if (cardIndex >= 0 && cur.cardId) {
-        acc.cardObj[cur.cardId].labels.push({
-          labelId: cur.labelId,
-          color: cur.labelColor,
+        if (
+          acc.cardObj[cur.cardId].labels.findIndex(
+            (label) => label.labelId === cur.labelId
+          ) === -1
+        ) {
+          acc.cardObj[cur.cardId].labels.push({
+            labelId: cur.labelId,
+            color: cur.labelColor,
+          });
+        }
+
+        acc.cardObj[cur.cardId].users.push({
+          userId: cur.id,
+          name: cur.name,
+          profileImage: cur.profileImage,
         });
       }
 

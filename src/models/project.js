@@ -62,5 +62,14 @@ module.exports = class Project extends Sequelize.Model {
       onDelete: 'cascade',
       onUpdate: 'cascade',
     });
+
+    db.Project.hasMany(db.Image, {
+      foreignKey: {
+        name: 'projectId',
+        sourceKey: 'id',
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
+    });
   }
 };

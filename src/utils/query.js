@@ -62,6 +62,9 @@ const getBoardQuery = `SELECT CONCAT('B', b.id) AS 'boardId'
                             , t.task_count AS 'taskCount'
                             , t.task_check_count AS 'taskCheckCount'
                             , cm.comment_count AS 'commentCount'
+                            , u.id AS 'userId'
+                            , u.name AS 'name'
+                            , u.profile_image AS 'profileImage'
                        FROM boards AS b
                             LEFT JOIN cards AS c
                                    ON b.id=c.board_id
@@ -80,6 +83,10 @@ const getBoardQuery = `SELECT CONCAT('B', b.id) AS 'boardId'
                                       FROM comments
                                       GROUP BY card_id) AS cm
                                   ON cm.card_id=c.id
+                           LEFT JOIN user_card AS uc
+                                  ON uc.card_id=c.id
+                           LEFT JOIN users AS u
+                                  ON uc.user_id=u.id
                        WHERE b.project_id=?`;
 
 const getCommentQuery = `SELECT c.id AS 'id',

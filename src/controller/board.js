@@ -160,7 +160,7 @@ const updateBoard = async (req, res, next) => {
     res.status(201).json({
       ok: true,
       message: '수정 완료',
-      updateBoards: { id: board.id, title: board.title },
+      updateBoards: { id: `B${board.id}`, title: board.title },
     });
   } catch (err) {
     next(err);

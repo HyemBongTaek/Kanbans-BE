@@ -31,5 +31,15 @@ module.exports = class Image extends Sequelize.Model {
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
     });
+
+    db.Image.belongsTo(db.Project, {
+      foreignKey: {
+        name: 'projectId',
+        targetKey: 'id',
+        allowNull: false,
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
+    });
   }
 };

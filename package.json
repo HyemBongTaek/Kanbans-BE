@@ -6,6 +6,9 @@
   "scripts": {
     "start": "nodemon src/app.js"
   },
+  "engines": {
+    "node": ">=16.0.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/HyemBongTaek/Kanbans-BE.git"

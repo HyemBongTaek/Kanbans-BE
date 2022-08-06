@@ -359,16 +359,34 @@ const inputCardImages = async (req, res, next) => {
   const {
     files,
     params: { cardId },
+    query: { projectId },
   } = req;
 
   try {
+    const card = await Card.findOne({
+      where: {
+        id: cardId,
+      },
+      attributes: ['boardId'],
+    });
+
+    if (!card) {
+      res.status(404).json({
+        ok: false,
+        message: '카드를 찾을 수 없습니다.',
+      });
+      return;
+    }
+
     const fileUrl = await Promise.allSettled(
       files.map((file) =>
         cardImageUploadFn(findNumericId(cardId, 'card'), file)
       )
     );
 
-    const images = await Image.bulkCreate(fileUrl.map((url) => url.value));
+    const images = await Image.bulkCreate(
+      fileUrl.map((url) => ({ ...url.value, projectId }))
+    );
 
     res.status(200).json({
       ok: true,
@@ -426,7 +444,7 @@ const modifyCardCheck = async (req, res, next) => {
     if (duplicatedSubmit) {
       res.status(400).json({
         ok: false,
-        message: `3초 내에 같은 요청이 감지되었습니다. ${remainTime}초 후 다시 요청해주세요.`,
+        message: `2초 내에 같은 요청이 감지되었습니다. ${remainTime}ms 후 다시 요청해주세요.`,
         remainTime,
       });
       return;
@@ -587,6 +605,14 @@ const loadCardData = async (req, res, next) => {
           },
           'id',
           'DESC',
+        ],
+        [
+          {
+            model: Task,
+            as: 'tasks',
+          },
+          'id',
+          'desc',
         ],
       ],
     });
