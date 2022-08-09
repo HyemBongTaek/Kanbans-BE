@@ -1,4 +1,4 @@
-const { QueryTypes } = require('sequelize');
+const { Sequelize, QueryTypes } = require('sequelize');
 
 const {
   Image,
@@ -376,9 +376,35 @@ const joinProject = async (req, res, next) => {
       projectId: +project.id,
     });
 
+    const usersInProject = await UserProject.findAll({
+      where: {
+        projectId: project.id,
+      },
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: [],
+        },
+      ],
+      attributes: [
+        [Sequelize.col('user.id'), 'userId'],
+        [Sequelize.col('user.profile_image'), 'profileImageURL'],
+        [Sequelize.col('user.name'), 'name'],
+      ],
+    });
+
     res.status(200).json({
       ok: true,
       message: 'Join the project',
+      data: {
+        title: project.title,
+        permission: project.permission,
+        projectId: project.id,
+        bookmark: 0,
+        owner: project.owner,
+        users: usersInProject,
+      },
     });
   } catch (err) {
     next(err);
