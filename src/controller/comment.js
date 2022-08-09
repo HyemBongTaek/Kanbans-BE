@@ -22,7 +22,7 @@ const getComment = async (req, res, next) => {
         id: newComment[i].id,
         content: newComment[i].content,
         createdAt: newComment[i].createdAt.toLocaleString('ko-KR', {
-          timeZone: 'Asia/Seoul',
+          timeZone: 'UTC',
         }),
         userId: newComment[i].userId,
         cardId: newComment[i].cardId,
