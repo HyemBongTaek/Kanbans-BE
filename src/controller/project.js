@@ -511,7 +511,7 @@ const loadAllProject = async (req, res, next) => {
 
 const updateProject = async (req, res, next) => {
   const {
-    userId,
+    user: { id: userId },
     body: { title, permission },
     params: { id: projectId },
   } = req;
