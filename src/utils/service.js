@@ -71,7 +71,7 @@ function makeBoardCardObject(data) {
           commentCount: cur.commentCount || 0,
           users: [
             {
-              userId: cur.id,
+              userId: cur.userId,
               name: cur.name,
               profileImage: cur.profileImage,
             },
@@ -91,11 +91,11 @@ function makeBoardCardObject(data) {
 
         if (
           acc.cardObj[cur.cardId].users.findIndex(
-            (user) => user.userId === cur.id
+            (user) => user.userId === cur.userId
           ) === -1
         ) {
           acc.cardObj[cur.cardId].users.push({
-            userId: cur.id,
+            userId: cur.userId,
             name: cur.name,
             profileImage: cur.profileImage,
           });
