@@ -57,17 +57,14 @@ module.exports = (app) => {
 
     socket.on('dragStart', ({ type, id }) => {
       if (draggable[`${type}_${id}`]) {
-        const draggingUser = draggable[`${type}_${id}`].socketId;
+        const draggingUser = draggable[`${type}_${id}`];
 
         socket.emit('duplicatedDrag', {
           isDraggable: false,
           message: `이미 ${connectedUser[draggingUser].name}님이 드래그 중입니다.`,
         });
       } else {
-        draggable[`${type}_${id}`] = {
-          socketId: socket.id,
-          dragging: true,
-        };
+        draggable[`${type}_${id}`] = socket.id;
       }
       console.log('드래그 시작', draggable);
     });
@@ -75,11 +72,10 @@ module.exports = (app) => {
     socket.on(
       'dragEnd',
       ({ type, id, room, startPoint, endPoint, startOrder, endOrder }) => {
-        const isDragging = draggable[`${type}_${id}`].dragging;
-        const draggingUserSocketId = draggable[`${type}_${id}`].socketId;
+        const draggingUserSocketId = draggable[`${type}_${id}`];
         console.log(draggingUserSocketId, socket.id);
 
-        if (isDragging && draggingUserSocketId === socket.id) {
+        if (draggingUserSocketId === socket.id) {
           delete draggable[`${type}_${id}`];
 
           if (type === 'column') {

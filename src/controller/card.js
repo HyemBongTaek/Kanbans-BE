@@ -57,6 +57,13 @@ const createCard = async (req, res, next) => {
     }
     await board.save();
 
+    const { profileImage } = await User.findOne({
+      where: {
+        id: userId,
+      },
+      attributes: ['profileImage'],
+    });
+
     // const cardOrder = await getCardOrder(boardId);
     //
     // if (cardOrder === null) {
@@ -85,6 +92,10 @@ const createCard = async (req, res, next) => {
         status: newCard.status,
         check: newCard.check,
         createdAt: newCard.createdAt,
+        user: {
+          id: userId,
+          profileImage,
+        },
       },
     });
   } catch (err) {
