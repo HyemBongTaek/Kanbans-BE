@@ -76,7 +76,9 @@ const kakaoLogin = async (req, res, next) => {
 const googleLogin = async (req, res, next) => {
   const { code } = req.query;
 
-  const GOOGLE_AUTH_TOKEN_URL = `https://oauth2.googleapis.com/token?code=${code}&client_id=${GOOGLE_CLIENT_ID}&client_secret=${GOOGLE_CLIENT_SECRET}&redirect_uri=${GOOGLE_REDIERECT_URI_DEV}&grant_type=authorization_code`;
+  const GOOGLE_AUTH_TOKEN_URL = `https://oauth2.googleapis.com/token?code=${code}&client_id=${GOOGLE_CLIENT_ID}&client_secret=${GOOGLE_CLIENT_SECRET}&redirect_uri=${
+    NODE_ENV === 'production' ? GOOGLE_REDIERECT_URI : GOOGLE_REDIERECT_URI_DEV
+  }&grant_type=authorization_code`;
   const GOOGLE_USERINFO_URL = 'https://www.googleapis.com/oauth2/v2/userinfo';
 
   try {

@@ -1,4 +1,6 @@
 const http = require('http');
+const https = require('https');
+const fs = require('fs');
 const io = require('socket.io');
 
 const dbConnector = require('./db');
@@ -6,10 +8,21 @@ const { redisConnect } = require('./redis');
 const { verifyJWT } = require('./utils/jwt');
 
 module.exports = (app) => {
+  const httpsOptions = {
+    ca: fs.readFileSync(
+      '/etc/letsencrypt/live/cocorikanbans.site/fullchain.pem'
+    ),
+    key: fs.readFileSync(
+      '/etc/letsencrypt/live/cocorikanbans.site/privkey.pem'
+    ),
+    cert: fs.readFileSync('/etc/letsencrypt/live/cocorikanbans.site/cert.pem'),
+  };
+
   const httpServer = http.createServer(app);
-  const socketServer = new io.Server(httpServer, {
+  const httpsServer = https.createServer(httpsOptions, app);
+  const socketServer = new io.Server(httpsServer, {
     cors: {
-      origin: ['http://localhost:3000', 'http://cocori.site'],
+      origin: ['http://localhost:3000', 'https://cocori.site'],
     },
   });
 
@@ -166,5 +179,8 @@ module.exports = (app) => {
     await redisConnect();
   }
 
-  httpServer.listen(app.get('port'), listener);
+  httpServer.listen(8080, () => {
+    console.log('http listening on port 8080');
+  });
+  httpsServer.listen(8090, listener);
 };
