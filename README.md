@@ -2,6 +2,10 @@
 ![cocoli](https://user-images.githubusercontent.com/85723134/169466740-5ca1f0a0-6e3a-44ca-b6ee-646c021497f9.png)
 <br />
 
+## 코코리 소개영상
+[![Video Label](http://img.youtube.com/vi/-_psWkpC5r8/0.jpg)](https://youtu.be/-_psWkpC5r8)
+
+
 ## 사용스택
 <img src="https://img.shields.io/badge/Express-000000?style=flat-square&logo=Express&logoColor=white"/></a>
 <img src="https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=Node.js&logoColor=white"/></a>
