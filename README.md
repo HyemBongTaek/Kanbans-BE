@@ -24,4 +24,13 @@ Front-end |Back-end|Back-end|
 <img width= "150px" src="https://avatars.githubusercontent.com/u/85723134?v=4"/></br><a href='https://github.com/hyemin085'>박혜민</a></br>|<img width= "150px" src="https://avatars.githubusercontent.com/u/88937864?v=4"/></br><a href='https://github.com/poseson92'>김봉진</a>|<img width= "150px" src="https://avatars.githubusercontent.com/u/48742487?v=4"/></br><a href='https://github.com/choice91'>이선택</a>
 <br />
 <br />
+
+## Git
+Add: 추가 <br />
+Update: 수정 <br />
+Fix: 버그 수정 <br />
+Remove: 삭제 <br />
+<br />
+<br />
+
 프론트엔드 보러가기 >> https://github.com/HyemBongTaek/Kanbans-FE
