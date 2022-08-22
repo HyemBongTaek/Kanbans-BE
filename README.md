@@ -26,10 +26,10 @@ Front-end |Back-end|Back-end|
 <br />
 
 ## Git
-Add: 추가 <br />
-Update: 수정 <br />
-Fix: 버그 수정 <br />
-Remove: 삭제 <br />
+<b>Add</b>: 추가 <br />
+<b>Update</b>: 수정 <br />
+<b>Fix</b>: 버그 수정 <br />
+<b>Remove</b>: 삭제 <br />
 <br />
 <br />
 
