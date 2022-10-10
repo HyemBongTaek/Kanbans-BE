@@ -39,4 +39,10 @@ Front-end |Back-end|Back-end|
 <br />
 <br />
 
+## ERD
+![코코리 칸반보드 ERD](https://user-images.githubusercontent.com/48742487/194823267-4cb28210-b56d-41a6-9057-891e7664902b.png)
+<br />
+<br />
+
+
 프론트엔드 보러가기 >> https://github.com/HyemBongTaek/Kanbans-FE
