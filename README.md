@@ -33,4 +33,9 @@ Front-end |Back-end|Back-end|
 <br />
 <br />
 
+## 아키텍처
+![185744565-8ac0d4f5-dfa6-48d8-9bb1-7ea9176252ef](https://user-images.githubusercontent.com/48742487/194817031-967e29ca-8b85-43a5-8b8b-3d8425554547.jpg)
+<br />
+<br />
+
 프론트엔드 보러가기 >> https://github.com/HyemBongTaek/Kanbans-FE
