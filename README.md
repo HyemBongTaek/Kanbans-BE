@@ -45,4 +45,4 @@ Front-end |Back-end|Back-end|
 <br />
 
 
-프론트엔드 보러가기 >> https://github.com/HyemBongTaek/Kanbans-FE
+[프론트엔드 보러가기](https://github.com/HyemBongTaek/Kanbans-FE)
