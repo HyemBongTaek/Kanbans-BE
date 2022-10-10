@@ -3,6 +3,7 @@
 <br />
 
 ## 코코리 소개영상
+클릭하면 유튜브로 넘어갑니다.<br />
 [![Video Label](http://img.youtube.com/vi/-_psWkpC5r8/0.jpg)](https://youtu.be/-_psWkpC5r8)
 
 
