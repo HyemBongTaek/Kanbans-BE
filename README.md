@@ -25,7 +25,7 @@ Front-end |Back-end|Back-end|
 <br />
 <br />
 
-## Git
+## 커밋 컨벤션
 <b>Add</b>: 추가 <br />
 <b>Update</b>: 수정 <br />
 <b>Fix</b>: 버그 수정 <br />
