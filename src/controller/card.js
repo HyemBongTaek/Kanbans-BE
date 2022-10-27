@@ -29,7 +29,7 @@ const createCard = async (req, res, next) => {
     if (title.trim() === '' || !title) {
       res.status(400).json({
         ok: false,
-        message: `Invalid title ${title}`,
+        message: `유효하지 않는 값입니다. 현재입력값: ${title}`,
       });
       return;
     }
@@ -132,7 +132,7 @@ const deleteCard = async (req, res, next) => {
     if (deleteCardCount === 0) {
       res.status(400).json({
         ok: false,
-        message: 'Card not deleted',
+        message: '삭제된 카드가 없습니다.',
       });
       return;
     }
@@ -162,7 +162,7 @@ const deleteCard = async (req, res, next) => {
 
     res.status(200).json({
       ok: true,
-      message: 'Card deleted',
+      message: '카드가 정상적으로 삭제되었습니다.',
       cardId,
     });
   } catch (err) {
@@ -186,7 +186,7 @@ const deleteCardImage = async (req, res, next) => {
     if (!image) {
       res.status(400).json({
         ok: false,
-        message: 'Image not found',
+        message: '이미지가 없습니다.',
       });
       return;
     }
@@ -201,7 +201,7 @@ const deleteCardImage = async (req, res, next) => {
     if (deletedCardImageCount === 0) {
       res.status(400).json({
         ok: false,
-        message: 'Card image not deleted',
+        message: '삭제할 이미지가 없습니다.',
       });
       return;
     }
@@ -210,7 +210,7 @@ const deleteCardImage = async (req, res, next) => {
 
     res.status(200).json({
       ok: true,
-      message: 'Card image deleted',
+      message: '이미지가 정상적으로 삭제되었습니다.',
     });
   } catch (err) {
     next(err);
@@ -272,7 +272,7 @@ const deleteAllCards = async (req, res, next) => {
 
     res.status(200).json({
       ok: true,
-      message: 'Cards deleted',
+      message: '카드가 정상적으로 삭제되었습니다.',
     });
   } catch (err) {
     next(err);
@@ -293,14 +293,14 @@ const deleteUserInCard = async (req, res, next) => {
     if (deletedCount === 0) {
       res.status(400).json({
         ok: false,
-        message: 'Cannot delete user in card',
+        message: '삭제된 유저가 없습니다.',
       });
       return;
     }
 
     res.status(200).json({
       ok: true,
-      message: 'Delete user from card complete',
+      message: '카드에서 유저가 정상적으로 삭제되었습니다.',
     });
   } catch (err) {
     next(err);
@@ -341,7 +341,7 @@ const inputCardDetails = async (req, res, next) => {
     if (!card) {
       res.status(404).json({
         ok: false,
-        message: 'Card not found',
+        message: '존재하지 않는 카드입니다.',
       });
       return;
     }
@@ -435,7 +435,7 @@ const inviteUser = async (req, res, next) => {
 
     res.status(200).json({
       ok: true,
-      message: 'Add members',
+      message: '정상적으로 추가되었습니다.',
       users,
     });
   } catch (err) {
@@ -470,7 +470,7 @@ const modifyCardCheck = async (req, res, next) => {
     if (!card) {
       res.status(404).json({
         ok: false,
-        message: 'Card not found',
+        message: '존재하지 않는 카드입니다.',
       });
       return;
     }
@@ -506,7 +506,7 @@ const modifyCardStatus = async (req, res, next) => {
   if (!statusArr.includes(cardStatus)) {
     res.status(400).json({
       ok: false,
-      message: `Invalid input value: ${cardStatus}`,
+      message: `유효하지 않는 값입니다. 현재값: ${cardStatus}`,
     });
     return;
   }
@@ -521,7 +521,7 @@ const modifyCardStatus = async (req, res, next) => {
     if (!card) {
       res.status(404).json({
         ok: false,
-        message: 'Card not found',
+        message: '존재하지 않는 카드입니다.',
       });
       return;
     }
@@ -529,7 +529,7 @@ const modifyCardStatus = async (req, res, next) => {
     if (card.status === cardStatus) {
       res.status(400).json({
         ok: false,
-        message: 'Status values are same',
+        message: '이전 상태값과 일치합니다. 다시 시도해주세요.',
       });
       return;
     }
@@ -631,7 +631,7 @@ const loadCardData = async (req, res, next) => {
     if (!card) {
       res.status(404).json({
         ok: false,
-        message: 'Card not found',
+        message: '존재하지 않는 카드입니다.',
       });
     }
 
