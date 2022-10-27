@@ -25,7 +25,7 @@ const getProfileInfo = async (req, res, next) => {
       if (!user) {
         res.status(404).json({
           ok: false,
-          message: 'User not found',
+          message: '사용자를 찾을 수 없습니다.',
         });
         return;
       }
@@ -61,7 +61,7 @@ const changeProfile = async (req, res, next) => {
     if (!user) {
       res.status(404).json({
         ok: false,
-        message: 'User not found',
+        message: '사용자를 찾을 수 없습니다.',
       });
       return;
     }
@@ -81,7 +81,7 @@ const changeProfile = async (req, res, next) => {
 
       res.status(200).json({
         ok: true,
-        message: 'Profile image has been changed',
+        message: '프로필 이미지가 변경되었습니다.',
         imageUrl: url,
       });
     } else if (name) {
@@ -95,7 +95,7 @@ const changeProfile = async (req, res, next) => {
 
       res.status(200).json({
         ok: true,
-        message: 'Name has been changed',
+        message: '이름이 변경되었습니다.',
         name,
       });
     } else if (introduce) {
@@ -109,7 +109,7 @@ const changeProfile = async (req, res, next) => {
 
       res.status(200).json({
         ok: true,
-        message: 'Introduce has been changed',
+        message: '자기소개가 변경되었습니다.',
         introduce,
       });
     }
@@ -133,7 +133,7 @@ const deleteUser = async (req, res, next) => {
     if (!user) {
       res.status(404).json({
         ok: false,
-        message: 'User does not exist',
+        message: '존재하지 않는 유저입니다.',
       });
       return;
     }
@@ -188,7 +188,7 @@ const deleteUser = async (req, res, next) => {
 
     res.status(200).json({
       ok: true,
-      message: 'User delete',
+      message: '회원탈퇴되었습니다.',
     });
   } catch (err) {
     next(err);
