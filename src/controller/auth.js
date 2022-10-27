@@ -27,7 +27,7 @@ const kakaoLogin = async (req, res, next) => {
   if (!code) {
     res.status(400).json({
       ok: false,
-      message: 'Code does not exist',
+      message: 'Code가 존재하지 않습니다. 다시 시도해주세요.',
     });
     return;
   }
@@ -167,7 +167,7 @@ const refreshToken = async (req, res, next) => {
   if (!authorization) {
     res.status(401).json({
       ok: false,
-      message: 'Jwt must be provided',
+      message: '입력된 Jwt가 없습니다.',
     });
     return;
   }
@@ -177,7 +177,7 @@ const refreshToken = async (req, res, next) => {
   if (tokenType !== 'Bearer') {
     res.status(401).json({
       ok: false,
-      message: 'Not authenticated',
+      message: '인증되지 않습니다.',
     });
     return;
   }
@@ -187,7 +187,7 @@ const refreshToken = async (req, res, next) => {
   if (verifiedRefresh.error === 'jwt expired') {
     res.status(401).json({
       ok: false,
-      message: 'Token expired. Please login again',
+      message: '로그인정보가 일치하지 않습니다. 다시 시도해주세요.',
     });
     return;
   }
@@ -195,7 +195,7 @@ const refreshToken = async (req, res, next) => {
   if (verifiedRefresh.error === 'invalid signature') {
     res.status(401).json({
       ok: false,
-      message: 'Token invalid',
+      message: '유효하지 않은 정보입니다.',
     });
     return;
   }
@@ -203,7 +203,7 @@ const refreshToken = async (req, res, next) => {
   if (verifiedRefresh.error === 'jwt malformed') {
     res.status(401).json({
       ok: false,
-      message: 'Token malformed',
+      message: '잘못된 형식입니다.',
     });
     return;
   }
@@ -218,7 +218,7 @@ const refreshToken = async (req, res, next) => {
     if (!user) {
       res.status(400).json({
         ok: false,
-        message: 'Token does not match. Please login again',
+        message: '로그인정보가 일치하지 않습니다. 다시 시도해주세요.',
       });
       return;
     }
