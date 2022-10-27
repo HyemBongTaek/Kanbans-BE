@@ -46,7 +46,7 @@ const bookmark = async (req, res, next) => {
     if (!project) {
       res.status(404).json({
         ok: false,
-        message: 'Cannot find project',
+        message: '존재하지 않는 프로젝트입니다.',
       });
       return;
     }
@@ -74,7 +74,7 @@ const bookmark = async (req, res, next) => {
 
       res.status(200).json({
         ok: true,
-        message: 'Project bookmark on',
+        message: '북마크 되었습니다.',
       });
       return;
     }
@@ -93,7 +93,7 @@ const bookmark = async (req, res, next) => {
 
     res.status(200).json({
       ok: true,
-      message: 'Project bookmark off',
+      message: '북마크가 해제되었습니다.',
     });
   } catch (err) {
     next(err);
@@ -110,7 +110,7 @@ const changeOwner = async (req, res, next) => {
   if (id !== sender) {
     res.status(400).json({
       ok: false,
-      message: 'Do not have permission to change the owner',
+      message: '권한이 없습니다.',
     });
     return;
   }
@@ -118,7 +118,7 @@ const changeOwner = async (req, res, next) => {
   if (sender === receiver) {
     res.status(400).json({
       ok: false,
-      message: 'Sender and receiver match',
+      message: '이전 owner와 변경하고자 하는 owner가 동일합니다.',
     });
     return;
   }
@@ -133,7 +133,7 @@ const changeOwner = async (req, res, next) => {
     if (sender !== project.owner) {
       res.status(400).json({
         ok: false,
-        message: 'Owner not matched',
+        message: 'Owner가 아니므로 owner를 변경할 수 없습니다.',
       });
       return;
     }
@@ -143,7 +143,7 @@ const changeOwner = async (req, res, next) => {
 
     res.status(200).json({
       ok: true,
-      message: `Owner changed`,
+      message: '정상적으로 변경되었습니다.',
     });
   } catch (err) {
     next(err);
@@ -159,7 +159,7 @@ const createProject = async (req, res, next) => {
   if (title.trim() === '' || !title) {
     res.status(400).json({
       ok: false,
-      message: `Invalid title: ${title}`,
+      message: `유효하지 않는 제목입니다. 현재 제목: ${title}`,
     });
     return;
   }
@@ -169,7 +169,7 @@ const createProject = async (req, res, next) => {
   if (titleBytesLength > 20) {
     res.status(400).json({
       ok: false,
-      message: `Title is too long with ${titleBytesLength} characters. Please write within 20 characters`,
+      message: `영어는 20, 한글은 10글자 이내로 입력해주세요.`,
     });
     return;
   }
@@ -225,7 +225,7 @@ const createProject = async (req, res, next) => {
 
     res.status(201).json({
       ok: true,
-      message: 'Project create success',
+      message: '프로젝트가 생성되었습니다.',
       project: newProjectResponse,
     });
   } catch (err) {
@@ -258,7 +258,7 @@ const deleteProject = async (req, res, next) => {
     if (deleteProjectCount === 0) {
       res.status(400).json({
         ok: false,
-        message: 'No project deleted. Check the project ID',
+        message: '삭제된 프로젝트가 없습니다. 다시 시도해주세요.',
       });
       return;
     }
@@ -275,7 +275,7 @@ const deleteProject = async (req, res, next) => {
 
     res.status(200).json({
       ok: true,
-      message: 'Delete project complete',
+      message: '프로젝트를 삭제했습니다.',
     });
   } catch (err) {
     next(err);
@@ -313,7 +313,7 @@ const getProjectInviteCode = async (req, res, next) => {
     if (!project) {
       res.status(404).json({
         ok: false,
-        message: 'Project not found',
+        message: '존재하지 않는 프로젝트입니다.',
       });
       return;
     }
@@ -343,7 +343,7 @@ const joinProject = async (req, res, next) => {
     if (!project) {
       res.status(404).json({
         ok: false,
-        message: 'Project not found',
+        message: '존재하지 않는 프로젝트입니다.',
       });
       return;
     }
@@ -358,7 +358,7 @@ const joinProject = async (req, res, next) => {
     if (userProject) {
       res.status(400).json({
         ok: false,
-        message: 'Already participated in the project',
+        message: '이미 참가한 프로젝트입니다.',
       });
       return;
     }
@@ -366,7 +366,7 @@ const joinProject = async (req, res, next) => {
     if (project.inviteCode !== inviteCode) {
       res.status(400).json({
         ok: false,
-        message: 'Inconsistent invitation code',
+        message: '잘못된 초대코드입니다.',
       });
       return;
     }
@@ -396,7 +396,7 @@ const joinProject = async (req, res, next) => {
 
     res.status(200).json({
       ok: true,
-      message: 'Join the project',
+      message: '프로젝트에 참가하였습니다.',
       data: {
         title: project.title,
         permission: project.permission,
@@ -427,7 +427,7 @@ const kickOutUser = async (req, res, next) => {
     if (project.owner !== id) {
       res.status(400).json({
         ok: false,
-        message: 'No permission',
+        message: '권한이 없습니다.',
       });
       return;
     }
@@ -435,7 +435,7 @@ const kickOutUser = async (req, res, next) => {
     if (project.owner === +userIdToBeExile) {
       res.status(400).json({
         ok: false,
-        message: 'Owner cannot be exile',
+        message: '추방할 수 없는 유저입니다.',
       });
       return;
     }
@@ -448,7 +448,7 @@ const kickOutUser = async (req, res, next) => {
 
     res.status(200).json({
       ok: true,
-      message: 'User exile complete',
+      message: '추방 완료',
     });
   } catch (err) {
     next(err);
@@ -471,7 +471,7 @@ const leaveProject = async (req, res, next) => {
     if (!project) {
       res.status(404).json({
         ok: false,
-        message: 'Project not found',
+        message: '존재하지 않는 프로젝트입니다.',
       });
       return;
     }
@@ -479,7 +479,7 @@ const leaveProject = async (req, res, next) => {
     if (+userId === +project.owner) {
       res.status(400).json({
         ok: false,
-        message: 'Owner cannot leave',
+        message: 'Owner는 나갈 수 없습니다.',
       });
       return;
     }
@@ -494,14 +494,14 @@ const leaveProject = async (req, res, next) => {
     if (deleteCount === 0) {
       res.status(400).json({
         ok: false,
-        message: 'Already leave the project',
+        message: '이미 프로젝트에서 나갔습니다.',
       });
       return;
     }
 
     res.status(200).json({
       ok: true,
-      message: 'Project leave',
+      message: '프로젝트에서 나가기 완료',
       deleteCount,
     });
   } catch (err) {
@@ -552,7 +552,7 @@ const updateProject = async (req, res, next) => {
     if (!project) {
       res.status(404).json({
         ok: false,
-        message: 'Project not found',
+        message: '존재하지 않는 프로젝트입니다.',
       });
       return;
     }
@@ -560,7 +560,7 @@ const updateProject = async (req, res, next) => {
     if (project.owner !== +userId) {
       res.status(400).json({
         ok: false,
-        message: 'You do not have permission to modify',
+        message: '수정권한이 없습니다.',
       });
       return;
     }
@@ -580,7 +580,7 @@ const updateProject = async (req, res, next) => {
 
     res.status(200).json({
       ok: true,
-      message: 'Project update',
+      message: '프로젝트 수정 완료',
     });
   } catch (err) {
     next(err);
