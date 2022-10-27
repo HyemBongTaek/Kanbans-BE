@@ -247,7 +247,7 @@ const updateBoardLocation = async (req, res, next) => {
     if (!projectId) {
       res.status(400).json({
         ok: false,
-        message: 'Project id is not exist',
+        message: '프로젝트 id가 존재하지 않습니다.',
       });
       return;
     }
@@ -255,7 +255,7 @@ const updateBoardLocation = async (req, res, next) => {
     if (!boardOrder) {
       res.status(400).json({
         ok: false,
-        message: 'Board order is not exist',
+        message: '보드 순서가 없습니다.',
       });
       return;
     }
